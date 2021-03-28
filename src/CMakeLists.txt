@@ -1,7 +1,7 @@
 project("${CMAKE_PROJECT_NAME}")
 
-file(GLOB S_SRCS "*.cpp")
-file(GLOB S_HEADERS "*.hpp")
+file(GLOB_RECURSE S_SRCS "*.cpp")
+file(GLOB_RECURSE S_HEADERS "*.hpp")
 
 add_executable(${PROJECT_NAME} ${S_SRCS} ${S_HEADERS})
 

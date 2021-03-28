@@ -15,3 +15,6 @@ gtest/
 
 # binaries
 bin/
+
+# clang
+.clangd

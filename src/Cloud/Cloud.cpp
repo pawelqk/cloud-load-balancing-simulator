@@ -11,7 +11,7 @@ Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer) : loadBalancer(std::m
 
 void Cloud::insertTasks(const std::vector<Task> &tasks)
 {
-    loadBalancer->schedule(tasks);
+    loadBalancer->schedule({tasks.cbegin(), tasks.cend()});
 }
 
 void Cloud::tick()

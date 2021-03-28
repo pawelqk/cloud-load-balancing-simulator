@@ -17,7 +17,7 @@ class LoadBalancer
   public:
     virtual ~LoadBalancer() = default;
 
-    virtual void schedule(const std::vector<Task> &) = 0;
+    virtual void schedule(const TaskSet &tasks) = 0;
     virtual void tick() = 0;
     virtual bool isIdle() const = 0;
 };

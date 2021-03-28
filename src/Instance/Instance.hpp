@@ -12,7 +12,9 @@ namespace instance
 class Instance
 {
   public:
-    Instance(const std::vector<cloud::Task> &tasks, const std::vector<cloud::Node> &nodes);
+    Instance(const std::vector<cloud::Task> &tasks, const std::vector<cloud::Node> &nodes) : tasks(tasks), nodes(nodes)
+    {
+    }
 
     const std::vector<cloud::Task> &getTasks() const
     {

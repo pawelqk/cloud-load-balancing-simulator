@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <set>
 
 #include "Task.hpp"
 
@@ -20,8 +21,9 @@ class Node
     bool isIdle() const;
 
   private:
-    std::optional<Task> task;
     const std::uint32_t mips;
+
+    std::optional<Task> task;
 };
 
 } // namespace cloud

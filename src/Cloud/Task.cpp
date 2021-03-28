@@ -3,16 +3,17 @@
 namespace cloud
 {
 
-Task::Task(const std::uint32_t mips, const std::uint32_t initialLength) : mips(mips), initialLength(initialLength)
+Task::Task(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength)
+    : id(id), mips(mips), initialLength(initialLength), length(initialLength)
 {
 }
 
-void Task::work(const std::uint32_t instructions)
+void Task::work()
 {
-    if (instructions >= length)
+    if (mips >= length)
         length = 0;
     else
-        length -= instructions;
+        length -= mips;
 }
 
 bool Task::isDone() const
@@ -23,6 +24,11 @@ bool Task::isDone() const
 std::uint32_t Task::getMips() const
 {
     return mips;
+}
+
+bool Task::operator<(const Task &other) const
+{
+    return id < other.id;
 }
 
 } // namespace cloud

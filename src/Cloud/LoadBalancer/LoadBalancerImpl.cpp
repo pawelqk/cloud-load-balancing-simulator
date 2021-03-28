@@ -9,7 +9,7 @@ LoadBalancerImpl::LoadBalancerImpl(const std::vector<Node> &nodes) : nodes(nodes
 {
 }
 
-void LoadBalancerImpl::schedule(const std::vector<Task> &tasks)
+void LoadBalancerImpl::schedule(const TaskSet &tasks)
 {
     // TODO: maybe introduce TaskSet
     for (auto &&task : tasks)
@@ -20,11 +20,26 @@ void LoadBalancerImpl::schedule(const std::vector<Task> &tasks)
         if (nodeIt != nodes.cend())
             nodeIt->assign(task);
         else
-            waitingTasks.push_back(task);
+            waitingTasks.insert(task);
     }
 }
 
-void LoadBalancerImpl::reschedule()
+void LoadBalancerImpl::tick()
+{
+    for (auto &node : nodes)
+    {
+        node.work();
+        if (node.isIdle())
+            scheduleWaitingTasks();
+    }
+}
+
+bool LoadBalancerImpl::isIdle() const
+{
+    return areNodesIdle() && waitingTasks.empty();
+}
+
+void LoadBalancerImpl::scheduleWaitingTasks()
 {
     // TODO: maybe reuse schedule method
     for (auto taskIt = waitingTasks.begin(); taskIt != waitingTasks.end();)
@@ -40,21 +55,6 @@ void LoadBalancerImpl::reschedule()
         else
             ++taskIt;
     }
-}
-
-void LoadBalancerImpl::tick()
-{
-    for (auto &node : nodes)
-    {
-        node.work();
-        if (node.isIdle())
-            reschedule();
-    }
-}
-
-bool LoadBalancerImpl::isIdle() const
-{
-    return areNodesIdle() && waitingTasks.empty();
 }
 
 bool LoadBalancerImpl::areNodesIdle() const

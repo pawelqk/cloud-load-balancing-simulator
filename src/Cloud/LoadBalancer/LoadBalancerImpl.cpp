@@ -1,36 +1,57 @@
 #include "LoadBalancerImpl.hpp"
+#include <iostream>
+#include <stdexcept>
 
 namespace cloud
 {
 namespace loadbalancer
 {
 
-LoadBalancerImpl::LoadBalancerImpl(const std::vector<Node> &nodes) : nodes(nodes)
+LoadBalancerImpl::LoadBalancerImpl(const NodeVec &nodes, strategy::StrategyPtr &&strategy)
+    : nodes(nodes), strategy(std::move(strategy))
 {
 }
 
 void LoadBalancerImpl::schedule(const TaskSet &tasks)
 {
-    // TODO: maybe introduce TaskSet
-    for (auto &&task : tasks)
-    {
-        const auto nodeIt = std::find_if(nodes.begin(), nodes.end(),
-                                         [&task](auto &&node) { return node.isIdle() && node.canTaskFit(task); });
+    TaskSet tasksToSchedule;
+    std::set_union(tasks.cbegin(), tasks.cend(), waitingTasks.cbegin(), waitingTasks.cend(),
+                   std::inserter(tasksToSchedule, tasksToSchedule.cend()));
 
-        if (nodeIt != nodes.cend())
-            nodeIt->assign(task);
+    const auto mapping = strategy->buildTaskToNodeMapping(tasksToSchedule, nodes);
+    for (auto &&taskToNode : mapping)
+    {
+        if (taskToNode.second.has_value())
+        {
+            const auto nodeIt = std::find(nodes.begin(), nodes.end(), taskToNode.second.value());
+            if (nodeIt != nodes.end())
+            {
+                nodeIt->assign(taskToNode.first);
+                const auto waitingTaskIt = std::find(waitingTasks.begin(), waitingTasks.end(), taskToNode.first);
+                if (waitingTaskIt != waitingTasks.end())
+                    waitingTasks.erase(waitingTaskIt);
+            }
+            else
+                throw std::runtime_error("Node given by strategy should be present in load balancer");
+        }
         else
-            waitingTasks.insert(task);
+        {
+            std::cout << "Task has no node assigned to it. Putting into queue\n";
+            waitingTasks.insert(taskToNode.first);
+        }
     }
 }
 
 void LoadBalancerImpl::tick()
 {
-    for (auto &node : nodes)
+    for (auto &&node : nodes)
     {
+        if (node.isIdle())
+            continue;
+
         node.work();
         if (node.isIdle())
-            scheduleWaitingTasks();
+            schedule({});
     }
 }
 

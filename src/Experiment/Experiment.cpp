@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <iostream>
 
-#include "../Cloud/Cloud.hpp"
-#include "../Cloud/LoadBalancer/LoadBalancerImpl.hpp"
+#include "Cloud/Cloud.hpp"
+#include "Cloud/LoadBalancer/LoadBalancerImpl.hpp"
+#include "Cloud/LoadBalancer/Strategy/RoundRobin.hpp"
 
 namespace experiment
 {
@@ -15,7 +16,8 @@ Experiment::Experiment(const instance::Instance &instance) : instance(instance)
 
 void Experiment::run()
 {
-    cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(instance.getNodes())};
+    cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(
+        instance.getNodes(), std::make_unique<cloud::loadbalancer::strategy::RoundRobin>())};
 
     c.insertTasks(instance.getTasks());
 

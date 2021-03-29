@@ -3,7 +3,7 @@
 namespace cloud
 {
 
-Node::Node(const std::uint32_t mips) : mips(mips)
+Node::Node(const std::uint32_t id, const std::uint32_t mips) : id(id), mips(mips)
 {
 }
 
@@ -31,6 +31,16 @@ bool Node::canTaskFit(const Task &task) const
 bool Node::isIdle() const
 {
     return !task.has_value();
+}
+
+bool Node::operator<(const Node &other) const
+{
+    return id < other.id;
+}
+
+bool Node::operator==(const Node &other) const
+{
+    return id == other.id;
 }
 
 } // namespace cloud

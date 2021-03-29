@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Instance/Instance.hpp"
 
 namespace experiment

@@ -1,11 +1,18 @@
 #include "Task.hpp"
 
+#include <iostream>
+
 namespace cloud
 {
 
 Task::Task(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength)
     : id(id), mips(mips), initialLength(initialLength), length(initialLength)
 {
+}
+
+Task::~Task()
+{
+    std::cout << "Task " << id << " done.\n";
 }
 
 void Task::work()
@@ -29,6 +36,11 @@ std::uint32_t Task::getMips() const
 bool Task::operator<(const Task &other) const
 {
     return id < other.id;
+}
+
+bool Task::operator==(const Task &other) const
+{
+    return id == other.id;
 }
 
 } // namespace cloud

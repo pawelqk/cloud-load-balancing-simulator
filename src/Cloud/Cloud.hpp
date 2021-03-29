@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 #include "LoadBalancer/LoadBalancer.hpp"

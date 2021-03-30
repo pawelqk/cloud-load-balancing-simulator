@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Cloud/Cloud.hpp"
+#include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/LoadBalancerImpl.hpp"
 #include "Cloud/LoadBalancer/Strategy/RoundRobin.hpp"
 
@@ -16,8 +17,9 @@ Experiment::Experiment(const instance::Instance &instance) : instance(instance),
 
 void Experiment::run()
 {
+    const auto infrastructure = std::make_shared<cloud::Infrastructure>(instance.getNodes());
     cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(
-        std::make_unique<cloud::loadbalancer::strategy::RoundRobin>(), instance.getNodes())};
+        std::make_unique<cloud::loadbalancer::strategy::RoundRobin>(infrastructure), infrastructure)};
 
     std::uint32_t timeSpent{0};
     while (!c.isIdle() || instance.areAnyTasksLeft())

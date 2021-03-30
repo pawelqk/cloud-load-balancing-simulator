@@ -7,23 +7,32 @@ namespace loadbalancer
 namespace strategy
 {
 
-std::map<Task, std::optional<Node>> RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks, const NodeVec &nodes)
+RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : infrastructure(infrastructure), lastNodeIndex(0)
+{
+}
+
+std::map<Task, std::optional<Node>> RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
 {
     std::map<Task, std::optional<Node>> mapping;
     NodeSet busyNodes;
 
+    const auto &nodes = infrastructure->getNodes();
     for (auto &&task : tasks)
     {
-        const auto nodeIt = std::find_if(nodes.begin(), nodes.end(), [&task, &busyNodes](auto &&node) {
-            return !busyNodes.contains(node) && node.isIdle() && node.canTaskFit(task);
-        });
-
-        if (nodeIt != nodes.end())
+        for (auto i = 0u; i < nodes.size(); ++i)
         {
-            mapping.emplace(task, *nodeIt);
-            busyNodes.insert(*nodeIt);
+            const auto node = nodes[lastNodeIndex];
+            lastNodeIndex = (lastNodeIndex + 1) % nodes.size();
+
+            if (!busyNodes.contains(node) && node.isIdle() && node.canTaskFit(task))
+            {
+                mapping.emplace(task, node);
+                busyNodes.insert(node);
+                break;
+            }
         }
-        else
+
+        if (!mapping.contains(task))
             mapping.emplace(task, std::nullopt);
     }
 

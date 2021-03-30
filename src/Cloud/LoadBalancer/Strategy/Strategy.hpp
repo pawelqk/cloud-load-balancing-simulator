@@ -20,7 +20,7 @@ class Strategy
   public:
     virtual ~Strategy() = default;
 
-    virtual std::map<Task, std::optional<Node>> buildTaskToNodeMapping(const TaskSet &tasks, const NodeVec &nodes) = 0;
+    virtual std::map<Task, std::optional<Node>> buildTaskToNodeMapping(const TaskSet &tasks) = 0;
 };
 
 using StrategyPtr = std::unique_ptr<Strategy>;

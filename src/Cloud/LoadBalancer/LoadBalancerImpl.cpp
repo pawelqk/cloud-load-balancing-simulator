@@ -7,8 +7,8 @@ namespace cloud
 namespace loadbalancer
 {
 
-LoadBalancerImpl::LoadBalancerImpl(strategy::StrategyPtr &&strategy, const NodeVec &nodes)
-    : strategy(std::move(strategy)), nodes(nodes), logger("LoadBalancer")
+LoadBalancerImpl::LoadBalancerImpl(strategy::StrategyPtr &&strategy, const InfrastructurePtr &infrastructure)
+    : strategy(std::move(strategy)), infrastructure(infrastructure), logger("LoadBalancer")
 {
 }
 
@@ -18,7 +18,8 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
     std::set_union(tasks.cbegin(), tasks.cend(), waitingTasks.cbegin(), waitingTasks.cend(),
                    std::inserter(tasksToSchedule, tasksToSchedule.cend()));
 
-    const auto mapping = strategy->buildTaskToNodeMapping(tasksToSchedule, nodes);
+    const auto mapping = strategy->buildTaskToNodeMapping(tasksToSchedule);
+    auto &nodes = infrastructure->getNodes();
     for (auto &&taskToNode : mapping)
     {
         if (taskToNode.second.has_value())
@@ -35,7 +36,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
             else
                 throw std::runtime_error("Node given by strategy should be present in load balancer");
         }
-        else
+        else if (!waitingTasks.contains(taskToNode.first))
         {
             logger.log("%s cannot be assigned to any node. Putting into queue", taskToNode.first.toString().c_str());
             waitingTasks.insert(taskToNode.first);
@@ -45,7 +46,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
 
 void LoadBalancerImpl::tick()
 {
-    for (auto &&node : nodes)
+    for (auto &&node : infrastructure->getNodes())
     {
         if (node.isIdle())
             continue;
@@ -63,6 +64,7 @@ bool LoadBalancerImpl::isIdle() const
 
 bool LoadBalancerImpl::areNodesIdle() const
 {
+    const auto &nodes = infrastructure->getNodes();
     return std::all_of(nodes.cbegin(), nodes.cend(), [](auto &&node) { return node.isIdle(); });
 }
 

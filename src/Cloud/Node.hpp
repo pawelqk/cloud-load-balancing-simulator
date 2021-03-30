@@ -18,12 +18,15 @@ class Node
 
     void assign(const Task &task);
     void work();
+    Task extractTask();
 
     bool canTaskFit(const Task &task) const;
     bool isIdle() const;
+    std::optional<Task> getTask() const;
 
     bool operator<(const Node &other) const;
     bool operator==(const Node &other) const;
+    bool operator!=(const Node &other) const;
 
     std::string toString() const;
 

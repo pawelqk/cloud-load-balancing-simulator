@@ -17,15 +17,12 @@ namespace loadbalancer
 namespace strategy
 {
 
-class RoundRobin : public Strategy
+class Random : public Strategy
 {
   public:
-    RoundRobin(const InfrastructureCPtr &infrastructure);
+    Random(const InfrastructureCPtr &infrastructure);
 
     MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
-
-  private:
-    NodeVec::size_type lastNodeIndex;
 };
 
 } // namespace strategy

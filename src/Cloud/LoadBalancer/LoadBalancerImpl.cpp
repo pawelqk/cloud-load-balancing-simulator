@@ -20,7 +20,39 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
 
     const auto mapping = strategy->buildTaskToNodeMapping(tasksToSchedule);
     auto &nodes = infrastructure->getNodes();
-    for (auto &&taskToNode : mapping)
+
+    for (auto &&taskToMigration : mapping.migrations)
+    {
+        const auto sourceNodeIt = std::find(nodes.begin(), nodes.end(), taskToMigration.second.source);
+        if (sourceNodeIt != nodes.end())
+        {
+            logger.log("Extracting %s from %s", taskToMigration.first.toString().c_str(),
+                       taskToMigration.second.source.toString().c_str());
+            sourceNodeIt->extractTask();
+        }
+        else
+            throw std::runtime_error("Node given by strategy should be present in load balancer");
+
+        if (taskToMigration.second.destination.has_value())
+        {
+            const auto destinationNodeIt = std::find(nodes.begin(), nodes.end(), *taskToMigration.second.destination);
+            if (destinationNodeIt != nodes.end())
+            {
+                logger.log("Migrating %s to %s", taskToMigration.first.toString().c_str(),
+                           taskToMigration.second.destination->toString().c_str());
+                destinationNodeIt->assign(taskToMigration.first);
+            }
+            else
+                throw std::runtime_error("Node given by strategy should be present in load balancer");
+        }
+        else
+        {
+            logger.log("Migrating %s back to waiting queue", taskToMigration.first.toString().c_str());
+            waitingTasks.insert(taskToMigration.first);
+        }
+    }
+
+    for (auto &&taskToNode : mapping.assignments)
     {
         if (taskToNode.second.has_value())
         {

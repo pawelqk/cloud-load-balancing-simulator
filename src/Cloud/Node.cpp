@@ -25,6 +25,16 @@ void Node::work()
     }
 }
 
+Task Node::extractTask()
+{
+    // TODO: simple removal is probably enough
+    auto extractedTask = *task;
+    logger.log("%s extracted before finishing in %s", task->toString().c_str(), toString().c_str());
+    task.reset();
+
+    return extractedTask;
+}
+
 bool Node::canTaskFit(const Task &task) const
 {
     return mips >= task.getMips();
@@ -35,6 +45,11 @@ bool Node::isIdle() const
     return !task.has_value();
 }
 
+std::optional<Task> Node::getTask() const
+{
+    return task;
+}
+
 bool Node::operator<(const Node &other) const
 {
     return id < other.id;
@@ -43,6 +58,11 @@ bool Node::operator<(const Node &other) const
 bool Node::operator==(const Node &other) const
 {
     return id == other.id;
+}
+
+bool Node::operator!=(const Node &other) const
+{
+    return !(id == other.id);
 }
 
 std::string Node::toString() const

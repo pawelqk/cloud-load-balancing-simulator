@@ -7,11 +7,11 @@ namespace loadbalancer
 namespace strategy
 {
 
-RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : infrastructure(infrastructure), lastNodeIndex(0)
+RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : Strategy(infrastructure), lastNodeIndex(0)
 {
 }
 
-std::map<Task, std::optional<Node>> RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
+MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
 {
     std::map<Task, std::optional<Node>> mapping;
     NodeSet busyNodes;
@@ -36,7 +36,9 @@ std::map<Task, std::optional<Node>> RoundRobin::buildTaskToNodeMapping(const Tas
             mapping.emplace(task, std::nullopt);
     }
 
-    return mapping;
+    MappingActions actions;
+    actions.assignments = std::move(mapping);
+    return actions;
 }
 
 } // namespace strategy

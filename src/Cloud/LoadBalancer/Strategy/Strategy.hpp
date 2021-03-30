@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+#include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"
 #include "Cloud/Task.hpp"
 
@@ -15,12 +16,28 @@ namespace loadbalancer
 namespace strategy
 {
 
+struct Migration
+{
+    Node source;
+    std::optional<Node> destination;
+};
+
+struct MappingActions
+{
+    std::map<Task, std::optional<Node>> assignments;
+    std::map<Task, Migration> migrations;
+};
+
 class Strategy
 {
   public:
+    Strategy(const InfrastructureCPtr &infrastructure);
     virtual ~Strategy() = default;
 
-    virtual std::map<Task, std::optional<Node>> buildTaskToNodeMapping(const TaskSet &tasks) = 0;
+    virtual MappingActions buildTaskToNodeMapping(const TaskSet &tasks) = 0;
+
+  protected:
+    const InfrastructureCPtr infrastructure;
 };
 
 using StrategyPtr = std::unique_ptr<Strategy>;

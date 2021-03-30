@@ -6,6 +6,7 @@
 #include "Cloud/Cloud.hpp"
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/LoadBalancerImpl.hpp"
+#include "Cloud/LoadBalancer/Strategy/Random.hpp"
 #include "Cloud/LoadBalancer/Strategy/RoundRobin.hpp"
 
 namespace experiment
@@ -21,15 +22,22 @@ void Experiment::run()
     cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(
         std::make_unique<cloud::loadbalancer::strategy::RoundRobin>(infrastructure), infrastructure)};
 
+    // TODO: currently there is no difference between tasks having 0 or 1 length (as there's no difference between these
+    // values) when using tick() method. To make it work there would have to be a separate initializing method that
+    // would kick out all 0-length tasks
     std::uint32_t timeSpent{0};
-    while (!c.isIdle() || instance.areAnyTasksLeft())
+    while (true)
     {
-        const auto tasksInTimePoint = instance.getTasksInTimePoint(timeSpent++);
+        c.tick();
+
+        const auto tasksInTimePoint = instance.getTasksInTimePoint(timeSpent);
         if (!tasksInTimePoint.empty())
             c.insertTasks(tasksInTimePoint);
 
-        c.tick();
-        logger.log("tick %u", timeSpent);
+        if (c.isIdle() && !instance.areAnyTasksLeft())
+            break;
+
+        logger.log("tick %u", ++timeSpent);
     }
 
     logger.log("Done. Time spent: %u", timeSpent);

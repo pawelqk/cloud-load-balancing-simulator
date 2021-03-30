@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LoadBalancer.hpp"
+#include "Logger/Logger.hpp"
 #include "Strategy/Strategy.hpp"
 
 namespace cloud
@@ -11,7 +12,7 @@ namespace loadbalancer
 class LoadBalancerImpl : public LoadBalancer
 {
   public:
-    LoadBalancerImpl(const NodeVec &nodes, strategy::StrategyPtr &&strategy);
+    LoadBalancerImpl(strategy::StrategyPtr &&strategy, const NodeVec &nodes);
 
     void schedule(const TaskSet &tasks) override;
     void tick() override;
@@ -19,12 +20,12 @@ class LoadBalancerImpl : public LoadBalancer
 
   private:
     bool areNodesIdle() const;
-    void scheduleWaitingTasks();
 
     const strategy::StrategyPtr strategy;
 
     NodeVec nodes;
     TaskSet waitingTasks;
+    logger::Logger logger;
 };
 
 } // namespace loadbalancer

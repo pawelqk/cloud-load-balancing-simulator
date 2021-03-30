@@ -14,6 +14,8 @@ class Experiment
 
   private:
     const instance::Instance &instance;
+
+    logger::Logger logger;
 };
 
 } // namespace experiment

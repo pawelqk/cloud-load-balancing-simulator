@@ -12,7 +12,7 @@ Task::Task(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t
 
 Task::~Task()
 {
-    std::cout << "Task " << id << " done.\n";
+    // std::cout << "Task " << id << " done.\n";
 }
 
 void Task::work()
@@ -41,6 +41,12 @@ bool Task::operator<(const Task &other) const
 bool Task::operator==(const Task &other) const
 {
     return id == other.id;
+}
+
+std::string Task::toString() const
+{
+    return std::string{"Task " + std::to_string(id) + "[length: " + std::to_string(initialLength) +
+                       ", mips: " + std::to_string(mips) + "]"};
 }
 
 } // namespace cloud

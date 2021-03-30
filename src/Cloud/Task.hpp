@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 #include <set>
 
 namespace cloud
@@ -19,6 +20,8 @@ class Task
 
     bool operator<(const Task &other) const;
     bool operator==(const Task &other) const;
+
+    std::string toString() const;
 
   private:
     const std::uint32_t id;

@@ -10,14 +10,14 @@
 namespace experiment
 {
 
-Experiment::Experiment(const instance::Instance &instance) : instance(instance)
+Experiment::Experiment(const instance::Instance &instance) : instance(instance), logger("Experiment")
 {
 }
 
 void Experiment::run()
 {
     cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(
-        instance.getNodes(), std::make_unique<cloud::loadbalancer::strategy::RoundRobin>())};
+        std::make_unique<cloud::loadbalancer::strategy::RoundRobin>(), instance.getNodes())};
 
     c.insertTasks(instance.getTasks());
 
@@ -25,10 +25,11 @@ void Experiment::run()
     while (!c.isIdle())
     {
         ++timeSpent;
+        logger.log("tick %u", timeSpent);
         c.tick();
     }
 
-    std::cout << "Done. time spent: " << timeSpent << std::endl;
+    logger.log("Done. Time spent: %u", timeSpent);
 }
 
 } // namespace experiment

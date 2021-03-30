@@ -7,8 +7,8 @@ namespace cloud
 namespace loadbalancer
 {
 
-LoadBalancerImpl::LoadBalancerImpl(const NodeVec &nodes, strategy::StrategyPtr &&strategy)
-    : nodes(nodes), strategy(std::move(strategy))
+LoadBalancerImpl::LoadBalancerImpl(strategy::StrategyPtr &&strategy, const NodeVec &nodes)
+    : strategy(std::move(strategy)), nodes(nodes), logger("LoadBalancer")
 {
 }
 
@@ -26,6 +26,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
             const auto nodeIt = std::find(nodes.begin(), nodes.end(), taskToNode.second.value());
             if (nodeIt != nodes.end())
             {
+                logger.log("Assigning %s to %s", taskToNode.first.toString().c_str(), nodeIt->toString().c_str());
                 nodeIt->assign(taskToNode.first);
                 const auto waitingTaskIt = std::find(waitingTasks.begin(), waitingTasks.end(), taskToNode.first);
                 if (waitingTaskIt != waitingTasks.end())
@@ -36,7 +37,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
         }
         else
         {
-            std::cout << "Task has no node assigned to it. Putting into queue\n";
+            logger.log("%s cannot be assigned to any node. Putting into queue", taskToNode.first.toString().c_str());
             waitingTasks.insert(taskToNode.first);
         }
     }
@@ -58,24 +59,6 @@ void LoadBalancerImpl::tick()
 bool LoadBalancerImpl::isIdle() const
 {
     return areNodesIdle() && waitingTasks.empty();
-}
-
-void LoadBalancerImpl::scheduleWaitingTasks()
-{
-    // TODO: maybe reuse schedule method
-    for (auto taskIt = waitingTasks.begin(); taskIt != waitingTasks.end();)
-    {
-        const auto nodeIt = std::find_if(nodes.begin(), nodes.end(),
-                                         [taskIt](auto &&node) { return node.isIdle() && node.canTaskFit(*taskIt); });
-
-        if (nodeIt != nodes.cend())
-        {
-            nodeIt->assign(*taskIt);
-            taskIt = waitingTasks.erase(taskIt);
-        }
-        else
-            ++taskIt;
-    }
 }
 
 bool LoadBalancerImpl::areNodesIdle() const

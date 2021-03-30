@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 
+#include "Logger/Logger.hpp"
 #include "Task.hpp"
 
 namespace cloud
@@ -24,11 +25,16 @@ class Node
     bool operator<(const Node &other) const;
     bool operator==(const Node &other) const;
 
+    std::string toString() const;
+
   private:
+    void finishTask();
+
     const std::uint32_t id;
     const std::uint32_t mips;
 
     std::optional<Task> task;
+    logger::Logger logger;
 };
 
 using NodeSet = std::set<Node>;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
+#include <map>
 #include <vector>
 
 #include "Cloud/Node.hpp"
@@ -12,13 +14,22 @@ namespace instance
 class Instance
 {
   public:
-    Instance(const std::vector<cloud::Task> &tasks, const std::vector<cloud::Node> &nodes) : tasks(tasks), nodes(nodes)
+    Instance(const std::map<std::uint32_t, std::vector<cloud::Task>> &tasks, const std::vector<cloud::Node> &nodes)
+        : tasks(tasks), nodes(nodes)
     {
     }
 
-    const std::vector<cloud::Task> &getTasks() const
+    std::vector<cloud::Task> getTasksInTimePoint(const std::uint32_t timePoint)
     {
-        return tasks;
+        const auto taskIt = tasks.find(timePoint);
+        if (taskIt != tasks.end())
+        {
+            const auto tasksInTimePoint = std::move(taskIt->second);
+            tasks.erase(taskIt);
+            return tasksInTimePoint;
+        }
+
+        return {};
     }
 
     const std::vector<cloud::Node> &getNodes() const
@@ -26,8 +37,13 @@ class Instance
         return nodes;
     }
 
+    bool areAnyTasksLeft()
+    {
+        return !tasks.empty();
+    }
+
   private:
-    std::vector<cloud::Task> tasks;
+    std::map<std::uint32_t, std::vector<cloud::Task>> tasks;
     std::vector<cloud::Node> nodes;
 };
 

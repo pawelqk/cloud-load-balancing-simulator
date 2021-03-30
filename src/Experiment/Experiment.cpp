@@ -19,14 +19,15 @@ void Experiment::run()
     cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(
         std::make_unique<cloud::loadbalancer::strategy::RoundRobin>(), instance.getNodes())};
 
-    c.insertTasks(instance.getTasks());
-
     std::uint32_t timeSpent{0};
-    while (!c.isIdle())
+    while (!c.isIdle() || instance.areAnyTasksLeft())
     {
-        ++timeSpent;
-        logger.log("tick %u", timeSpent);
+        const auto tasksInTimePoint = instance.getTasksInTimePoint(timeSpent++);
+        if (!tasksInTimePoint.empty())
+            c.insertTasks(tasksInTimePoint);
+
         c.tick();
+        logger.log("tick %u", timeSpent);
     }
 
     logger.log("Done. Time spent: %u", timeSpent);

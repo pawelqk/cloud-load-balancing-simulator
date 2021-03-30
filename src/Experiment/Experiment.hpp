@@ -8,12 +8,12 @@ namespace experiment
 class Experiment
 {
   public:
-    Experiment(const instance::Instance &instances);
+    Experiment(const instance::Instance &instance);
 
     void run();
 
   private:
-    const instance::Instance &instance;
+    instance::Instance instance;
 
     logger::Logger logger;
 };

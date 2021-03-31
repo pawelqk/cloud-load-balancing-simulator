@@ -78,6 +78,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
 
 void LoadBalancerImpl::tick()
 {
+    bool anyNodeBecameIdle{false};
     for (auto &&node : infrastructure->getNodes())
     {
         if (node.isIdle())
@@ -85,8 +86,11 @@ void LoadBalancerImpl::tick()
 
         node.work();
         if (node.isIdle())
-            schedule({});
+            anyNodeBecameIdle = true;
     }
+
+    if (anyNodeBecameIdle)
+        schedule({});
 }
 
 bool LoadBalancerImpl::isIdle() const

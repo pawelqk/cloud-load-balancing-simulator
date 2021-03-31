@@ -24,8 +24,7 @@ class Instance
         const auto taskIt = tasks.find(timePoint);
         if (taskIt != tasks.end())
         {
-            const auto tasksInTimePoint = std::move(taskIt->second);
-            tasks.erase(taskIt);
+            const auto tasksInTimePoint = taskIt->second;
             return tasksInTimePoint;
         }
 
@@ -37,9 +36,10 @@ class Instance
         return nodes;
     }
 
-    bool areAnyTasksLeft()
+    bool allTasksInserted(const std::uint32_t currentPointInTime)
     {
-        return !tasks.empty();
+        const auto lastScheduledPointInTime = tasks.rbegin()->first;
+        return currentPointInTime >= lastScheduledPointInTime;
     }
 
   private:

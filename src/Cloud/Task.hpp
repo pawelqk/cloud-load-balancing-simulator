@@ -10,7 +10,7 @@ namespace cloud
 class Task
 {
   public:
-    Task(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength);
+    explicit Task(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength);
     ~Task();
 
     void work();

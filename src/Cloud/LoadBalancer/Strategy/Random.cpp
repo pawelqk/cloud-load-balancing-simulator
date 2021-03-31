@@ -2,9 +2,10 @@
 
 #include <algorithm>
 #include <list>
-#include <random>
 #include <tuple>
 #include <utility>
+
+#include <Utility/RandomNumberGenerator.hpp>
 
 namespace cloud
 {
@@ -35,15 +36,13 @@ MappingActions Random::buildTaskToNodeMapping(const TaskSet &tasks)
         }
     }
 
-    auto rng = std::default_random_engine{std::random_device{}()};
-
     std::vector<std::vector<Task>::size_type> taskIndices(allTasks.size());
     std::iota(taskIndices.begin(), taskIndices.end(), 0);
-    std::shuffle(taskIndices.begin(), taskIndices.end(), rng);
+    std::shuffle(taskIndices.begin(), taskIndices.end(), utility::RandomNumberGenerator::getInstance());
 
     std::vector<NodeVec::size_type> nodeIndices(nodes.size());
     std::iota(nodeIndices.begin(), nodeIndices.end(), 0);
-    std::shuffle(nodeIndices.begin(), nodeIndices.end(), rng);
+    std::shuffle(nodeIndices.begin(), nodeIndices.end(), utility::RandomNumberGenerator::getInstance());
 
     for (auto i = 0u; i < nodes.size() && i < allTasks.size(); ++i)
     {

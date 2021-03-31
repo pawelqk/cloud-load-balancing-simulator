@@ -20,7 +20,7 @@ void Experiment::run()
 {
     const auto infrastructure = std::make_shared<cloud::Infrastructure>(instance.getNodes());
     cloud::Cloud c{std::make_unique<cloud::loadbalancer::LoadBalancerImpl>(
-        std::make_unique<cloud::loadbalancer::strategy::RoundRobin>(infrastructure), infrastructure)};
+        std::make_unique<cloud::loadbalancer::strategy::Random>(infrastructure), infrastructure)};
 
     // TODO: currently there is no difference between tasks having 0 or 1 length (as there's no difference between these
     // values) when using tick() method. To make it work there would have to be a separate initializing method that
@@ -34,7 +34,7 @@ void Experiment::run()
         if (!tasksInTimePoint.empty())
             c.insertTasks(tasksInTimePoint);
 
-        if (c.isIdle() && !instance.areAnyTasksLeft())
+        if (c.isIdle() && instance.allTasksInserted(timeSpent))
             break;
 
         logger.log("tick %u", ++timeSpent);

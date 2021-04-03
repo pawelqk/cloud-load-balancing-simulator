@@ -4,7 +4,7 @@
 namespace utility
 {
 
-RandomNumberGenerator::RandomNumberGenerator() : std::mt19937(542512 /*std::random_device{}()*/)
+RandomNumberGenerator::RandomNumberGenerator() : std::mt19937(std::random_device{}())
 {
 }
 

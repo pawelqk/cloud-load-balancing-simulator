@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 #include "Node.hpp"
 
@@ -10,7 +12,7 @@ namespace cloud
 class Infrastructure
 {
   public:
-    Infrastructure(const NodeVec &nodes);
+    Infrastructure(const std::vector<std::uint32_t> &nodesMips);
 
     Infrastructure() = delete;
     Infrastructure(const Infrastructure &) = delete;
@@ -22,7 +24,13 @@ class Infrastructure
     NodeVec &getNodes();
     const NodeVec &getNodes() const;
 
+    bool isIdle() const;
+
+    TaskSet advanceProcessing();
+
   private:
+    std::vector<Node> prepareNodes(const std::vector<uint32_t> &nodesMips);
+
     NodeVec nodes;
 };
 

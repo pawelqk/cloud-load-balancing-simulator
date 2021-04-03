@@ -5,7 +5,7 @@
 namespace cloud
 {
 
-Node::Node(const std::uint32_t id, const std::uint32_t mips) : id(id), mips(mips), logger("Node " + std::to_string(id))
+Node::Node(const NodeId id, const std::uint32_t mips) : id(id), mips(mips), logger("Node " + std::to_string(id))
 {
 }
 
@@ -19,15 +19,11 @@ void Node::work()
     if (task.has_value())
     {
         task->work();
-
-        if (task->isDone())
-            finishTask();
     }
 }
 
 Task Node::extractTask()
 {
-    // TODO: simple removal is probably enough
     auto extractedTask = *task;
     logger.log("%s extracted before finishing in %s", task->toString().c_str(), toString().c_str());
     task.reset();
@@ -42,12 +38,17 @@ bool Node::canTaskFit(const Task &task) const
 
 bool Node::isIdle() const
 {
-    return !task.has_value();
+    return !task.has_value() || task->isDone();
 }
 
 std::optional<Task> Node::getTask() const
 {
     return task;
+}
+
+NodeId Node::getId() const
+{
+    return id;
 }
 
 bool Node::operator<(const Node &other) const
@@ -68,12 +69,6 @@ bool Node::operator!=(const Node &other) const
 std::string Node::toString() const
 {
     return std::string{"Node " + std::to_string(id) + "[mips: " + std::to_string(mips) + "]"};
-}
-
-void Node::finishTask()
-{
-    logger.log("%s finished in %s", task->toString().c_str(), toString().c_str());
-    task.reset();
 }
 
 } // namespace cloud

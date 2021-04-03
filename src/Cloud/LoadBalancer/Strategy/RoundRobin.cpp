@@ -13,21 +13,21 @@ RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : Strategy(infr
 
 MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
 {
-    std::map<Task, std::optional<Node>> mapping;
-    NodeSet busyNodes;
+    std::map<Task, std::optional<NodeId>> mapping;
+    std::set<NodeId> busyNodeIds;
 
     const auto &nodes = infrastructure->getNodes();
     for (auto &&task : tasks)
     {
         for (auto i = 0u; i < nodes.size(); ++i)
         {
-            const auto node = nodes[lastNodeIndex];
+            const auto &node = nodes[lastNodeIndex];
             lastNodeIndex = (lastNodeIndex + 1) % nodes.size();
 
-            if (!busyNodes.contains(node) && node.isIdle() && node.canTaskFit(task))
+            if (!busyNodeIds.contains(node.getId()) && node.isIdle() && node.canTaskFit(task))
             {
-                mapping.emplace(task, node);
-                busyNodes.insert(node);
+                mapping.emplace(task, node.getId());
+                busyNodeIds.insert(node.getId());
                 break;
             }
         }

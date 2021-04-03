@@ -18,13 +18,13 @@ namespace strategy
 
 struct Migration
 {
-    Node source;
-    std::optional<Node> destination;
+    NodeId source;
+    std::optional<NodeId> destination;
 };
 
 struct MappingActions
 {
-    std::map<Task, std::optional<Node>> assignments;
+    std::map<Task, std::optional<NodeId>> assignments;
     std::map<Task, Migration> migrations;
 };
 

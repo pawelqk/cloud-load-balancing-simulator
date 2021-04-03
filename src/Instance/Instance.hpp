@@ -14,8 +14,9 @@ namespace instance
 class Instance
 {
   public:
-    Instance(const std::map<std::uint32_t, std::vector<cloud::Task>> &tasks, const std::vector<cloud::Node> &nodes)
-        : tasks(tasks), nodes(nodes)
+    Instance(const std::map<std::uint32_t, std::vector<cloud::Task>> &tasks,
+             const std::vector<std::uint32_t> &nodesMips)
+        : tasks(tasks), nodesMips(nodesMips)
     {
     }
 
@@ -31,9 +32,9 @@ class Instance
         return {};
     }
 
-    const std::vector<cloud::Node> &getNodes() const
+    const std::vector<std::uint32_t> &getNodesMips() const
     {
-        return nodes;
+        return nodesMips;
     }
 
     bool allTasksInserted(const std::uint32_t currentPointInTime)
@@ -44,7 +45,7 @@ class Instance
 
   private:
     std::map<std::uint32_t, std::vector<cloud::Task>> tasks;
-    std::vector<cloud::Node> nodes;
+    std::vector<std::uint32_t> nodesMips;
 };
 
 } // namespace instance

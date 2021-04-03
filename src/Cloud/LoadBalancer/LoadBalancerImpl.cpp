@@ -23,11 +23,13 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
 
     for (auto &&taskToMigration : mapping.migrations)
     {
-        const auto sourceNodeIt = std::find(nodes.begin(), nodes.end(), taskToMigration.second.source);
+        const auto sourceNodeIt =
+            std::find_if(nodes.begin(), nodes.end(),
+                         [nodeId = taskToMigration.second.source](auto &&node) { return node.getId() == nodeId; });
         if (sourceNodeIt != nodes.end())
         {
             logger.log("Extracting %s from %s", taskToMigration.first.toString().c_str(),
-                       taskToMigration.second.source.toString().c_str());
+                       sourceNodeIt->toString().c_str());
             sourceNodeIt->extractTask();
         }
         else
@@ -35,11 +37,14 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
 
         if (taskToMigration.second.destination.has_value())
         {
-            const auto destinationNodeIt = std::find(nodes.begin(), nodes.end(), *taskToMigration.second.destination);
+            const auto destinationNodeIt =
+                std::find_if(nodes.begin(), nodes.end(), [nodeId = *taskToMigration.second.destination](auto &&node) {
+                    return node.getId() == nodeId;
+                });
             if (destinationNodeIt != nodes.end())
             {
                 logger.log("Migrating %s to %s", taskToMigration.first.toString().c_str(),
-                           taskToMigration.second.destination->toString().c_str());
+                           destinationNodeIt->toString().c_str());
                 destinationNodeIt->assign(taskToMigration.first);
             }
             else
@@ -56,7 +61,9 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
     {
         if (taskToNode.second.has_value())
         {
-            const auto nodeIt = std::find(nodes.begin(), nodes.end(), taskToNode.second.value());
+            const auto nodeIt =
+                std::find_if(nodes.begin(), nodes.end(),
+                             [nodeId = taskToNode.second.value()](auto &&node) { return node.getId() == nodeId; });
             if (nodeIt != nodes.end())
             {
                 logger.log("Assigning %s to %s", taskToNode.first.toString().c_str(), nodeIt->toString().c_str());
@@ -76,32 +83,9 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
     }
 }
 
-void LoadBalancerImpl::tick()
+bool LoadBalancerImpl::areAnyTasksWaiting() const
 {
-    bool anyNodeBecameIdle{false};
-    for (auto &&node : infrastructure->getNodes())
-    {
-        if (node.isIdle())
-            continue;
-
-        node.work();
-        if (node.isIdle())
-            anyNodeBecameIdle = true;
-    }
-
-    if (anyNodeBecameIdle)
-        schedule({});
-}
-
-bool LoadBalancerImpl::isIdle() const
-{
-    return areNodesIdle() && waitingTasks.empty();
-}
-
-bool LoadBalancerImpl::areNodesIdle() const
-{
-    const auto &nodes = infrastructure->getNodes();
-    return std::all_of(nodes.cbegin(), nodes.cend(), [](auto &&node) { return node.isIdle(); });
+    return waitingTasks.empty();
 }
 
 } // namespace loadbalancer

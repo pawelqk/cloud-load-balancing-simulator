@@ -5,7 +5,8 @@
 namespace cloud
 {
 
-Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer) : loadBalancer(std::move(loadBalancer))
+Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructurePtr &infrastructure)
+    : loadBalancer(std::move(loadBalancer)), infrastructure(infrastructure)
 {
 }
 
@@ -16,12 +17,14 @@ void Cloud::insertTasks(const std::vector<Task> &tasks)
 
 void Cloud::tick()
 {
-    loadBalancer->tick();
+    const auto finishedTasks = infrastructure->advanceProcessing();
+    if (!finishedTasks.empty() && loadBalancer->areAnyTasksWaiting())
+        loadBalancer->schedule({});
 }
 
 bool Cloud::isIdle() const
 {
-    return loadBalancer->isIdle();
+    return infrastructure->isIdle() && !loadBalancer->areAnyTasksWaiting();
 }
 
 } // namespace cloud

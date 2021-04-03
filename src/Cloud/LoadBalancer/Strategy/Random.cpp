@@ -25,13 +25,13 @@ MappingActions Random::buildTaskToNodeMapping(const TaskSet &tasks)
 
     std::vector<Task> allTasks = {tasks.cbegin(), tasks.cend()};
     TaskSet tasksAssigned;
-    std::map<Task, Node> currentMapping;
+    std::map<Task, NodeId> currentMapping;
     for (auto &&node : nodes)
     {
         const auto task = node.getTask();
         if (task.has_value())
         {
-            currentMapping.emplace(*task, node);
+            currentMapping.emplace(*task, node.getId());
             allTasks.emplace_back(std::move(*task));
         }
     }
@@ -52,7 +52,8 @@ MappingActions Random::buildTaskToNodeMapping(const TaskSet &tasks)
 
         // to avoid migration to the queue and instantly back to the node
         const auto taskCurrentlyAssignedToNode = nodes[nodeIndex].getTask();
-        if (currentMapping.contains(allTasks[taskIndex]) && currentMapping.at(allTasks[taskIndex]) == nodes[nodeIndex])
+        if (currentMapping.contains(allTasks[taskIndex]) &&
+            currentMapping.at(allTasks[taskIndex]) == nodes[nodeIndex].getId())
             continue;
 
         // automatically throw out previously assigned task from currently selected node back to the queue UNLESS it
@@ -62,7 +63,7 @@ MappingActions Random::buildTaskToNodeMapping(const TaskSet &tasks)
         {
             mappingActions.migrations.emplace(std::piecewise_construct,
                                               std::forward_as_tuple(*taskCurrentlyAssignedToNode),
-                                              std::forward_as_tuple(Migration{nodes[nodeIndex], std::nullopt}));
+                                              std::forward_as_tuple(nodes[nodeIndex].getId(), std::nullopt));
         }
 
         // as current task will be assigned to something then it no longer needs to be migrated it to the queue
@@ -75,10 +76,10 @@ MappingActions Random::buildTaskToNodeMapping(const TaskSet &tasks)
         {
             mappingActions.migrations.emplace(
                 std::piecewise_construct, std::forward_as_tuple(allTasks[taskIndex]),
-                std::forward_as_tuple(Migration{currentMapping.at(allTasks[taskIndex]), nodes[nodeIndex]}));
+                std::forward_as_tuple(currentMapping.at(allTasks[taskIndex]), nodes[nodeIndex].getId()));
         }
         else // task has not been mapped - simple assignment
-            mappingActions.assignments.emplace(allTasks[taskIndex], nodes[nodeIndex]);
+            mappingActions.assignments.emplace(allTasks[taskIndex], nodes[nodeIndex].getId());
     }
 
     // Rest of tasks that were not assigned have to be explicitly marked as such

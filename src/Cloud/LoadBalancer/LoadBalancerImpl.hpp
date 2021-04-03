@@ -16,12 +16,9 @@ class LoadBalancerImpl : public LoadBalancer
     LoadBalancerImpl(strategy::StrategyPtr &&strategy, const InfrastructurePtr &infrastructure);
 
     void schedule(const TaskSet &tasks) override;
-    void tick() override;
-    bool isIdle() const override;
+    bool areAnyTasksWaiting() const override;
 
   private:
-    bool areNodesIdle() const;
-
     const strategy::StrategyPtr strategy;
     const InfrastructurePtr infrastructure;
 

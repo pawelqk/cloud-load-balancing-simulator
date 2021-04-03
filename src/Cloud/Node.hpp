@@ -11,10 +11,17 @@
 namespace cloud
 {
 
+using NodeId = std::uint32_t;
+
 class Node
 {
   public:
-    explicit Node(const std::uint32_t id, const std::uint32_t mips);
+    explicit Node(const NodeId id, const std::uint32_t mips);
+    Node() = delete;
+    Node(const Node &) = delete;
+    Node(Node &&) = default;
+    Node &operator=(const Node &) = delete;
+    Node &operator=(Node &&) = delete;
 
     void assign(const Task &task);
     void work();
@@ -22,7 +29,9 @@ class Node
 
     bool canTaskFit(const Task &task) const;
     bool isIdle() const;
+
     std::optional<Task> getTask() const;
+    NodeId getId() const;
 
     bool operator<(const Node &other) const;
     bool operator==(const Node &other) const;
@@ -31,9 +40,7 @@ class Node
     std::string toString() const;
 
   private:
-    void finishTask();
-
-    const std::uint32_t id;
+    const NodeId id;
     const std::uint32_t mips;
 
     std::optional<Task> task;

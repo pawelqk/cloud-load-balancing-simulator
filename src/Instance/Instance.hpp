@@ -15,37 +15,17 @@ class Instance
 {
   public:
     Instance(const std::map<std::uint32_t, std::vector<cloud::Task>> &tasks,
-             const std::vector<std::uint32_t> &nodesMips)
-        : tasks(tasks), nodesMips(nodesMips)
-    {
-    }
+             const std::vector<std::uint32_t> &nodesMips);
 
-    std::vector<cloud::Task> getTasksInTimePoint(const std::uint32_t timePoint)
-    {
-        const auto taskIt = tasks.find(timePoint);
-        if (taskIt != tasks.end())
-        {
-            const auto tasksInTimePoint = taskIt->second;
-            return tasksInTimePoint;
-        }
+    std::vector<cloud::Task> getTasksInTimePoint(const std::uint32_t timePoint) const;
 
-        return {};
-    }
+    const std::vector<std::uint32_t> &getNodesMips() const;
 
-    const std::vector<std::uint32_t> &getNodesMips() const
-    {
-        return nodesMips;
-    }
-
-    bool allTasksInserted(const std::uint32_t currentPointInTime)
-    {
-        const auto lastScheduledPointInTime = tasks.rbegin()->first;
-        return currentPointInTime >= lastScheduledPointInTime;
-    }
+    bool allTasksInserted(const std::uint32_t currentPointInTime) const;
 
   private:
-    std::map<std::uint32_t, std::vector<cloud::Task>> tasks;
-    std::vector<std::uint32_t> nodesMips;
+    const std::map<std::uint32_t, std::vector<cloud::Task>> tasks;
+    const std::vector<std::uint32_t> nodesMips;
 };
 
 } // namespace instance

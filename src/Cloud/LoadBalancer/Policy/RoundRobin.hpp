@@ -8,16 +8,16 @@
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"
 #include "Cloud/Task.hpp"
-#include "Strategy.hpp"
+#include "Policy.hpp"
 
 namespace cloud
 {
 namespace loadbalancer
 {
-namespace strategy
+namespace policy
 {
 
-class RoundRobin : public Strategy
+class RoundRobin : public Policy
 {
   public:
     RoundRobin(const InfrastructureCPtr &infrastructure);
@@ -28,6 +28,6 @@ class RoundRobin : public Strategy
     NodeVec::size_type lastNodeIndex;
 };
 
-} // namespace strategy
+} // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

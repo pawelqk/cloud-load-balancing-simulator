@@ -11,10 +11,10 @@ namespace cloud
 {
 namespace loadbalancer
 {
-namespace strategy
+namespace policy
 {
 
-Random::Random(const InfrastructureCPtr &infrastructure) : Strategy(infrastructure)
+Random::Random(const InfrastructureCPtr &infrastructure) : Policy(infrastructure)
 {
 }
 
@@ -93,6 +93,6 @@ MappingActions Random::buildTaskToNodeMapping(const TaskSet &tasks)
     return mappingActions;
 }
 
-} // namespace strategy
+} // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

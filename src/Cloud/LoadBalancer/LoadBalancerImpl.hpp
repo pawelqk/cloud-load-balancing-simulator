@@ -3,7 +3,7 @@
 #include "Cloud/Infrastructure.hpp"
 #include "LoadBalancer.hpp"
 #include "Logger/Logger.hpp"
-#include "Strategy/Strategy.hpp"
+#include "Policy/Policy.hpp"
 
 namespace cloud
 {
@@ -13,13 +13,13 @@ namespace loadbalancer
 class LoadBalancerImpl : public LoadBalancer
 {
   public:
-    LoadBalancerImpl(strategy::StrategyPtr &&strategy, const InfrastructurePtr &infrastructure);
+    LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure);
 
     void schedule(const TaskSet &tasks) override;
     bool areAnyTasksWaiting() const override;
 
   private:
-    const strategy::StrategyPtr strategy;
+    const policy::PolicyPtr policy;
     const InfrastructurePtr infrastructure;
 
     TaskSet waitingTasks;

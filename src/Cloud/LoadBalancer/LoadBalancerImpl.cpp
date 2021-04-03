@@ -7,8 +7,8 @@ namespace cloud
 namespace loadbalancer
 {
 
-LoadBalancerImpl::LoadBalancerImpl(strategy::StrategyPtr &&strategy, const InfrastructurePtr &infrastructure)
-    : strategy(std::move(strategy)), infrastructure(infrastructure), logger("LoadBalancer")
+LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure)
+    : policy(std::move(policy)), infrastructure(infrastructure), logger("LoadBalancer")
 {
 }
 
@@ -18,7 +18,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
     std::set_union(tasks.cbegin(), tasks.cend(), waitingTasks.cbegin(), waitingTasks.cend(),
                    std::inserter(tasksToSchedule, tasksToSchedule.cend()));
 
-    const auto mapping = strategy->buildTaskToNodeMapping(tasksToSchedule);
+    const auto mapping = policy->buildTaskToNodeMapping(tasksToSchedule);
     auto &nodes = infrastructure->getNodes();
 
     for (auto &&taskToMigration : mapping.migrations)
@@ -33,7 +33,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
             sourceNodeIt->extractTask();
         }
         else
-            throw std::runtime_error("Node given by strategy should be present in load balancer");
+            throw std::runtime_error("Node given by policy should be present in load balancer");
 
         if (taskToMigration.second.destination.has_value())
         {
@@ -48,7 +48,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
                 destinationNodeIt->assign(taskToMigration.first);
             }
             else
-                throw std::runtime_error("Node given by strategy should be present in load balancer");
+                throw std::runtime_error("Node given by policy should be present in load balancer");
         }
         else
         {
@@ -73,7 +73,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
                     waitingTasks.erase(waitingTaskIt);
             }
             else
-                throw std::runtime_error("Node given by strategy should be present in load balancer");
+                throw std::runtime_error("Node given by policy should be present in load balancer");
         }
         else if (!waitingTasks.contains(taskToNode.first))
         {

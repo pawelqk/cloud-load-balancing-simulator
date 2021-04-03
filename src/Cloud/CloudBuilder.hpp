@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "Cloud.hpp"
-#include "LoadBalancer/Strategy/Strategy.hpp"
+#include "LoadBalancer/Policy/Policy.hpp"
 
 namespace cloud
 {

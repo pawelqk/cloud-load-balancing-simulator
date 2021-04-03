@@ -4,10 +4,10 @@ namespace cloud
 {
 namespace loadbalancer
 {
-namespace strategy
+namespace policy
 {
 
-RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : Strategy(infrastructure), lastNodeIndex(0)
+RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : Policy(infrastructure), lastNodeIndex(0)
 {
 }
 
@@ -41,6 +41,6 @@ MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
     return actions;
 }
 
-} // namespace strategy
+} // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

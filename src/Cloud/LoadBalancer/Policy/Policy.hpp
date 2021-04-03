@@ -13,7 +13,7 @@ namespace cloud
 {
 namespace loadbalancer
 {
-namespace strategy
+namespace policy
 {
 
 struct Migration
@@ -28,11 +28,11 @@ struct MappingActions
     std::map<Task, Migration> migrations;
 };
 
-class Strategy
+class Policy
 {
   public:
-    Strategy(const InfrastructureCPtr &infrastructure);
-    virtual ~Strategy() = default;
+    Policy(const InfrastructureCPtr &infrastructure);
+    virtual ~Policy() = default;
 
     virtual MappingActions buildTaskToNodeMapping(const TaskSet &tasks) = 0;
 
@@ -40,8 +40,8 @@ class Strategy
     const InfrastructureCPtr infrastructure;
 };
 
-using StrategyPtr = std::unique_ptr<Strategy>;
+using PolicyPtr = std::unique_ptr<Policy>;
 
-} // namespace strategy
+} // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

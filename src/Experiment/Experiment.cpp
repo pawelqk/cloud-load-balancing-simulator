@@ -17,17 +17,11 @@ void Experiment::run()
     cloud::CloudBuilder builder;
     const auto cloud = builder.build(instance.getNodesMips());
 
-    // NOTE: currently there is no difference between tasks having 0 or 1 length (as there's no difference between these
-    // values) when using tick() method. To make it work there would have to be a separate initializing method that
-    // would kick out all 0-length tasks
+    // NOTE: tasks of length 0 will be immediately kicked out without even noticing them
     std::uint32_t timeSpent{0};
     while (true)
     {
-        cloud->tick();
-
-        const auto tasksInTimePoint = instance.getTasksInTimePoint(timeSpent);
-        if (!tasksInTimePoint.empty())
-            cloud->insertTasks(tasksInTimePoint);
+        cloud->tick(instance.getTasksInTimePoint(timeSpent));
 
         if (cloud->isIdle() && instance.allTasksInserted(timeSpent))
             break;

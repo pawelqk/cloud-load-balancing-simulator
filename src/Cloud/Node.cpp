@@ -25,7 +25,7 @@ void Node::work()
 Task Node::extractTask()
 {
     auto extractedTask = *task;
-    logger.log("%s extracted before finishing in %s", task->toString().c_str(), toString().c_str());
+    logger.log("%s extracted in %s", task->toString().c_str(), toString().c_str());
     task.reset();
 
     return extractedTask;

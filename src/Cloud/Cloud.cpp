@@ -10,16 +10,11 @@ Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructureP
 {
 }
 
-void Cloud::insertTasks(const std::vector<Task> &tasks)
-{
-    loadBalancer->schedule({tasks.cbegin(), tasks.cend()});
-}
-
-void Cloud::tick()
+void Cloud::tick(const std::vector<Task> &tasks)
 {
     const auto finishedTasks = infrastructure->advanceProcessing();
-    if (!finishedTasks.empty() && loadBalancer->areAnyTasksWaiting())
-        loadBalancer->schedule({});
+    if (!tasks.empty() || (!finishedTasks.empty() && loadBalancer->areAnyTasksWaiting()))
+        loadBalancer->schedule({tasks.cbegin(), tasks.cend()});
 }
 
 bool Cloud::isIdle() const

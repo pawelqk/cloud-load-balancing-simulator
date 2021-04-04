@@ -15,8 +15,7 @@ class Cloud
   public:
     Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructurePtr &infrastructure);
 
-    void insertTasks(const std::vector<Task> &tasks);
-    void tick();
+    void tick(const std::vector<Task> &tasks);
 
     bool isIdle() const;
 

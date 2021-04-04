@@ -14,6 +14,7 @@ LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const Infrastruct
 
 void LoadBalancerImpl::schedule(const TaskSet &tasks)
 {
+    logger.log("Scheduling %u tasks", tasks.size());
     TaskSet tasksToSchedule;
     std::set_union(tasks.cbegin(), tasks.cend(), waitingTasks.cbegin(), waitingTasks.cend(),
                    std::inserter(tasksToSchedule, tasksToSchedule.cend()));
@@ -85,7 +86,7 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
 
 bool LoadBalancerImpl::areAnyTasksWaiting() const
 {
-    return waitingTasks.empty();
+    return !waitingTasks.empty();
 }
 
 } // namespace loadbalancer

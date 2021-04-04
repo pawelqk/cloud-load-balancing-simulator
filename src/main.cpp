@@ -11,7 +11,7 @@
 int main()
 {
     cloud::Task task1(0, 1, 4);
-    cloud::Task task2(1, 2, 7);
+    cloud::Task task2(1, 1, 1);
     cloud::Task task3(2, 2, 11);
     cloud::Task task4(3, 2, 12);
     cloud::Task task5(4, 1, 1);

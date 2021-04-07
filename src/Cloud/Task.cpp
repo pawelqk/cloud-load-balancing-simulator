@@ -1,5 +1,6 @@
 #include "Task.hpp"
 
+#include <cmath>
 #include <iostream>
 
 namespace cloud
@@ -28,9 +29,19 @@ bool Task::isDone() const
     return length == 0;
 }
 
+std::uint32_t Task::getId() const
+{
+    return mips;
+}
+
 std::uint32_t Task::getMips() const
 {
     return mips;
+}
+
+std::uint32_t Task::estimateTimeLeft() const
+{
+    return std::ceil(static_cast<double>(length) / mips);
 }
 
 bool Task::operator<(const Task &other) const

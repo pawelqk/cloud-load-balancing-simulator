@@ -16,7 +16,9 @@ class Task
     void work();
     bool isDone() const;
 
+    std::uint32_t getId() const;
     std::uint32_t getMips() const;
+    std::uint32_t estimateTimeLeft() const;
 
     bool operator<(const Task &other) const;
     bool operator==(const Task &other) const;

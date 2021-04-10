@@ -45,7 +45,7 @@ double assessSolution(const InfrastructureCPtr &infrastructure, const Solution &
 }
 
 SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters)
-    : Policy(infrastructure), parameters(parameters)
+    : Policy(infrastructure), parameters(parameters), logger("SimulatedAnnealing")
 {
 }
 
@@ -53,8 +53,10 @@ MappingActions SimulatedAnnealing::buildTaskToNodeMapping(const TaskSet &tasks)
 {
     MappingActions mappingActions;
 
+    logger.log("Mapping %u tasks", tasks.size());
     if (tasks != waitingTasks)
     {
+        logger.log("New tasks came. Creating new solution");
         solution = createNewSolution(tasks);
         waitingTasks.clear();
         for (auto &&entry : solution)
@@ -63,6 +65,7 @@ MappingActions SimulatedAnnealing::buildTaskToNodeMapping(const TaskSet &tasks)
         }
     }
 
+    logger.log("New solution created. Creating mapping");
     const auto freeNodeIds = extractFreeNodeIds();
     for (auto &&freeNodeId : freeNodeIds)
     {
@@ -96,6 +99,7 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
     auto temperature = parameters.startTemperature;
 
     std::uint32_t numberOfIterations{0};
+    logger.log("Starting annealing");
     while (temperature > parameters.endTemperature)
     {
         nextSolution = getNewSolutionFromNeighbourhood(currentSolution);
@@ -111,7 +115,9 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
             currentSolution = nextSolution;
 
         if ((++numberOfIterations) % parameters.iterationsPerStep == 0)
+        {
             temperature *= parameters.coolingRatio;
+        }
     }
 
     return bestSolution;
@@ -119,6 +125,7 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
 
 Solution SimulatedAnnealing::createRandomSolution(const TaskSet &tasks)
 {
+    logger.log("Creating random solution");
     Solution solution;
 
     std::vector<Task> tasksShuffled = {tasks.cbegin(), tasks.cend()};

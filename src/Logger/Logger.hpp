@@ -4,7 +4,10 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <list>
 #include <string_view>
+
+#include "LoggingEndpoint.hpp"
 
 namespace logger
 {
@@ -15,7 +18,7 @@ class Logger
     Logger(const std::string &name);
 
     template <class... Args>
-    void log(const char *msg, Args... args)
+    void log(const char *msg, Args &&...args)
     {
         char buffer[700];
         const auto nameBuffer = nameTag.c_str();
@@ -25,10 +28,14 @@ class Logger
 
         std::snprintf(buffer + nameBufferSize, sizeof(buffer) - nameBufferSize, msg, args...);
 
-        std::cout << buffer << std::endl;
+        for (auto &&endpoint : loggingEndpoints)
+            endpoint->log(buffer);
     }
 
+    static void addLoggingEndpoint(LoggingEndpointPtr &&loggingEndpoint);
+
   private:
+    static std::list<LoggingEndpointPtr> loggingEndpoints;
     const std::string nameTag;
 };
 

@@ -44,6 +44,8 @@ class SimulatedAnnealing : public Policy
 
     Solution solution;
     TaskSet waitingTasks;
+
+    logger::Logger logger;
 };
 
 } // namespace policy

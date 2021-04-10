@@ -7,9 +7,15 @@
 #include "Cloud/Task.hpp"
 #include "Experiment/ExperimentRunner.hpp"
 #include "Instance/Instance.hpp"
+#include "Logger/Files.hpp"
+#include "Logger/Logger.hpp"
+#include "Logger/Stdout.hpp"
 
 int main()
 {
+    logger::Logger::addLoggingEndpoint(std::make_unique<logger::Stdout>());
+    logger::Logger::addLoggingEndpoint(std::make_unique<logger::Files>());
+
     cloud::Task task1(0, 1, 4);
     cloud::Task task2(1, 1, 1);
     cloud::Task task3(2, 2, 11);

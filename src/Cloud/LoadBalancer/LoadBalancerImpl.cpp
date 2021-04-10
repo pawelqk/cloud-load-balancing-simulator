@@ -12,7 +12,7 @@ LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const Infrastruct
 {
 }
 
-void LoadBalancerImpl::schedule(const TaskSet &tasks)
+void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
 {
     logger.log("Scheduling %u tasks", tasks.size());
     TaskSet tasksToSchedule;
@@ -82,6 +82,11 @@ void LoadBalancerImpl::schedule(const TaskSet &tasks)
             waitingTasks.insert(taskToNode.first);
         }
     }
+}
+
+void LoadBalancerImpl::scheduleWaitingTasks()
+{
+    scheduleNewTasks({});
 }
 
 bool LoadBalancerImpl::areAnyTasksWaiting() const

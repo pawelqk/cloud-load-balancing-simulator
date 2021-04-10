@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Os")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include_directories(src)
 enable_testing()
 add_subdirectory(src)
 add_subdirectory(test)

@@ -1,23 +1,23 @@
-#include "Infrastructure.hpp"
+#include "InfrastructureImpl.hpp"
 
 namespace cloud
 {
 
-Infrastructure::Infrastructure(const std::vector<std::uint32_t> &nodesMips) : nodes(prepareNodes(nodesMips))
+InfrastructureImpl::InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips) : nodes(prepareNodes(nodesMips))
 {
 }
 
-NodeVec &Infrastructure::getNodes()
-{
-    return nodes;
-}
-
-const NodeVec &Infrastructure::getNodes() const
+NodeVec &InfrastructureImpl::getNodes()
 {
     return nodes;
 }
 
-TaskSet Infrastructure::advanceProcessing()
+const NodeVec &InfrastructureImpl::getNodes() const
+{
+    return nodes;
+}
+
+TaskSet InfrastructureImpl::advanceProcessing()
 {
     TaskSet finishedTasks;
     for (auto &&node : nodes)
@@ -33,12 +33,12 @@ TaskSet Infrastructure::advanceProcessing()
     return finishedTasks;
 }
 
-bool Infrastructure::isIdle() const
+bool InfrastructureImpl::isIdle() const
 {
     return std::all_of(nodes.cbegin(), nodes.cend(), [](auto &&node) { return node.isIdle(); });
 }
 
-std::vector<Node> Infrastructure::prepareNodes(const std::vector<uint32_t> &nodesMips)
+std::vector<Node> InfrastructureImpl::prepareNodes(const std::vector<uint32_t> &nodesMips)
 {
     std::vector<Node> nodes;
     nodes.reserve(nodesMips.size());

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
 #include <memory>
-#include <vector>
 
 #include "Node.hpp"
 
@@ -12,26 +10,12 @@ namespace cloud
 class Infrastructure
 {
   public:
-    Infrastructure(const std::vector<std::uint32_t> &nodesMips);
+    virtual NodeVec &getNodes() = 0;
+    virtual const NodeVec &getNodes() const = 0;
 
-    Infrastructure() = delete;
-    Infrastructure(const Infrastructure &) = delete;
-    Infrastructure(Infrastructure &&) = delete;
+    virtual bool isIdle() const = 0;
 
-    Infrastructure &operator=(const Infrastructure &) = delete;
-    Infrastructure &operator=(Infrastructure &&) = delete;
-
-    NodeVec &getNodes();
-    const NodeVec &getNodes() const;
-
-    bool isIdle() const;
-
-    TaskSet advanceProcessing();
-
-  private:
-    std::vector<Node> prepareNodes(const std::vector<uint32_t> &nodesMips);
-
-    NodeVec nodes;
+    virtual TaskSet advanceProcessing() = 0;
 };
 
 using InfrastructurePtr = std::shared_ptr<Infrastructure>;

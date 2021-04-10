@@ -15,7 +15,9 @@ class LoadBalancerImpl : public LoadBalancer
   public:
     LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure);
 
-    void schedule(const TaskSet &tasks) override;
+    void scheduleNewTasks(const TaskSet &tasks) override;
+    void scheduleWaitingTasks() override;
+
     bool areAnyTasksWaiting() const override;
 
   private:

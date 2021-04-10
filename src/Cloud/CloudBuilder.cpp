@@ -1,4 +1,5 @@
 #include "CloudBuilder.hpp"
+#include "InfrastructureImpl.hpp"
 #include "LoadBalancer/LoadBalancerImpl.hpp"
 #include "LoadBalancer/Policy/RoundRobin.hpp"
 #include "LoadBalancer/Policy/SimulatedAnnealing.hpp"
@@ -9,7 +10,7 @@ namespace cloud
 std::unique_ptr<Cloud> CloudBuilder::build(const std::vector<std::uint32_t> &nodesMips)
 {
     loadbalancer::policy::SimulatedAnnealing::Parameters params{0.997, 1000, 0.00001, 1000};
-    const auto infrastructure = std::make_shared<Infrastructure>(nodesMips);
+    const auto infrastructure = std::make_shared<InfrastructureImpl>(nodesMips);
     return std::make_unique<Cloud>(
         std::make_unique<loadbalancer::LoadBalancerImpl>(
             std::make_unique<loadbalancer::policy::SimulatedAnnealing>(infrastructure, params), infrastructure),

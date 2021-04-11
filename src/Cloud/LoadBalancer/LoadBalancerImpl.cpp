@@ -14,8 +14,10 @@ LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const Infrastruct
 
 void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
 {
-    logger.log("Scheduling %u tasks", tasks.size());
+    logger.log("Scheduling %u new tasks", tasks.size());
+
     TaskSet tasksToSchedule;
+    const auto waitingTasks = getWaitingTasks();
     std::set_union(tasks.cbegin(), tasks.cend(), waitingTasks.cbegin(), waitingTasks.cend(),
                    std::inserter(tasksToSchedule, tasksToSchedule.cend()));
 
@@ -26,12 +28,12 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
     {
         const auto sourceNodeIt =
             std::find_if(nodes.begin(), nodes.end(),
-                         [nodeId = taskToMigration.second.source](auto &&node) { return node.getId() == nodeId; });
+                         [nodeId = taskToMigration.second.source](auto &&node) { return node->getId() == nodeId; });
         if (sourceNodeIt != nodes.end())
         {
             logger.log("Extracting %s from %s", taskToMigration.first.toString().c_str(),
-                       sourceNodeIt->toString().c_str());
-            sourceNodeIt->extractTask();
+                       (*sourceNodeIt)->toString().c_str());
+            (*sourceNodeIt)->extractTask();
         }
         else
             throw std::runtime_error("Node given by policy should be present in load balancer");
@@ -40,13 +42,13 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
         {
             const auto destinationNodeIt =
                 std::find_if(nodes.begin(), nodes.end(), [nodeId = *taskToMigration.second.destination](auto &&node) {
-                    return node.getId() == nodeId;
+                    return node->getId() == nodeId;
                 });
             if (destinationNodeIt != nodes.end())
             {
                 logger.log("Migrating %s to %s", taskToMigration.first.toString().c_str(),
-                           destinationNodeIt->toString().c_str());
-                destinationNodeIt->assign(taskToMigration.first);
+                           (*destinationNodeIt)->toString().c_str());
+                (*destinationNodeIt)->assign(taskToMigration.first);
             }
             else
                 throw std::runtime_error("Node given by policy should be present in load balancer");
@@ -54,44 +56,60 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
         else
         {
             logger.log("Migrating %s back to waiting queue", taskToMigration.first.toString().c_str());
-            waitingTasks.insert(taskToMigration.first);
         }
     }
 
-    for (auto &&taskToNode : mapping.assignments)
-    {
-        if (taskToNode.second.has_value())
-        {
-            const auto nodeIt =
-                std::find_if(nodes.begin(), nodes.end(),
-                             [nodeId = taskToNode.second.value()](auto &&node) { return node.getId() == nodeId; });
-            if (nodeIt != nodes.end())
-            {
-                logger.log("Assigning %s to %s", taskToNode.first.toString().c_str(), nodeIt->toString().c_str());
-                nodeIt->assign(taskToNode.first);
-                const auto waitingTaskIt = std::find(waitingTasks.begin(), waitingTasks.end(), taskToNode.first);
-                if (waitingTaskIt != waitingTasks.end())
-                    waitingTasks.erase(waitingTaskIt);
-            }
-            else
-                throw std::runtime_error("Node given by policy should be present in load balancer");
-        }
-        else if (!waitingTasks.contains(taskToNode.first))
-        {
-            logger.log("%s cannot be assigned to any node. Putting into queue", taskToNode.first.toString().c_str());
-            waitingTasks.insert(taskToNode.first);
-        }
-    }
+    solution = std::move(mapping.solution);
+
+    scheduleWaitingTasks();
 }
 
 void LoadBalancerImpl::scheduleWaitingTasks()
 {
-    scheduleNewTasks({});
+    auto &nodes = infrastructure->getNodes();
+    for (auto &&nodeId : extractFreeNodeIds())
+    {
+        if (solution[nodeId].empty())
+            continue;
+
+        const auto task = solution[nodeId].front();
+        const auto nodeIt = std::find_if(nodes.begin(), nodes.end(),
+                                         [nodeId = nodeId](auto &&node) { return node->getId() == nodeId; });
+        if (nodeIt != nodes.end())
+        {
+            logger.log("Assigning %s to %s", task.toString().c_str(), (*nodeIt)->toString().c_str());
+            (*nodeIt)->assign(task);
+            solution[nodeId].pop_front();
+        }
+        else
+            throw std::runtime_error("Node given by policy should be present in load balancer");
+    }
 }
 
 bool LoadBalancerImpl::areAnyTasksWaiting() const
 {
-    return !waitingTasks.empty();
+    return std::any_of(solution.cbegin(), solution.cend(), [](auto &&entry) { return !entry.second.empty(); });
+}
+
+TaskSet LoadBalancerImpl::getWaitingTasks()
+{
+    TaskSet waitingTasks;
+    for (auto &&entry : solution)
+        waitingTasks.insert(entry.second.cbegin(), entry.second.cend());
+
+    return waitingTasks;
+}
+
+std::vector<NodeId> LoadBalancerImpl::extractFreeNodeIds()
+{
+    std::vector<NodeId> freeNodeIds;
+    for (auto &&node : infrastructure->getNodes())
+    {
+        if (node->isIdle())
+            freeNodeIds.push_back(node->getId());
+    }
+
+    return freeNodeIds;
 }
 
 } // namespace loadbalancer

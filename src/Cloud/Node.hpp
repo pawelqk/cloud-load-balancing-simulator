@@ -16,38 +16,24 @@ using NodeId = std::uint32_t;
 class Node
 {
   public:
-    explicit Node(const NodeId id, const std::uint32_t mips);
-    Node() = delete;
-    Node(const Node &) = delete;
-    Node(Node &&) = default;
-    Node &operator=(const Node &) = delete;
-    Node &operator=(Node &&) = delete;
+    virtual void assign(const Task &task) = 0;
+    virtual void work() = 0;
+    virtual Task extractTask() = 0;
 
-    void assign(const Task &task);
-    void work();
-    Task extractTask();
+    virtual bool canTaskFit(const Task &task) const = 0;
+    virtual bool isIdle() const = 0;
 
-    bool canTaskFit(const Task &task) const;
-    bool isIdle() const;
-
-    std::optional<Task> getTask() const;
-    NodeId getId() const;
+    virtual std::optional<Task> getTask() const = 0;
+    virtual NodeId getId() const = 0;
 
     bool operator<(const Node &other) const;
     bool operator==(const Node &other) const;
     bool operator!=(const Node &other) const;
 
-    std::string toString() const;
-
-  private:
-    const NodeId id;
-    const std::uint32_t mips;
-
-    std::optional<Task> task;
-    logger::Logger logger;
+    virtual std::string toString() const = 0;
 };
 
-using NodeSet = std::set<Node>;
-using NodeVec = std::vector<Node>;
+using NodePtr = std::shared_ptr<Node>;
+using NodePtrVec = std::vector<NodePtr>;
 
 } // namespace cloud

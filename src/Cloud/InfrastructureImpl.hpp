@@ -22,17 +22,17 @@ class InfrastructureImpl : public Infrastructure
     InfrastructureImpl &operator=(const InfrastructureImpl &) = delete;
     InfrastructureImpl &operator=(InfrastructureImpl &&) = delete;
 
-    NodeVec &getNodes() override;
-    const NodeVec &getNodes() const override;
+    NodePtrVec &getNodes() override;
+    const NodePtrVec &getNodes() const override;
 
     bool isIdle() const override;
 
     TaskSet advanceProcessing() override;
 
   private:
-    std::vector<Node> prepareNodes(const std::vector<uint32_t> &nodesMips);
+    NodePtrVec prepareNodes(const std::vector<uint32_t> &nodesMips);
 
-    NodeVec nodes;
+    NodePtrVec nodes;
 };
 
 }; // namespace cloud

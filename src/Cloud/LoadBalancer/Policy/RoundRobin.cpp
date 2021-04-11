@@ -7,14 +7,13 @@ namespace loadbalancer
 namespace policy
 {
 
-RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : Policy(infrastructure), lastNodeIndex(0)
+RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : PolicyBase(infrastructure), lastNodeIndex(0)
 {
 }
 
 MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
 {
-    std::map<Task, std::optional<NodeId>> mapping;
-    std::set<NodeId> busyNodeIds;
+    MappingActions actions;
 
     const auto &nodes = infrastructure->getNodes();
     for (auto &&task : tasks)
@@ -24,20 +23,14 @@ MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
             const auto &node = nodes[lastNodeIndex];
             lastNodeIndex = (lastNodeIndex + 1) % nodes.size();
 
-            if (!busyNodeIds.contains(node.getId()) && node.isIdle() && node.canTaskFit(task))
+            if (node->canTaskFit(task))
             {
-                mapping.emplace(task, node.getId());
-                busyNodeIds.insert(node.getId());
+                actions.solution[node->getId()].push_back(task);
                 break;
             }
         }
-
-        if (!mapping.contains(task))
-            mapping.emplace(task, std::nullopt);
     }
 
-    MappingActions actions;
-    actions.assignments = std::move(mapping);
     return actions;
 }
 

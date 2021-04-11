@@ -10,6 +10,8 @@ namespace cloud
 namespace loadbalancer
 {
 
+using Solution = std::map<NodeId, std::list<Task>>;
+
 class LoadBalancerImpl : public LoadBalancer
 {
   public:
@@ -21,10 +23,13 @@ class LoadBalancerImpl : public LoadBalancer
     bool areAnyTasksWaiting() const override;
 
   private:
+    TaskSet getWaitingTasks();
+    std::vector<NodeId> extractFreeNodeIds();
+
     const policy::PolicyPtr policy;
     const InfrastructurePtr infrastructure;
 
-    TaskSet waitingTasks;
+    policy::Solution solution;
     logger::Logger logger;
 };
 

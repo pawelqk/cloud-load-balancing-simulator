@@ -12,74 +12,21 @@ namespace loadbalancer
 namespace policy
 {
 
-double assessSolution(const InfrastructureCPtr &infrastructure, const Solution &solution)
-{
-    std::uint32_t makespan{0};
-
-    const auto &nodes = infrastructure->getNodes();
-
-    for (auto &&[nodeId, tasks] : solution)
-    {
-        const auto nodeIt =
-            std::find_if(nodes.begin(), nodes.end(), [nodeId = nodeId](auto &&node) { return node.getId() == nodeId; });
-        if (nodeIt == nodes.end())
-            throw std::runtime_error("Cannot find node " + std::to_string(nodeId) + " in solution");
-
-        std::uint32_t nodeMakespan;
-        const auto task = nodeIt->getTask();
-        if (task != std::nullopt)
-            nodeMakespan = task->estimateTimeLeft();
-        else
-            nodeMakespan = 0;
-
-        for (auto &&task : tasks)
-        {
-            nodeMakespan += task.estimateTimeLeft();
-        }
-
-        if (nodeMakespan > makespan)
-            makespan = nodeMakespan;
-    }
-
-    return makespan;
-}
-
-SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters)
-    : Policy(infrastructure), parameters(parameters), logger("SimulatedAnnealing")
+SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters)
+    : PolicyBase(infrastructure), parameters(std::move(parameters)), logger("SimulatedAnnealing")
 {
 }
 
 MappingActions SimulatedAnnealing::buildTaskToNodeMapping(const TaskSet &tasks)
 {
-    MappingActions mappingActions;
-
     logger.log("Mapping %u tasks", tasks.size());
-    if (tasks != waitingTasks)
-    {
-        logger.log("New tasks came. Creating new solution");
-        solution = createNewSolution(tasks);
-        waitingTasks.clear();
-        for (auto &&entry : solution)
-        {
-            waitingTasks.insert(entry.second.cbegin(), entry.second.cend());
-        }
-    }
+
+    const auto solution = createNewSolution(tasks);
 
     logger.log("New solution created. Creating mapping");
-    const auto freeNodeIds = extractFreeNodeIds();
-    for (auto &&freeNodeId : freeNodeIds)
-    {
-        if (solution[freeNodeId].empty())
-            continue;
 
-        const auto task = solution[freeNodeId].front();
-        waitingTasks.erase(task);
-        mappingActions.assignments[task] = freeNodeId;
-        solution[freeNodeId].pop_front();
-    }
-
-    for (auto &&waitingTask : waitingTasks)
-        mappingActions.assignments[waitingTask] = std::nullopt;
+    MappingActions mappingActions;
+    mappingActions.solution = solution;
 
     return mappingActions;
 }
@@ -99,12 +46,13 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
     auto temperature = parameters.startTemperature;
 
     std::uint32_t numberOfIterations{0};
+
     logger.log("Starting annealing");
     while (temperature > parameters.endTemperature)
     {
         nextSolution = getNewSolutionFromNeighbourhood(currentSolution);
-        const auto nextSolutionValue = assessSolution(infrastructure, nextSolution);
-        const auto currentSolutionValue = assessSolution(infrastructure, currentSolution);
+        const auto nextSolutionValue = parameters.solutionAssessor->assess(nextSolution);
+        const auto currentSolutionValue = parameters.solutionAssessor->assess(currentSolution);
 
         if (nextSolutionValue <= currentSolutionValue)
         {
@@ -115,9 +63,7 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
             currentSolution = nextSolution;
 
         if ((++numberOfIterations) % parameters.iterationsPerStep == 0)
-        {
             temperature *= parameters.coolingRatio;
-        }
     }
 
     return bestSolution;
@@ -139,10 +85,8 @@ Solution SimulatedAnnealing::createRandomSolution(const TaskSet &tasks)
         std::vector<NodeId> possibleNodeIds;
         for (auto &&node : infrastructure->getNodes())
         {
-            if (node.canTaskFit(tasksShuffled[taskId]))
-            {
-                possibleNodeIds.push_back(node.getId());
-            }
+            if (node->canTaskFit(tasksShuffled[taskId]))
+                possibleNodeIds.push_back(node->getId());
         }
 
         std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
@@ -175,13 +119,13 @@ Solution SimulatedAnnealing::getNewSolutionFromNeighbourhood(const Solution &sol
     std::vector<NodeId> feasibleNodeIds;
     for (auto &&[nodeId, tasks] : solutionInNeighbourhood)
     {
-        const auto nodeIt =
-            std::find_if(nodes.begin(), nodes.end(), [nodeId = nodeId](auto &&node) { return node.getId() == nodeId; });
+        const auto nodeIt = std::find_if(nodes.begin(), nodes.end(),
+                                         [nodeId = nodeId](auto &&node) { return node->getId() == nodeId; });
         if (nodeIt == nodes.end())
             throw std::runtime_error("Cannot find node " + std::to_string(nodeId) + " in solutionInNeighbourhood");
 
-        if (nodeIt->canTaskFit(*randomElementIt))
-            feasibleNodeIds.push_back(nodeIt->getId());
+        if ((*nodeIt)->canTaskFit(*randomElementIt))
+            feasibleNodeIds.push_back((*nodeIt)->getId());
     }
 
     auto &randomNode =
@@ -200,8 +144,8 @@ std::vector<NodeId> SimulatedAnnealing::extractFreeNodeIds()
     std::vector<NodeId> freeNodeIds;
     for (auto &&node : infrastructure->getNodes())
     {
-        if (node.isIdle())
-            freeNodeIds.push_back(node.getId());
+        if (node->isIdle())
+            freeNodeIds.push_back(node->getId());
     }
 
     return freeNodeIds;

@@ -8,7 +8,7 @@
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"
 #include "Cloud/Task.hpp"
-#include "Policy.hpp"
+#include "PolicyBase.hpp"
 
 namespace cloud
 {
@@ -17,7 +17,7 @@ namespace loadbalancer
 namespace policy
 {
 
-class Random : public Policy
+class Random : public PolicyBase
 {
   public:
     Random(const InfrastructureCPtr &infrastructure);

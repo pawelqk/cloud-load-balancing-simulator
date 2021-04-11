@@ -1,4 +1,4 @@
-#include "Policy.hpp"
+#include "PolicyBase.hpp"
 
 namespace cloud
 {
@@ -7,7 +7,7 @@ namespace loadbalancer
 namespace policy
 {
 
-Policy::Policy(const InfrastructureCPtr &infrastructure) : infrastructure(infrastructure)
+PolicyBase::PolicyBase(const InfrastructureCPtr &infrastructure) : infrastructure(infrastructure)
 {
 }
 

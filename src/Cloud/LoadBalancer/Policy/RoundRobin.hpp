@@ -2,7 +2,7 @@
 
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Task.hpp"
-#include "Policy.hpp"
+#include "PolicyBase.hpp"
 
 namespace cloud
 {
@@ -11,7 +11,7 @@ namespace loadbalancer
 namespace policy
 {
 
-class RoundRobin : public Policy
+class RoundRobin : public PolicyBase
 {
   public:
     RoundRobin(const InfrastructureCPtr &infrastructure);
@@ -19,7 +19,7 @@ class RoundRobin : public Policy
     MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
 
   private:
-    NodeVec::size_type lastNodeIndex;
+    NodePtrVec::size_type lastNodeIndex;
 };
 
 } // namespace policy

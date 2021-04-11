@@ -10,8 +10,8 @@ namespace cloud
 class Infrastructure
 {
   public:
-    virtual NodeVec &getNodes() = 0;
-    virtual const NodeVec &getNodes() const = 0;
+    virtual NodePtrVec &getNodes() = 0;
+    virtual const NodePtrVec &getNodes() const = 0;
 
     virtual bool isIdle() const = 0;
 

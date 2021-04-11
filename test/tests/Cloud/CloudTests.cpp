@@ -40,6 +40,7 @@ TEST_F(CloudShould, BeIdleWhenInfrastructureIsIdleAndThereAreNoTasksWaiting)
 TEST_F(CloudShould, InsertNewTasks)
 {
     const TaskSet tasks{Task{0, 0, 0}, Task{3, 0, 0}};
+
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(TaskSet{}));
     EXPECT_CALL(*loadBalancerMock, scheduleNewTasks(tasks));
     sut.tick({tasks.cbegin(), tasks.cend()});
@@ -55,6 +56,7 @@ TEST_F(CloudShould, NotScheduleWaitingTasksIfThereAreNotAnyFinished)
 TEST_F(CloudShould, NotScheduleWaitingTasksIfThereAreNotAnyWaiting)
 {
     const TaskSet tasks{Task{1, 2, 3}, Task{4, 5, 6}};
+
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(tasks));
     EXPECT_CALL(*loadBalancerMock, areAnyTasksWaiting()).WillOnce(Return(false));
     EXPECT_CALL(*loadBalancerMock, scheduleWaitingTasks()).Times(0);
@@ -64,6 +66,7 @@ TEST_F(CloudShould, NotScheduleWaitingTasksIfThereAreNotAnyWaiting)
 TEST_F(CloudShould, ScheduleWaitingTasksIfThereAreWaiting)
 {
     const TaskSet tasks{Task{1, 2, 3}, Task{4, 5, 6}};
+
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(tasks));
     EXPECT_CALL(*loadBalancerMock, areAnyTasksWaiting()).WillOnce(Return(true));
     EXPECT_CALL(*loadBalancerMock, scheduleWaitingTasks());

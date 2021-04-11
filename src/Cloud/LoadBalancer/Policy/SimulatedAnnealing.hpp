@@ -4,8 +4,9 @@
 #include <list>
 
 #include "Cloud/Infrastructure.hpp"
+#include "Cloud/LoadBalancer/SolutionAssessor.hpp"
 #include "Cloud/Task.hpp"
-#include "Policy.hpp"
+#include "PolicyBase.hpp"
 
 namespace cloud
 {
@@ -14,11 +15,7 @@ namespace loadbalancer
 namespace policy
 {
 
-// TODO: extract
-using Solution = std::map<NodeId, std::list<Task>>;
-using SolutionAssessor = std::function<double(Solution)>;
-
-class SimulatedAnnealing : public Policy
+class SimulatedAnnealing : public PolicyBase
 {
   public:
     struct Parameters
@@ -27,10 +24,10 @@ class SimulatedAnnealing : public Policy
         double startTemperature;
         double endTemperature;
         std::uint16_t iterationsPerStep;
-        // SolutionAssessor solutionAssessor;
+        SolutionAssessorPtr solutionAssessor;
     };
 
-    SimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters);
+    SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters);
 
     MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
 

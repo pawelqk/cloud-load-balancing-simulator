@@ -1,9 +1,9 @@
 #pragma once
 
+#include <list>
 #include <map>
 #include <memory>
 #include <optional>
-#include <vector>
 
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"

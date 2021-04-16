@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Infrastructure.hpp"
+#include "Logger/Logger.hpp"
 #include "Node.hpp"
 
 namespace cloud
@@ -13,7 +14,7 @@ namespace cloud
 class InfrastructureImpl : public Infrastructure
 {
   public:
-    InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips);
+    InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips, const logger::LoggerPtr &logger);
 
     InfrastructureImpl() = delete;
     InfrastructureImpl(const InfrastructureImpl &) = delete;
@@ -30,7 +31,7 @@ class InfrastructureImpl : public Infrastructure
     TaskSet advanceProcessing() override;
 
   private:
-    NodePtrVec prepareNodes(const std::vector<uint32_t> &nodesMips);
+    NodePtrVec prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger);
 
     NodePtrVec nodes;
 };

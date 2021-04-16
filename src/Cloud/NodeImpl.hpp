@@ -17,7 +17,7 @@ using NodeId = std::uint32_t;
 class NodeImpl : public Node
 {
   public:
-    explicit NodeImpl(const NodeId id, const std::uint32_t mips);
+    explicit NodeImpl(const NodeId id, const std::uint32_t mips, const logger::LoggerPtr &logger);
     NodeImpl() = delete;
     NodeImpl(const NodeImpl &) = delete;
     NodeImpl(NodeImpl &&) = default;
@@ -41,7 +41,7 @@ class NodeImpl : public Node
     const std::uint32_t mips;
 
     std::optional<Task> task;
-    logger::Logger logger;
+    const logger::LoggerPtr logger;
 };
 
 } // namespace cloud

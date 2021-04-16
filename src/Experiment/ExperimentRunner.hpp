@@ -12,7 +12,7 @@ class ExperimentRunner
   public:
     ExperimentRunner(const std::vector<instance::Instance> &instances);
 
-    void run();
+    void run(bool withDebug, bool withStdout);
 
   private:
     const std::vector<instance::Instance> instances;

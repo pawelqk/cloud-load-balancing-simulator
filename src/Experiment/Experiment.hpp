@@ -8,14 +8,14 @@ namespace experiment
 class Experiment
 {
   public:
-    Experiment(const instance::Instance &instance);
+    Experiment(const instance::Instance &instance, const logger::LoggerPtr &logger);
 
     void run();
 
   private:
     instance::Instance instance;
 
-    logger::Logger logger;
+    const logger::LoggerPtr logger;
 };
 
 } // namespace experiment

@@ -7,14 +7,15 @@ namespace cloud
 namespace loadbalancer
 {
 
-LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure)
-    : policy(std::move(policy)), infrastructure(infrastructure), logger("LoadBalancer")
+LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure,
+                                   const logger::LoggerPtr &logger)
+    : policy(std::move(policy)), infrastructure(infrastructure), logger(logger)
 {
 }
 
 void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
 {
-    logger.log("Scheduling %u new tasks", tasks.size());
+    logger->debug("Scheduling %u new tasks", tasks.size());
 
     TaskSet tasksToSchedule;
     const auto waitingTasks = getWaitingTasks();
@@ -31,8 +32,8 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
                          [nodeId = taskToMigration.second.source](auto &&node) { return node->getId() == nodeId; });
         if (sourceNodeIt != nodes.end())
         {
-            logger.log("Extracting %s from %s", taskToMigration.first.toString().c_str(),
-                       (*sourceNodeIt)->toString().c_str());
+            logger->debug("Extracting %s from %s", taskToMigration.first.toString().c_str(),
+                        (*sourceNodeIt)->toString().c_str());
             (*sourceNodeIt)->extractTask();
         }
         else
@@ -46,8 +47,8 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
                 });
             if (destinationNodeIt != nodes.end())
             {
-                logger.log("Migrating %s to %s", taskToMigration.first.toString().c_str(),
-                           (*destinationNodeIt)->toString().c_str());
+                logger->debug("Migrating %s to %s", taskToMigration.first.toString().c_str(),
+                            (*destinationNodeIt)->toString().c_str());
                 (*destinationNodeIt)->assign(taskToMigration.first);
             }
             else
@@ -55,7 +56,7 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
         }
         else
         {
-            logger.log("Migrating %s back to waiting queue", taskToMigration.first.toString().c_str());
+            logger->debug("Migrating %s back to waiting queue", taskToMigration.first.toString().c_str());
         }
     }
 
@@ -77,7 +78,7 @@ void LoadBalancerImpl::scheduleWaitingTasks()
                                          [nodeId = nodeId](auto &&node) { return node->getId() == nodeId; });
         if (nodeIt != nodes.end())
         {
-            logger.log("Assigning %s to %s", task.toString().c_str(), (*nodeIt)->toString().c_str());
+            logger->debug("Assigning %s to %s", task.toString().c_str(), (*nodeIt)->toString().c_str());
             (*nodeIt)->assign(task);
             solution[nodeId].pop_front();
         }

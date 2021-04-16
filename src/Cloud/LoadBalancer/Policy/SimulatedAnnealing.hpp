@@ -27,7 +27,8 @@ class SimulatedAnnealing : public PolicyBase
         SolutionAssessorPtr solutionAssessor;
     };
 
-    SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters);
+    SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
+                       const logger::LoggerPtr &logger);
 
     MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
 
@@ -42,7 +43,7 @@ class SimulatedAnnealing : public PolicyBase
     Solution solution;
     TaskSet waitingTasks;
 
-    logger::Logger logger;
+    const logger::LoggerPtr logger;
 };
 
 } // namespace policy

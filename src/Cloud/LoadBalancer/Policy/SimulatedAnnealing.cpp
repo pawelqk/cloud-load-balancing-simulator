@@ -12,18 +12,19 @@ namespace loadbalancer
 namespace policy
 {
 
-SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters)
-    : PolicyBase(infrastructure), parameters(std::move(parameters)), logger("SimulatedAnnealing")
+SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
+                                       const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure), parameters(std::move(parameters)), logger(logger)
 {
 }
 
 MappingActions SimulatedAnnealing::buildTaskToNodeMapping(const TaskSet &tasks)
 {
-    logger.log("Mapping %u tasks", tasks.size());
+    logger->debug("Mapping %u tasks", tasks.size());
 
     const auto solution = createNewSolution(tasks);
 
-    logger.log("New solution created. Creating mapping");
+    logger->debug("New solution created. Creating mapping");
 
     MappingActions mappingActions;
     mappingActions.solution = solution;
@@ -47,7 +48,7 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
 
     std::uint32_t numberOfIterations{0};
 
-    logger.log("Starting annealing");
+    logger->debug("Starting annealing");
     while (temperature > parameters.endTemperature)
     {
         nextSolution = getNewSolutionFromNeighbourhood(currentSolution);
@@ -71,7 +72,7 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
 
 Solution SimulatedAnnealing::createRandomSolution(const TaskSet &tasks)
 {
-    logger.log("Creating random solution");
+    logger->debug("Creating random solution");
     Solution solution;
 
     std::vector<Task> tasksShuffled = {tasks.cbegin(), tasks.cend()};

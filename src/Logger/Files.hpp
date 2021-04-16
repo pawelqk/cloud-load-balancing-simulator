@@ -9,12 +9,12 @@ namespace logger
 class Files : public LoggingEndpoint
 {
   public:
-    Files();
+    Files(const std::string &dirName, const std::string &filePrefix);
 
     void log(const char *message) override;
 
   private:
-    std::string prepareFileName();
+    std::string prepareFileName(const std::string &filePrefix);
 
     std::ofstream file;
 };

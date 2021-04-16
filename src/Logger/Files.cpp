@@ -2,29 +2,31 @@
 
 #include <filesystem>
 #include <fstream>
+#include <ios>
+#include <iostream>
 
 namespace logger
 {
 
 namespace fs = std::filesystem;
 
-Files::Files()
+Files::Files(const std::string &dirName, const std::string &filePrefix)
 {
-    fs::create_directory("log");
-    std::ofstream file("log/" + prepareFileName(), std::ios::app);
+    fs::create_directory(dirName);
+    file.open(dirName + "/" + prepareFileName(filePrefix), std::ios::app);
 }
 
 void Files::log(const char *message)
 {
-    file << message << '\n';
+    file << message << std::endl;
 }
 
-std::string Files::prepareFileName()
+std::string Files::prepareFileName(const std::string &filePrefix)
 {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
     std::stringstream ss;
-    ss << "log_" << std::put_time(std::localtime(&now), "%Y-%m-%d_%X");
+    ss << filePrefix << "_" << std::put_time(std::localtime(&now), "%Y-%m-%d_%X");
     return ss.str();
 }
 

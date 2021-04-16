@@ -18,7 +18,7 @@ struct LoadBalancerShould : testing::Test
     const mocks::InfrastructureMockPtr infrastructureMock{std::make_shared<mocks::InfrastructureMock>()};
     policy::mocks::PolicyMock *policyMock{new policy::mocks::PolicyMock};
 
-    LoadBalancerImpl sut{policy::mocks::PolicyMockPtr{policyMock}, infrastructureMock};
+    LoadBalancerImpl sut{policy::mocks::PolicyMockPtr{policyMock}, infrastructureMock, nullptr};
 };
 
 TEST_F(LoadBalancerShould, HaveNoTasksWaitingWhenIdle)

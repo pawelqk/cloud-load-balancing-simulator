@@ -15,7 +15,8 @@ using Solution = std::map<NodeId, std::list<Task>>;
 class LoadBalancerImpl : public LoadBalancer
 {
   public:
-    LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure);
+    LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure,
+                     const logger::LoggerPtr &logger);
 
     void scheduleNewTasks(const TaskSet &tasks) override;
     void scheduleWaitingTasks() override;
@@ -30,7 +31,7 @@ class LoadBalancerImpl : public LoadBalancer
     const InfrastructurePtr infrastructure;
 
     policy::Solution solution;
-    logger::Logger logger;
+    const logger::LoggerPtr logger;
 };
 
 } // namespace loadbalancer

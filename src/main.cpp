@@ -7,15 +7,14 @@
 #include "Cloud/Task.hpp"
 #include "Experiment/ExperimentRunner.hpp"
 #include "Instance/Instance.hpp"
-#include "Logger/Files.hpp"
-#include "Logger/Logger.hpp"
-#include "Logger/Stdout.hpp"
 
-int main()
+bool cmdOptionExists(char **begin, char **end, const std::string &option)
 {
-    logger::Logger::addLoggingEndpoint(std::make_unique<logger::Stdout>());
-    logger::Logger::addLoggingEndpoint(std::make_unique<logger::Files>());
+    return std::find(begin, end, option) != end;
+}
 
+int main(int argc, char *argv[])
+{
     cloud::Task task1(0, 1, 4);
     cloud::Task task2(1, 1, 1);
     cloud::Task task3(2, 2, 11);
@@ -34,7 +33,10 @@ int main()
     instance::Instance i(tasks, nodesMips);
 
     experiment::ExperimentRunner runner{{i}};
-    runner.run();
+
+    const bool withDebug = cmdOptionExists(argv, argv + argc, "-d");
+    const bool withStdout = cmdOptionExists(argv, argv + argc, "--stdout");
+    runner.run(withDebug, withStdout);
 
     return 0;
 }

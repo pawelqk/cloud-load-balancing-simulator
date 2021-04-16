@@ -4,7 +4,8 @@
 namespace cloud
 {
 
-InfrastructureImpl::InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips) : nodes(prepareNodes(nodesMips))
+InfrastructureImpl::InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips, const logger::LoggerPtr &logger)
+    : nodes(prepareNodes(nodesMips, logger))
 {
 }
 
@@ -39,14 +40,14 @@ bool InfrastructureImpl::isIdle() const
     return std::all_of(nodes.cbegin(), nodes.cend(), [](auto &&node) { return node->isIdle(); });
 }
 
-NodePtrVec InfrastructureImpl::prepareNodes(const std::vector<uint32_t> &nodesMips)
+NodePtrVec InfrastructureImpl::prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger)
 {
     NodePtrVec nodes;
     nodes.reserve(nodesMips.size());
 
     NodeId nodeId{0};
     for (auto &&mips : nodesMips)
-        nodes.emplace_back(std::make_shared<NodeImpl>(nodeId++, mips));
+        nodes.emplace_back(std::make_shared<NodeImpl>(nodeId++, mips, logger));
 
     return nodes;
 }

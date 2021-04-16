@@ -5,7 +5,8 @@
 namespace cloud
 {
 
-NodeImpl::NodeImpl(const NodeId id, const std::uint32_t mips) : id(id), mips(mips), logger("Node " + std::to_string(id))
+NodeImpl::NodeImpl(const NodeId id, const std::uint32_t mips, const logger::LoggerPtr &logger)
+    : id(id), mips(mips), logger(logger)
 {
 }
 
@@ -26,9 +27,9 @@ Task NodeImpl::extractTask()
 {
     auto extractedTask = *task;
     if (!task->isDone())
-        logger.log("%s extracted in %s", task->toString().c_str(), toString().c_str());
+        logger->debug("%s extracted in %s", task->toString().c_str(), toString().c_str());
     else
-        logger.log("%s finished in %s", task->toString().c_str(), toString().c_str());
+        logger->debug("%s finished in %s", task->toString().c_str(), toString().c_str());
 
     task.reset();
 

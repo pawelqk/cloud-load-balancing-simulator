@@ -8,15 +8,15 @@
 namespace cloud
 {
 
-std::unique_ptr<Cloud> CloudBuilder::build(const std::vector<std::uint32_t> &nodesMips)
+std::unique_ptr<Cloud> CloudBuilder::build(const std::vector<std::uint32_t> &nodesMips, const logger::LoggerPtr &logger)
 {
-    const auto infrastructure = std::make_shared<InfrastructureImpl>(nodesMips);
+    const auto infrastructure = std::make_shared<InfrastructureImpl>(nodesMips, logger);
     loadbalancer::policy::SimulatedAnnealing::Parameters params{
         0.997, 1000, 0.00001, 1000, std::make_unique<loadbalancer::MakespanAssessor>(infrastructure)};
     return std::make_unique<Cloud>(
         std::make_unique<loadbalancer::LoadBalancerImpl>(
-            std::make_unique<loadbalancer::policy::SimulatedAnnealing>(infrastructure, std::move(params)),
-            infrastructure),
+            std::make_unique<loadbalancer::policy::SimulatedAnnealing>(infrastructure, std::move(params), logger),
+            infrastructure, logger),
         infrastructure);
 }
 

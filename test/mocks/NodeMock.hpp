@@ -19,27 +19,30 @@ class NodeMock : public testing::StrictMock<Node>
     {
     }
 
-    MOCK_METHOD(void, assign, (const Task &), (override));
+    MOCK_METHOD(void, assign, (const TaskPtr &), (override));
     MOCK_METHOD(void, work, (), (override));
-    MOCK_METHOD(Task, extractTask, (), (override));
+    MOCK_METHOD(TaskPtr, extractTask, (), (override));
 
-    MOCK_METHOD(bool, canTaskFit, (const Task &), (const, override));
+    MOCK_METHOD(bool, canTaskFit, (const TaskPtr &), (const, override));
     MOCK_METHOD(bool, isIdle, (), (const, override));
 
-    MOCK_METHOD(std::optional<Task>, getTask, (), (const, override));
+    MOCK_METHOD(TaskPtr, getTask, (), (const, override));
 
     inline NodeId getId() const override
     {
         return id;
     }
 
-    MOCK_METHOD(std::string, toString, (), (const, override));
+    inline std::string toString() const override
+    {
+        return "";
+    }
 
   private:
     const NodeId id;
 };
 
-using NodeMockPtr = std::shared_ptr<Node>;
+using NodeMockPtr = std::shared_ptr<NodeMock>;
 
 } // namespace mocks
 }; // namespace cloud

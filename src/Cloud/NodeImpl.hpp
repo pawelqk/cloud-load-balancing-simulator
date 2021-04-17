@@ -20,18 +20,18 @@ class NodeImpl : public Node
     explicit NodeImpl(const NodeId id, const std::uint32_t mips, const logger::LoggerPtr &logger);
     NodeImpl() = delete;
     NodeImpl(const NodeImpl &) = delete;
-    NodeImpl(NodeImpl &&) = default;
+    NodeImpl(NodeImpl &&) = delete;
     NodeImpl &operator=(const NodeImpl &) = delete;
     NodeImpl &operator=(NodeImpl &&) = delete;
 
-    void assign(const Task &task) override;
+    void assign(const TaskPtr &task) override;
     void work() override;
-    Task extractTask() override;
+    TaskPtr extractTask() override;
 
-    bool canTaskFit(const Task &task) const override;
+    bool canTaskFit(const TaskPtr &task) const override;
     bool isIdle() const override;
 
-    std::optional<Task> getTask() const override;
+    TaskPtr getTask() const override;
     NodeId getId() const override;
 
     std::string toString() const override;
@@ -40,7 +40,7 @@ class NodeImpl : public Node
     const NodeId id;
     const std::uint32_t mips;
 
-    std::optional<Task> task;
+    TaskPtr task;
     const logger::LoggerPtr logger;
 };
 

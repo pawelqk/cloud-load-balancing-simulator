@@ -22,7 +22,7 @@ class Random : public PolicyBase
   public:
     Random(const InfrastructureCPtr &infrastructure);
 
-    MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 };
 
 } // namespace policy

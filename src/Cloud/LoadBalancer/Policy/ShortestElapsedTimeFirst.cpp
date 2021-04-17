@@ -12,9 +12,9 @@ ShortestElapsedTimeFirst::ShortestElapsedTimeFirst(const InfrastructureCPtr &inf
 {
 }
 
-MappingActions ShortestElapsedTimeFirst::buildTaskToNodeMapping(const TaskSet &tasks)
+NodeToTaskMapping ShortestElapsedTimeFirst::buildNodeToTaskMapping(const TaskPtrVec &tasks)
 {
-    MappingActions actions;
+    NodeToTaskMapping actions;
 
     return actions;
 }

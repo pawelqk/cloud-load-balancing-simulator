@@ -8,59 +8,30 @@ namespace loadbalancer
 {
 
 LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure,
+                                   const mapping::DifferenceCalculatorPtr &differenceCalculator,
                                    const logger::LoggerPtr &logger)
-    : policy(std::move(policy)), infrastructure(infrastructure), logger(logger)
+    : policy(std::move(policy)), infrastructure(infrastructure), differenceCalculator(differenceCalculator),
+      logger(logger)
 {
 }
 
-void LoadBalancerImpl::scheduleNewTasks(const TaskSet &tasks)
+void LoadBalancerImpl::scheduleNewTasks(const TaskPtrVec &tasks)
 {
     logger->debug("Scheduling %u new tasks", tasks.size());
 
-    TaskSet tasksToSchedule;
-    const auto waitingTasks = getWaitingTasks();
-    std::set_union(tasks.cbegin(), tasks.cend(), waitingTasks.cbegin(), waitingTasks.cend(),
-                   std::inserter(tasksToSchedule, tasksToSchedule.cend()));
+    TaskPtrVec tasksToSchedule = getWaitingTasks();
+    tasksToSchedule.insert(tasksToSchedule.end(), tasks.cbegin(), tasks.cend());
 
-    const auto mapping = policy->buildTaskToNodeMapping(tasksToSchedule);
-    auto &nodes = infrastructure->getNodes();
+    nodeToTaskMapping = policy->buildNodeToTaskMapping(tasksToSchedule);
 
-    for (auto &&taskToMigration : mapping.migrations)
-    {
-        const auto sourceNodeIt =
-            std::find_if(nodes.begin(), nodes.end(),
-                         [nodeId = taskToMigration.second.source](auto &&node) { return node->getId() == nodeId; });
-        if (sourceNodeIt != nodes.end())
-        {
-            logger->debug("Extracting %s from %s", taskToMigration.first.toString().c_str(),
-                        (*sourceNodeIt)->toString().c_str());
-            (*sourceNodeIt)->extractTask();
-        }
-        else
-            throw std::runtime_error("Node given by policy should be present in load balancer");
+    const auto difference = differenceCalculator->calculate(nodeToTaskMapping);
 
-        if (taskToMigration.second.destination.has_value())
-        {
-            const auto destinationNodeIt =
-                std::find_if(nodes.begin(), nodes.end(), [nodeId = *taskToMigration.second.destination](auto &&node) {
-                    return node->getId() == nodeId;
-                });
-            if (destinationNodeIt != nodes.end())
-            {
-                logger->debug("Migrating %s to %s", taskToMigration.first.toString().c_str(),
-                            (*destinationNodeIt)->toString().c_str());
-                (*destinationNodeIt)->assign(taskToMigration.first);
-            }
-            else
-                throw std::runtime_error("Node given by policy should be present in load balancer");
-        }
-        else
-        {
-            logger->debug("Migrating %s back to waiting queue", taskToMigration.first.toString().c_str());
-        }
-    }
+    handlePreemptions(difference.preemptions);
 
-    solution = std::move(mapping.solution);
+    handleMigrations(difference.migrations);
+
+    for (auto &&nodeId : difference.nodeIdsWithoutChange)
+        nodeToTaskMapping[nodeId].pop_front();
 
     scheduleWaitingTasks();
 }
@@ -70,17 +41,17 @@ void LoadBalancerImpl::scheduleWaitingTasks()
     auto &nodes = infrastructure->getNodes();
     for (auto &&nodeId : extractFreeNodeIds())
     {
-        if (solution[nodeId].empty())
+        if (nodeToTaskMapping[nodeId].empty())
             continue;
 
-        const auto task = solution[nodeId].front();
+        const auto task = nodeToTaskMapping[nodeId].front();
         const auto nodeIt = std::find_if(nodes.begin(), nodes.end(),
                                          [nodeId = nodeId](auto &&node) { return node->getId() == nodeId; });
         if (nodeIt != nodes.end())
         {
-            logger->debug("Assigning %s to %s", task.toString().c_str(), (*nodeIt)->toString().c_str());
+            logger->debug("Assigning %s to %s", task->toString().c_str(), (*nodeIt)->toString().c_str());
             (*nodeIt)->assign(task);
-            solution[nodeId].pop_front();
+            nodeToTaskMapping[nodeId].pop_front();
         }
         else
             throw std::runtime_error("Node given by policy should be present in load balancer");
@@ -89,16 +60,68 @@ void LoadBalancerImpl::scheduleWaitingTasks()
 
 bool LoadBalancerImpl::areAnyTasksWaiting() const
 {
-    return std::any_of(solution.cbegin(), solution.cend(), [](auto &&entry) { return !entry.second.empty(); });
+    return std::any_of(nodeToTaskMapping.cbegin(), nodeToTaskMapping.cend(),
+                       [](auto &&entry) { return !entry.second.empty(); });
 }
 
-TaskSet LoadBalancerImpl::getWaitingTasks()
+TaskPtrVec LoadBalancerImpl::getWaitingTasks()
 {
-    TaskSet waitingTasks;
-    for (auto &&entry : solution)
-        waitingTasks.insert(entry.second.cbegin(), entry.second.cend());
+    TaskPtrVec waitingTasks;
+    for (auto &&entry : nodeToTaskMapping)
+        waitingTasks.insert(waitingTasks.end(), entry.second.cbegin(), entry.second.cend());
 
     return waitingTasks;
+}
+
+void LoadBalancerImpl::handlePreemptions(const std::vector<mapping::Preemption> &preemptions)
+{
+    auto &nodes = infrastructure->getNodes();
+    for (auto &&preemption : preemptions)
+    {
+        const auto sourceNodeIt = std::find_if(
+            nodes.begin(), nodes.end(), [nodeId = preemption.source](auto &&node) { return node->getId() == nodeId; });
+        if (sourceNodeIt != nodes.end())
+        {
+            logger->debug("Preempting %s from %s", preemption.task->toString().c_str(),
+                          (*sourceNodeIt)->toString().c_str());
+            (*sourceNodeIt)->extractTask()->performPreemption();
+        }
+        else
+            throw std::runtime_error("Node given by policy should be present in load balancer");
+    }
+}
+
+void LoadBalancerImpl::handleMigrations(const std::vector<mapping::Migration> &migrations)
+{
+    auto &nodes = infrastructure->getNodes();
+    for (auto &&migration : migrations)
+    {
+        const auto sourceNodeIt = std::find_if(
+            nodes.begin(), nodes.end(), [nodeId = migration.source](auto &&node) { return node->getId() == nodeId; });
+        if (sourceNodeIt != nodes.end())
+        {
+            logger->debug("Extracting %s from %s", migration.task->toString().c_str(),
+                          (*sourceNodeIt)->toString().c_str());
+            (*sourceNodeIt)->extractTask()->performMigration();
+        }
+        else
+            throw std::runtime_error("Node given by policy should be present in load balancer");
+    }
+    for (auto &&migration : migrations)
+    {
+        const auto destinationNodeIt =
+            std::find_if(nodes.begin(), nodes.end(),
+                         [nodeId = migration.destination](auto &&node) { return node->getId() == nodeId; });
+        if (destinationNodeIt != nodes.end())
+        {
+            logger->debug("Migrating %s to %s", migration.task->toString().c_str(),
+                          (*destinationNodeIt)->toString().c_str());
+            (*destinationNodeIt)->assign(migration.task);
+            nodeToTaskMapping[(*destinationNodeIt)->getId()].pop_front();
+        }
+        else
+            throw std::runtime_error("Node given by policy should be present in load balancer");
+    }
 }
 
 std::vector<NodeId> LoadBalancerImpl::extractFreeNodeIds()

@@ -18,21 +18,16 @@ SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure,
 {
 }
 
-MappingActions SimulatedAnnealing::buildTaskToNodeMapping(const TaskSet &tasks)
+NodeToTaskMapping SimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &tasks)
 {
     logger->debug("Mapping %u tasks", tasks.size());
 
     const auto solution = createNewSolution(tasks);
 
-    logger->debug("New solution created. Creating mapping");
-
-    MappingActions mappingActions;
-    mappingActions.solution = solution;
-
-    return mappingActions;
+    return solution;
 }
 
-Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
+NodeToTaskMapping SimulatedAnnealing::createNewSolution(const TaskPtrVec &tasks)
 {
     auto bestSolution = createRandomSolution(tasks);
     if (bestSolution.empty())
@@ -52,8 +47,8 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
     while (temperature > parameters.endTemperature)
     {
         nextSolution = getNewSolutionFromNeighbourhood(currentSolution);
-        const auto nextSolutionValue = parameters.solutionAssessor->assess(nextSolution);
-        const auto currentSolutionValue = parameters.solutionAssessor->assess(currentSolution);
+        const auto nextSolutionValue = parameters.mappingAssessor->assess(nextSolution);
+        const auto currentSolutionValue = parameters.mappingAssessor->assess(currentSolution);
 
         if (nextSolutionValue <= currentSolutionValue)
         {
@@ -70,34 +65,31 @@ Solution SimulatedAnnealing::createNewSolution(const TaskSet &tasks)
     return bestSolution;
 }
 
-Solution SimulatedAnnealing::createRandomSolution(const TaskSet &tasks)
+NodeToTaskMapping SimulatedAnnealing::createRandomSolution(const TaskPtrVec &tasks)
 {
     logger->debug("Creating random solution");
-    Solution solution;
+    NodeToTaskMapping solution;
 
-    std::vector<Task> tasksShuffled = {tasks.cbegin(), tasks.cend()};
+    auto tasksShuffled = tasks;
+    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
 
-    std::vector<std::vector<Task>::size_type> taskIndices(tasksShuffled.size());
-    std::iota(taskIndices.begin(), taskIndices.end(), 0);
-    std::shuffle(taskIndices.begin(), taskIndices.end(), utility::RandomNumberGenerator::getInstance());
-
-    for (auto &&taskId : taskIndices)
+    for (auto &&task : tasksShuffled)
     {
         std::vector<NodeId> possibleNodeIds;
         for (auto &&node : infrastructure->getNodes())
         {
-            if (node->canTaskFit(tasksShuffled[taskId]))
+            if (node->canTaskFit(task))
                 possibleNodeIds.push_back(node->getId());
         }
 
         std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(tasksShuffled[taskId]);
+        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
     }
 
     return solution;
 }
 
-Solution SimulatedAnnealing::getNewSolutionFromNeighbourhood(const Solution &solution)
+NodeToTaskMapping SimulatedAnnealing::getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution)
 {
     auto solutionInNeighbourhood = solution;
     auto &rng = utility::RandomNumberGenerator::getInstance();

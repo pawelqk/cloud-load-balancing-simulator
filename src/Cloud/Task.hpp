@@ -1,8 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include <ostream>
-#include <set>
+#include <list>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace cloud
 {
@@ -10,29 +11,28 @@ namespace cloud
 class Task
 {
   public:
-    explicit Task(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength);
-    ~Task();
+    virtual ~Task();
 
-    void work();
-    bool isDone() const;
+    virtual void work() = 0;
+    virtual bool isDone() const = 0;
+    virtual void performPreemption() = 0;
+    virtual void performMigration() = 0;
 
-    std::uint32_t getId() const;
-    std::uint32_t getMips() const;
-    std::uint32_t estimateTimeLeft() const;
+    virtual std::uint32_t getId() const = 0;
+    virtual std::uint32_t getMips() const = 0;
+    virtual std::uint32_t getInitialLength() const = 0;
+    virtual std::uint32_t getArrivalTime() const = 0;
+    virtual std::uint32_t estimateTimeLeft() const = 0;
+    virtual std::uint32_t estimateTimeLeftAfterMigration() const = 0;
+    virtual std::uint32_t estimateTimeLeftAfterPreemption() const = 0;
 
-    bool operator<(const Task &other) const;
     bool operator==(const Task &other) const;
 
-    std::string toString() const;
-
-  private:
-    const std::uint32_t id;
-    const std::uint32_t mips;
-    const std::uint32_t initialLength;
-
-    std::uint32_t length;
+    virtual std::string toString() const = 0;
 };
 
-using TaskSet = std::set<Task>;
+using TaskPtr = std::shared_ptr<Task>;
+using TaskPtrList = std::list<TaskPtr>;
+using TaskPtrVec = std::vector<TaskPtr>;
 
 } // namespace cloud

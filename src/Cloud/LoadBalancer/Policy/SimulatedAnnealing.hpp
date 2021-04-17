@@ -4,7 +4,7 @@
 #include <list>
 
 #include "Cloud/Infrastructure.hpp"
-#include "Cloud/LoadBalancer/SolutionAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/Task.hpp"
 #include "PolicyBase.hpp"
 
@@ -24,24 +24,21 @@ class SimulatedAnnealing : public PolicyBase
         double startTemperature;
         double endTemperature;
         std::uint16_t iterationsPerStep;
-        SolutionAssessorPtr solutionAssessor;
+        mapping::MappingAssessorPtr mappingAssessor;
     };
 
     SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
                        const logger::LoggerPtr &logger);
 
-    MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 
   private:
-    Solution createNewSolution(const TaskSet &tasks);
-    Solution createRandomSolution(const TaskSet &tasks);
-    Solution getNewSolutionFromNeighbourhood(const Solution &solution);
+    NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
+    NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks);
+    NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution);
     std::vector<NodeId> extractFreeNodeIds();
 
     const Parameters parameters;
-
-    Solution solution;
-    TaskSet waitingTasks;
 
     const logger::LoggerPtr logger;
 };

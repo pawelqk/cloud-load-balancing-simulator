@@ -16,7 +16,7 @@ class ShortestRemainingTimeFirst : public PolicyBase
   public:
     ShortestRemainingTimeFirst(const InfrastructureCPtr &infrastructure);
 
-    MappingActions buildTaskToNodeMapping(const TaskSet &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 };
 
 } // namespace policy

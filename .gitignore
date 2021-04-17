@@ -20,4 +20,4 @@ bin/
 .clangd
 
 # logs
-log/
+logs/

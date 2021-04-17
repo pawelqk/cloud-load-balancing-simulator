@@ -16,14 +16,16 @@ using NodeId = std::uint32_t;
 class Node
 {
   public:
-    virtual void assign(const Task &task) = 0;
-    virtual void work() = 0;
-    virtual Task extractTask() = 0;
+    virtual ~Node();
 
-    virtual bool canTaskFit(const Task &task) const = 0;
+    virtual void assign(const TaskPtr &task) = 0;
+    virtual void work() = 0;
+    virtual TaskPtr extractTask() = 0;
+
+    virtual bool canTaskFit(const TaskPtr &task) const = 0;
     virtual bool isIdle() const = 0;
 
-    virtual std::optional<Task> getTask() const = 0;
+    virtual TaskPtr getTask() const = 0;
     virtual NodeId getId() const = 0;
 
     bool operator<(const Node &other) const;

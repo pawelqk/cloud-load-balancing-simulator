@@ -10,22 +10,22 @@ NodeImpl::NodeImpl(const NodeId id, const std::uint32_t mips, const logger::Logg
 {
 }
 
-void NodeImpl::assign(const Task &task)
+void NodeImpl::assign(const TaskPtr &task)
 {
-    this->task.emplace(task);
+    this->task = task;
 }
 
 void NodeImpl::work()
 {
-    if (task.has_value())
+    if (task != nullptr)
     {
         task->work();
     }
 }
 
-Task NodeImpl::extractTask()
+TaskPtr NodeImpl::extractTask()
 {
-    auto extractedTask = *task;
+    auto extractedTask = task;
     if (!task->isDone())
         logger->debug("%s extracted in %s", task->toString().c_str(), toString().c_str());
     else
@@ -36,17 +36,17 @@ Task NodeImpl::extractTask()
     return extractedTask;
 }
 
-bool NodeImpl::canTaskFit(const Task &task) const
+bool NodeImpl::canTaskFit(const TaskPtr &task) const
 {
-    return mips >= task.getMips();
+    return mips >= task->getMips();
 }
 
 bool NodeImpl::isIdle() const
 {
-    return !task.has_value() || task->isDone();
+    return task == nullptr || task->isDone();
 }
 
-std::optional<Task> NodeImpl::getTask() const
+TaskPtr NodeImpl::getTask() const
 {
     return task;
 }

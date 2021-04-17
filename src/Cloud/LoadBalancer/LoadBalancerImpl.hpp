@@ -3,6 +3,7 @@
 #include "Cloud/Infrastructure.hpp"
 #include "LoadBalancer.hpp"
 #include "Logger/Logger.hpp"
+#include "Mapping/DifferenceCalculator.hpp"
 #include "Policy/Policy.hpp"
 
 namespace cloud
@@ -10,27 +11,28 @@ namespace cloud
 namespace loadbalancer
 {
 
-using Solution = std::map<NodeId, std::list<Task>>;
-
 class LoadBalancerImpl : public LoadBalancer
 {
   public:
     LoadBalancerImpl(policy::PolicyPtr &&policy, const InfrastructurePtr &infrastructure,
-                     const logger::LoggerPtr &logger);
+                     const mapping::DifferenceCalculatorPtr &differenceCalculator, const logger::LoggerPtr &logger);
 
-    void scheduleNewTasks(const TaskSet &tasks) override;
+    void scheduleNewTasks(const TaskPtrVec &tasks) override;
     void scheduleWaitingTasks() override;
 
     bool areAnyTasksWaiting() const override;
 
   private:
-    TaskSet getWaitingTasks();
+    TaskPtrVec getWaitingTasks();
+    void handlePreemptions(const std::vector<mapping::Preemption> &preemptions);
+    void handleMigrations(const std::vector<mapping::Migration> &migrations);
     std::vector<NodeId> extractFreeNodeIds();
 
     const policy::PolicyPtr policy;
     const InfrastructurePtr infrastructure;
+    const mapping::DifferenceCalculatorPtr differenceCalculator;
 
-    policy::Solution solution;
+    policy::NodeToTaskMapping nodeToTaskMapping;
     const logger::LoggerPtr logger;
 };
 

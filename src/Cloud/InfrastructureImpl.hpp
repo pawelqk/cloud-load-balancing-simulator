@@ -28,10 +28,10 @@ class InfrastructureImpl : public Infrastructure
 
     bool isIdle() const override;
 
-    TaskSet advanceProcessing() override;
+    TaskPtrVec advanceProcessing() override;
 
   private:
-    NodePtrVec prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger);
+    void prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger);
 
     NodePtrVec nodes;
 };

@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 Files::Files(const std::string &dirName, const std::string &filePrefix)
 {
-    fs::create_directory(dirName);
+    fs::create_directories(dirName);
     file.open(dirName + "/" + prepareFileName(filePrefix), std::ios::app);
 }
 

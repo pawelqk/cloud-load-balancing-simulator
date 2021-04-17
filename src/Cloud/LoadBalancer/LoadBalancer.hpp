@@ -17,7 +17,7 @@ class LoadBalancer
   public:
     virtual ~LoadBalancer() = default;
 
-    virtual void scheduleNewTasks(const TaskSet &tasks) = 0;
+    virtual void scheduleNewTasks(const TaskPtrVec &tasks) = 0;
     virtual void scheduleWaitingTasks() = 0;
     virtual bool areAnyTasksWaiting() const = 0;
 };

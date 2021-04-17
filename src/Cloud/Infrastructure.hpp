@@ -15,7 +15,7 @@ class Infrastructure
 
     virtual bool isIdle() const = 0;
 
-    virtual TaskSet advanceProcessing() = 0;
+    virtual TaskPtrVec advanceProcessing() = 0;
 };
 
 using InfrastructurePtr = std::shared_ptr<Infrastructure>;

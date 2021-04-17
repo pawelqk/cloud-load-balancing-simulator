@@ -11,11 +11,18 @@ RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : PolicyBase(in
 {
 }
 
-MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
+NodeToTaskMapping RoundRobin::buildNodeToTaskMapping(const TaskPtrVec &tasks)
 {
-    MappingActions actions;
-
     const auto &nodes = infrastructure->getNodes();
+
+    NodeToTaskMapping mapping;
+    for (auto &&node : nodes)
+    {
+        const auto task = node->getTask();
+        if (task != nullptr)
+            mapping[node->getId()].push_back(task);
+    }
+
     for (auto &&task : tasks)
     {
         for (auto i = 0u; i < nodes.size(); ++i)
@@ -25,13 +32,13 @@ MappingActions RoundRobin::buildTaskToNodeMapping(const TaskSet &tasks)
 
             if (node->canTaskFit(task))
             {
-                actions.solution[node->getId()].push_back(task);
+                mapping[node->getId()].push_back(task);
                 break;
             }
         }
     }
 
-    return actions;
+    return mapping;
 }
 
 } // namespace policy

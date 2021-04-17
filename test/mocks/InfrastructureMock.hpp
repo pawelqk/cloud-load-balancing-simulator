@@ -19,7 +19,7 @@ class InfrastructureMock : public testing::StrictMock<Infrastructure>
 
     MOCK_METHOD(bool, isIdle, (), (const, override));
 
-    MOCK_METHOD(TaskSet, advanceProcessing, (), (override));
+    MOCK_METHOD(TaskPtrVec, advanceProcessing, (), (override));
 };
 
 using InfrastructureMockPtr = std::shared_ptr<InfrastructureMock>;

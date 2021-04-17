@@ -4,34 +4,37 @@
 #include <iostream>
 
 #include "Cloud/CloudBuilder.hpp"
+#include "Cloud/TimingServiceImpl.hpp"
 
 namespace experiment
 {
 
-Experiment::Experiment(const instance::Instance &instance, const logger::LoggerPtr &logger)
-    : instance(instance), logger(logger)
+Experiment::Experiment(const instance::Instance &instance, const cloud::Policy &policy,
+                       const cloud::Assessment &assessment, const logger::LoggerPtr &logger)
+    : instance(instance), policy(policy), assessment(assessment), logger(logger)
 {
 }
 
 void Experiment::run()
 {
-    cloud::CloudBuilder builder;
-    const auto cloud = builder.build(instance.getNodesMips(), logger);
+    cloud::CloudBuilder builder{policy, assessment};
+    const auto timingService = std::make_shared<cloud::TimingServiceImpl>(logger);
+    const auto cloud = builder.build(instance.getNodesMips(), timingService, logger);
 
-    // NOTE: tasks of length 0 will be immediately kicked out without even noticing them
     logger->info("Beginning experiment");
-    std::uint32_t timeSpent{0};
+
     while (true)
     {
-        cloud->tick(instance.getTasksInTimePoint(timeSpent));
+        const auto currentTime = timingService->getTicks();
 
-        if (cloud->isIdle() && instance.allTasksInserted(timeSpent))
+        cloud->tick(instance.getTasksInTimePoint(currentTime));
+        if (cloud->isIdle() && instance.allTasksInserted(currentTime))
             break;
 
-        logger->debug("tick %u", ++timeSpent);
+        timingService->tick();
     }
 
-    logger->info("Done. Time spent: %u", timeSpent);
+    logger->info("Done. Makespan: %u, Flowtime: %u", timingService->getTicks(), timingService->getTotalFlowtime());
 }
 
 } // namespace experiment

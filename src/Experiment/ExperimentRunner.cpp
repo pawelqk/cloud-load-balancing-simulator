@@ -11,26 +11,32 @@
 namespace experiment
 {
 
-ExperimentRunner::ExperimentRunner(const std::vector<instance::Instance> &instances) : instances(instances)
+ExperimentRunner::ExperimentRunner(const std::vector<instance::Instance> &instances, const Config &config)
+    : instances(instances), config(config)
 {
 }
 
-void ExperimentRunner::run(bool withDebug, bool withStdout)
+void ExperimentRunner::run(const cloud::Policy &policy, const cloud::Assessment &assessment)
 {
-    logger::Logger logger{"ExperimentRunner", false};
+    logger::Logger logger{"ExperimentRunner", config.debug};
     logger.addLoggingEndpoint(std::make_unique<logger::Stdout>());
 
     logger.info("Running experiments");
+
     std::vector<std::future<void>> futures;
     futures.reserve(instances.size());
     for (auto i = 0u; i < instances.size(); ++i)
     {
-        const auto logger = std::make_shared<logger::Logger>("Experiment" + std::to_string(i), withDebug);
-        if (withStdout)
+        const std::string runName{"Experiment-" + std::to_string(i)};
+        const auto logger = std::make_shared<logger::Logger>(runName, config.debug);
+        if (config.stdout)
             logger->addLoggingEndpoint(std::make_unique<logger::Stdout>());
-        logger->addLoggingEndpoint(std::make_unique<logger::Files>("log", "Experiment" + std::to_string(i)));
-        futures.emplace_back(std::async([logger, instance = instances[i]]() {
-            Experiment e{instance, logger};
+        if (config.files)
+            logger->addLoggingEndpoint(
+                std::make_unique<logger::Files>("logs/" + toString(policy) + "/" + toString(assessment), runName));
+
+        futures.emplace_back(std::async([instance = instances[i], policy, assessment, logger]() {
+            Experiment e{instance, policy, assessment, logger};
             e.run();
         }));
     }
@@ -38,7 +44,7 @@ void ExperimentRunner::run(bool withDebug, bool withStdout)
     for (auto i = 0u; i < instances.size(); ++i)
     {
         futures[i].get();
-        logger.info(std::string{"Task " + std::to_string(i) + " finished"}.c_str());
+        logger.info(std::string{"Experiment " + std::to_string(i) + " finished"}.c_str());
     }
 }
 

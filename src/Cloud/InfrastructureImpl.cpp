@@ -5,8 +5,8 @@ namespace cloud
 {
 
 InfrastructureImpl::InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips, const logger::LoggerPtr &logger)
-    : nodes(prepareNodes(nodesMips, logger))
 {
+    prepareNodes(nodesMips, logger);
 }
 
 NodePtrVec &InfrastructureImpl::getNodes()
@@ -19,9 +19,9 @@ const NodePtrVec &InfrastructureImpl::getNodes() const
     return nodes;
 }
 
-TaskSet InfrastructureImpl::advanceProcessing()
+TaskPtrVec InfrastructureImpl::advanceProcessing()
 {
-    TaskSet finishedTasks;
+    TaskPtrVec finishedTasks;
     for (auto &&node : nodes)
     {
         if (node->isIdle())
@@ -29,7 +29,7 @@ TaskSet InfrastructureImpl::advanceProcessing()
 
         node->work();
         if (node->isIdle())
-            finishedTasks.insert(node->extractTask());
+            finishedTasks.push_back(node->extractTask());
     }
 
     return finishedTasks;
@@ -40,16 +40,13 @@ bool InfrastructureImpl::isIdle() const
     return std::all_of(nodes.cbegin(), nodes.cend(), [](auto &&node) { return node->isIdle(); });
 }
 
-NodePtrVec InfrastructureImpl::prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger)
+void InfrastructureImpl::prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger)
 {
-    NodePtrVec nodes;
     nodes.reserve(nodesMips.size());
 
     NodeId nodeId{0};
     for (auto &&mips : nodesMips)
         nodes.emplace_back(std::make_shared<NodeImpl>(nodeId++, mips, logger));
-
-    return nodes;
 }
 
 } // namespace cloud

@@ -14,7 +14,7 @@ namespace mocks
 class LoadBalancerMock : public testing::StrictMock<LoadBalancer>
 {
   public:
-    MOCK_METHOD(void, scheduleNewTasks, (const TaskSet &), (override));
+    MOCK_METHOD(void, scheduleNewTasks, (const TaskPtrVec &), (override));
     MOCK_METHOD(void, scheduleWaitingTasks, (), (override));
     MOCK_METHOD(bool, areAnyTasksWaiting, (), (const, override));
 };

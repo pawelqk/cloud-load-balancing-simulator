@@ -3,13 +3,12 @@
 namespace instance
 {
 
-Instance::Instance(const std::map<std::uint32_t, std::vector<cloud::Task>> &tasks,
-                   const std::vector<std::uint32_t> &nodesMips)
+Instance::Instance(const std::map<std::uint32_t, TaskDataVec> &tasks, const std::vector<std::uint32_t> &nodesMips)
     : tasks(tasks), nodesMips(nodesMips)
 {
 }
 
-std::vector<cloud::Task> Instance::getTasksInTimePoint(const std::uint32_t timePoint) const
+TaskDataVec Instance::getTasksInTimePoint(const std::uint32_t timePoint) const
 {
     const auto taskIt = tasks.find(timePoint);
     if (taskIt != tasks.end())

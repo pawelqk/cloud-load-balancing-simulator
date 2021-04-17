@@ -16,26 +16,14 @@ namespace loadbalancer
 namespace policy
 {
 
-using Solution = std::map<NodeId, std::list<Task>>;
-
-struct Migration
-{
-    NodeId source;
-    std::optional<NodeId> destination;
-};
-
-struct MappingActions
-{
-    std::map<Task, Migration> migrations;
-    Solution solution;
-};
+using NodeToTaskMapping = std::map<NodeId, TaskPtrList>;
 
 class Policy
 {
   public:
     virtual ~Policy() = default;
 
-    virtual MappingActions buildTaskToNodeMapping(const TaskSet &tasks) = 0;
+    virtual NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) = 0;
 };
 
 using PolicyPtr = std::unique_ptr<Policy>;

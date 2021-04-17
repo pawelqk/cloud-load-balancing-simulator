@@ -17,7 +17,8 @@ namespace mocks
 
 class PolicyMock : public testing::StrictMock<Policy>
 {
-    MOCK_METHOD(MappingActions, buildTaskToNodeMapping, (const TaskSet &), (override));
+  public:
+    MOCK_METHOD(NodeToTaskMapping, buildNodeToTaskMapping, (const TaskPtrVec &), (override));
 };
 
 using PolicyMockPtr = std::unique_ptr<PolicyMock>;

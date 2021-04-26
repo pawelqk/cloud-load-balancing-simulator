@@ -22,7 +22,8 @@ using TaskDataVec = std::vector<TaskData>;
 class Instance
 {
   public:
-    Instance(const std::map<std::uint32_t, TaskDataVec> &tasks, const std::vector<std::uint32_t> &nodesMips);
+    Instance(const std::uint32_t id, const std::map<std::uint32_t, TaskDataVec> &tasks,
+             const std::vector<std::uint32_t> &nodesMips);
 
     TaskDataVec getTasksInTimePoint(const std::uint32_t timePoint) const;
 
@@ -30,7 +31,10 @@ class Instance
 
     bool allTasksInserted(const std::uint32_t currentPointInTime) const;
 
+    std::string toString() const;
+
   private:
+    const std::uint32_t id;
     const std::map<std::uint32_t, TaskDataVec> tasks;
     const std::vector<std::uint32_t> nodesMips;
 };

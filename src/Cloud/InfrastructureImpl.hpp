@@ -31,8 +31,10 @@ class InfrastructureImpl : public Infrastructure
     TaskPtrVec advanceProcessing() override;
 
   private:
-    void prepareNodes(const std::vector<uint32_t> &nodesMips, const logger::LoggerPtr &logger);
+    void prepareNodes(const std::vector<uint32_t> &nodesMips);
+    std::string toString() const;
 
+    const logger::LoggerPtr logger;
     NodePtrVec nodes;
 };
 

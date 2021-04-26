@@ -1,7 +1,12 @@
+#include <cstdint>
+#include <fstream>
 #include <iostream>
+#include <random>
 #include <tuple>
 #include <utility>
 #include <vector>
+
+#include <nlohmann/json.hpp>
 
 #include "Cloud/CloudBuilder.hpp"
 #include "Cloud/Node.hpp"
@@ -10,6 +15,8 @@
 #include "Experiment/ExperimentRunner.hpp"
 #include "Instance/Instance.hpp"
 
+using json = nlohmann::json;
+
 bool cmdOptionExists(char **begin, char **end, const std::string &option)
 {
     return std::find(begin, end, option) != end;
@@ -17,36 +24,64 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option)
 
 int main(int argc, char *argv[])
 {
-    instance::TaskData task1{1, 4};
-    instance::TaskData task2{4, 8};
-    instance::TaskData task3{2, 11};
-    instance::TaskData task4{3, 12};
-    instance::TaskData task5{1, 1};
-    instance::TaskData task6{4, 12};
-    instance::TaskData task7{2, 15};
-    std::vector<std::uint32_t> nodesMips;
-    std::map<std::uint32_t, instance::TaskDataVec> tasks;
+    std::ifstream configFile("config.json");
+    if (configFile.fail())
+    {
+        std::cout << "Please provide config.json file\n";
+        return 1;
+    }
 
-    tasks.emplace(std::piecewise_construct, std::forward_as_tuple(2),
-                  std::forward_as_tuple(instance::TaskDataVec{task6, task7}));
-    tasks.emplace(std::piecewise_construct, std::forward_as_tuple(1),
-                  std::forward_as_tuple(instance::TaskDataVec{task1, task3, task4, task5}));
-    tasks.emplace(std::piecewise_construct, std::forward_as_tuple(0),
-                  std::forward_as_tuple(instance::TaskDataVec{task2}));
-    nodesMips.push_back(10);
-    nodesMips.push_back(10);
-    nodesMips.push_back(10);
-    nodesMips.push_back(10);
+    json configuration;
+    configFile >> configuration;
 
-    instance::Instance i(tasks, nodesMips);
+    const std::uint_fast64_t seed = configuration.value("seed", std::random_device{}());
+    const auto algorithms = configuration.at("algorithms");
+    std::vector<cloud::Policy> policies;
+    for (auto &&algorithm : algorithms)
+    {
+        if (algorithm.at("name") == "Random")
+            policies.push_back(cloud::Policy::Random);
+        else if (algorithm.at("name") == "Round robin")
+            policies.push_back(cloud::Policy::RoundRobin);
+        else if (algorithm.at("name") == "Simulated annealing")
+            policies.push_back(cloud::Policy::SimulatedAnnealing);
+    }
+
+    std::ifstream instancesFile("instances.json");
+    if (instancesFile.fail())
+    {
+        std::cout << "Please provide instances.json file\n";
+        return 1;
+    }
+
+    json instancesData;
+    instancesFile >> instancesData;
+
+    std::vector<instance::Instance> instances;
+    instances.reserve(instancesData.size());
+    for (auto &&instanceData : instancesData)
+    {
+        std::map<std::uint32_t, instance::TaskDataVec> tasks;
+        const auto &tasksData = instanceData.at("tasks");
+        for (auto &&taskData : tasksData)
+        {
+            tasks[taskData.at("arrivalTime")].emplace_back(taskData.at("requiredMips"), taskData.at("length"));
+        }
+
+        const auto &instanceId = instanceData.at("id");
+        const auto &nodesMips = instanceData.at("nodesMips");
+
+        instances.emplace_back(instanceId, tasks, nodesMips);
+    }
 
     experiment::ExperimentRunner::Config runnerConfig;
     runnerConfig.debug = cmdOptionExists(argv, argv + argc, "-d");
     runnerConfig.stdout = cmdOptionExists(argv, argv + argc, "--stdout");
     runnerConfig.files = cmdOptionExists(argv, argv + argc, "--files");
 
-    experiment::ExperimentRunner runner{{i}, runnerConfig};
-    runner.run(cloud::Policy::Random, cloud::Assessment::Makespan);
+    experiment::ExperimentRunner runner{instances, runnerConfig};
+    for (auto &&policy : policies)
+        runner.run(policy, cloud::Assessment::Makespan, seed);
 
     return 0;
 }

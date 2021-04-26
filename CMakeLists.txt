@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
 
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
+endif()
+
+message("Building with TYPE ${CMAKE_BUILD_TYPE}")
+
 project(cloud-load-balancing-simulator)
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")

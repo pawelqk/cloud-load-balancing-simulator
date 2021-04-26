@@ -44,7 +44,7 @@ void TaskImpl::performMigration()
 
 std::uint32_t TaskImpl::getId() const
 {
-    return mips;
+    return id;
 }
 
 std::uint32_t TaskImpl::getMips() const

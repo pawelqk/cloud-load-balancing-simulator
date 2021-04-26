@@ -2,17 +2,17 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <sstream>
 
 #include "TaskImpl.hpp"
 
 namespace cloud
 {
 
-std::uint32_t Cloud::nextTaskId = 0;
-
 Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructurePtr &infrastructure,
-             const TimingServicePtr &timingService)
-    : loadBalancer(std::move(loadBalancer)), infrastructure(infrastructure), timingService(timingService)
+             const TimingServicePtr &timingService, const logger::LoggerPtr &logger)
+    : loadBalancer(std::move(loadBalancer)), infrastructure(infrastructure), timingService(timingService),
+      logger(logger), nextTaskId(0)
 {
 }
 
@@ -42,6 +42,8 @@ TaskPtrVec Cloud::createTasks(const instance::TaskDataVec taskDatas)
     for (auto &&taskData : taskDatas)
         tasks.push_back(std::make_shared<TaskImpl>(nextTaskId++, taskData.requiredMips, taskData.length, ticks));
 
+    logNewTasks(tasks);
+
     return tasks;
 }
 
@@ -53,6 +55,23 @@ void Cloud::addFlowtime(const TaskPtrVec &finishedTasks)
         totalFlowTime += (currentTime - task->getArrivalTime());
 
     timingService->addFlowtime(totalFlowTime);
+}
+
+void Cloud::logNewTasks(const TaskPtrVec &tasks)
+{
+    std::stringstream ss;
+    ss << "Inserted new tasks:\n";
+    for (auto &&task : tasks)
+        ss << "id: " << task->getId() << ", mips: " << task->getMips() << ", length: " << task->getInitialLength()
+           << "\n";
+
+    auto output = ss.str();
+
+    const auto newLineToDeletePos = output.rfind('\n');
+    if (newLineToDeletePos != std::string::npos)
+        output.erase(newLineToDeletePos);
+
+    logger->debug("%s", output.c_str());
 }
 
 } // namespace cloud

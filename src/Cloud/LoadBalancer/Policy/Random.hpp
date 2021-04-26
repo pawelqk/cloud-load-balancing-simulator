@@ -20,9 +20,11 @@ namespace policy
 class Random : public PolicyBase
 {
   public:
-    Random(const InfrastructureCPtr &infrastructure);
+    Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+
+    const logger::LoggerPtr logger;
 };
 
 } // namespace policy

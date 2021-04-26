@@ -6,11 +6,13 @@
 namespace utility
 {
 
-class RandomNumberGenerator : public std::mt19937
+class RandomNumberGenerator : public std::mt19937_64
 {
   public:
     static RandomNumberGenerator &getInstance();
+    static RandomNumberGenerator &getInstance(const std::uint_fast64_t seed);
 
+    RandomNumberGenerator() = delete;
     RandomNumberGenerator(const RandomNumberGenerator &) = delete;
     RandomNumberGenerator(RandomNumberGenerator &&) = delete;
 
@@ -18,7 +20,7 @@ class RandomNumberGenerator : public std::mt19937
     RandomNumberGenerator &operator=(RandomNumberGenerator &&) = delete;
 
   private:
-    RandomNumberGenerator();
+    RandomNumberGenerator(const std::uint_fast64_t seed);
 };
 
 } // namespace utility

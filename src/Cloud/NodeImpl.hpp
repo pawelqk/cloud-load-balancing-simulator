@@ -33,6 +33,7 @@ class NodeImpl : public Node
 
     TaskPtr getTask() const override;
     NodeId getId() const override;
+    std::uint32_t getMips() const override;
 
     std::string toString() const override;
 

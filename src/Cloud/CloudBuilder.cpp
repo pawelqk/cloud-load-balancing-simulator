@@ -68,7 +68,7 @@ std::unique_ptr<Cloud> CloudBuilder::build(const std::vector<std::uint32_t> &nod
     return std::make_unique<Cloud>(std::make_unique<loadbalancer::LoadBalancerImpl>(
                                        buildPolicy(infrastructure, differenceCalculator, timingService, logger),
                                        infrastructure, differenceCalculator, logger),
-                                   infrastructure, timingService);
+                                   infrastructure, timingService, logger);
 }
 
 loadbalancer::policy::PolicyPtr CloudBuilder::buildPolicy(
@@ -78,7 +78,7 @@ loadbalancer::policy::PolicyPtr CloudBuilder::buildPolicy(
     switch (chosenPolicy)
     {
     case Policy::Random:
-        return std::make_unique<loadbalancer::policy::Random>(infrastructure);
+        return std::make_unique<loadbalancer::policy::Random>(infrastructure, logger);
     case Policy::RoundRobin:
         return std::make_unique<loadbalancer::policy::RoundRobin>(infrastructure);
     case Policy::ShortestRemainingTimeFirst:

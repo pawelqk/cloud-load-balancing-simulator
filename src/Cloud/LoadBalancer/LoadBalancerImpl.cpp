@@ -23,6 +23,7 @@ void LoadBalancerImpl::scheduleNewTasks(const TaskPtrVec &tasks)
     tasksToSchedule.insert(tasksToSchedule.end(), tasks.cbegin(), tasks.cend());
 
     nodeToTaskMapping = policy->buildNodeToTaskMapping(tasksToSchedule);
+    logger->debug("new mapping: \n%s", policy::toString(nodeToTaskMapping).c_str());
 
     const auto difference = differenceCalculator->calculate(nodeToTaskMapping);
 

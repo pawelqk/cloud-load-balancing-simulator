@@ -27,6 +27,7 @@ class Node
 
     virtual TaskPtr getTask() const = 0;
     virtual NodeId getId() const = 0;
+    virtual std::uint32_t getMips() const = 0;
 
     bool operator<(const Node &other) const;
     bool operator==(const Node &other) const;

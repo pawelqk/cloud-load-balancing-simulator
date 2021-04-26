@@ -29,7 +29,7 @@ TaskPtr NodeImpl::extractTask()
     if (!task->isDone())
         logger->debug("%s extracted in %s", task->toString().c_str(), toString().c_str());
     else
-        logger->debug("%s finished in %s", task->toString().c_str(), toString().c_str());
+        logger->debug("[TASK FINISH] %s finished in %s", task->toString().c_str(), toString().c_str());
 
     task.reset();
 
@@ -54,6 +54,11 @@ TaskPtr NodeImpl::getTask() const
 NodeId NodeImpl::getId() const
 {
     return id;
+}
+
+std::uint32_t NodeImpl::getMips() const
+{
+    return mips;
 }
 
 std::string NodeImpl::toString() const

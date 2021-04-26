@@ -5,6 +5,7 @@
 
 #include "Cloud/CloudBuilder.hpp"
 #include "Cloud/TimingServiceImpl.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace experiment
 {
@@ -15,13 +16,15 @@ Experiment::Experiment(const instance::Instance &instance, const cloud::Policy &
 {
 }
 
-void Experiment::run()
+void Experiment::run(const std::uint_fast64_t seed)
 {
     cloud::CloudBuilder builder{policy, assessment};
     const auto timingService = std::make_shared<cloud::TimingServiceImpl>(logger);
     const auto cloud = builder.build(instance.getNodesMips(), timingService, logger);
 
-    logger->info("Beginning experiment");
+    logger->info("Beginning experiment with seed: %u", seed);
+    utility::RandomNumberGenerator::getInstance(seed);
+    logger->info("Instance: \n%s", instance.toString().c_str());
 
     while (true)
     {

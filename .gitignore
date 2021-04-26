@@ -9,6 +9,7 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+_deps/
 
 # gtest
 gtest/
@@ -21,3 +22,7 @@ bin/
 
 # logs
 logs/
+
+# instance and config jsons
+config*.json
+instances*.json

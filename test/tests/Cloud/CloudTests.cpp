@@ -6,6 +6,7 @@
 #include "Cloud/Task.hpp"
 #include "Cloud/TaskImpl.hpp"
 #include "Instance/Instance.hpp"
+#include "Logger/Logger.hpp"
 #include "mocks/InfrastructureMock.hpp"
 #include "mocks/LoadBalancerMock.hpp"
 #include "mocks/TimingServiceMock.hpp"
@@ -31,7 +32,8 @@ struct CloudShould : testing::Test
     const mocks::InfrastructureMockPtr infrastructureMock{std::make_shared<mocks::InfrastructureMock>()};
     const mocks::TimingServiceMockPtr timingServiceMock{std::make_shared<mocks::TimingServiceMock>()};
 
-    Cloud sut{loadbalancer::mocks::LoadBalancerMockPtr{loadBalancerMock}, infrastructureMock, timingServiceMock};
+    Cloud sut{loadbalancer::mocks::LoadBalancerMockPtr{loadBalancerMock}, infrastructureMock, timingServiceMock,
+              std::make_shared<logger::Logger>("", false)};
 };
 
 TEST_F(CloudShould, NotBeIdleWhenInfrastructureIsNotIdleOrThereAreTasksWaiting)

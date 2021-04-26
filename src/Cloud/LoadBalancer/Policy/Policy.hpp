@@ -18,10 +18,12 @@ namespace policy
 
 using NodeToTaskMapping = std::map<NodeId, TaskPtrList>;
 
+std::string toString(const NodeToTaskMapping &mapping);
+
 class Policy
 {
   public:
-    virtual ~Policy() = default;
+    virtual ~Policy();
 
     virtual NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) = 0;
 };

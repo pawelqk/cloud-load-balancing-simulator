@@ -14,7 +14,7 @@ class Files : public LoggingEndpoint
     void log(const char *message) override;
 
   private:
-    std::string prepareFileName(const std::string &filePrefix);
+    std::string prepareStringTime();
 
     std::ofstream file;
 };

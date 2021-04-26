@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -32,6 +33,8 @@ class NodeMock : public testing::StrictMock<Node>
     {
         return id;
     }
+
+    MOCK_METHOD(std::uint32_t, getMips, (), (const, override));
 
     inline std::string toString() const override
     {

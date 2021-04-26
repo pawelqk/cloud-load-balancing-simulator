@@ -14,7 +14,8 @@ namespace loadbalancer
 namespace policy
 {
 
-Random::Random(const InfrastructureCPtr &infrastructure) : PolicyBase(infrastructure)
+Random::Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure), logger(logger)
 {
 }
 

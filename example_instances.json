@@ -1,0 +1,45 @@
+[
+    {
+        "id": 0,
+        "nodesMips": [10, 10, 10, 10],
+        "type": "online",
+        "additionalActions": ["preemptions", "migrations"],
+        "tasks": [
+            {
+                "requiredMips": 1,
+                "length": 4,
+                "arrivalTime": 1
+            },
+            {
+                "requiredMips": 4,
+                "length": 8,
+                "arrivalTime": 0
+            },
+            {
+                "requiredMips": 2,
+                "length": 11,
+                "arrivalTime": 1
+            },
+            {
+                "requiredMips": 3,
+                "length": 12,
+                "arrivalTime": 1
+            },
+            {
+                "requiredMips": 1,
+                "length": 1,
+                "arrivalTime": 1
+            },
+            {
+                "requiredMips": 4,
+                "length": 12,
+                "arrivalTime": 2
+            },
+            {
+                "requiredMips": 2,
+                "length": 15,
+                "arrivalTime": 2
+            }
+        ]
+    } 
+]

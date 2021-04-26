@@ -1,0 +1,15 @@
+{
+    "seed": 912997702,
+    "algorithms": [
+        {
+            "name": "Round robin"
+        }
+    ],
+    "minMips": 1,
+    "maxMips": 10,
+    "minLength": 1,
+    "maxLength": 20,
+    "numberOfNodes": 4,
+    "numberOfTasks": 15,
+    "maxArrivalTime": 4
+}

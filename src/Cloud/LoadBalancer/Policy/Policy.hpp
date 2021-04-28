@@ -26,6 +26,8 @@ class Policy
     virtual ~Policy();
 
     virtual NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) = 0;
+
+    virtual std::string toString() const = 0;
 };
 
 using PolicyPtr = std::unique_ptr<Policy>;

@@ -14,9 +14,11 @@ namespace policy
 class ShortestRemainingTimeFirst : public PolicyBase
 {
   public:
-    ShortestRemainingTimeFirst(const InfrastructureCPtr &infrastructure);
+    ShortestRemainingTimeFirst(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+
+    std::string toString() const override;
 };
 
 } // namespace policy

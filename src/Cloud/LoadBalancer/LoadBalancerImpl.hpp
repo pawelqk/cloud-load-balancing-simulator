@@ -22,6 +22,8 @@ class LoadBalancerImpl : public LoadBalancer
 
     bool areAnyTasksWaiting() const override;
 
+    std::string toString() const override;
+
   private:
     TaskPtrVec getWaitingTasks();
     void handlePreemptions(const std::vector<mapping::Preemption> &preemptions);

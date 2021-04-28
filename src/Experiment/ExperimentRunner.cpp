@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "Experiment.hpp"
 #include "Logger/Files.hpp"
 #include "Logger/Stdout.hpp"
 #include "Utility/RandomNumberGenerator.hpp"
@@ -12,22 +11,24 @@
 namespace experiment
 {
 
-ExperimentRunner::ExperimentRunner(const std::vector<instance::Instance> &instances, const Config &config)
-    : instances(instances), config(config)
+ExperimentRunner::ExperimentRunner(const std::vector<instance::Instance> &instances, const Config &config,
+                                   logger::ResultWriterPtr &&resultWriter)
+    : instances(instances), config(config), resultWriter(std::move(resultWriter))
 {
 }
 
-void ExperimentRunner::run(const cloud::Policy &policy, const cloud::Assessment &assessment,
+void ExperimentRunner::run(const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
                            const std::uint_fast64_t seed)
 {
     logger::Logger logger{"ExperimentRunner", config.debug};
     if (config.stdout)
         logger.addLoggingEndpoint(std::make_unique<logger::Stdout>());
 
-    logger.info("Running experiments");
+    const auto description = policyBuilder->toString();
+    logger.info("Running experiments for %s", description.c_str());
     logger.info("Seed: %u", seed);
 
-    std::vector<std::future<void>> futures;
+    std::vector<std::future<Experiment::Result>> futures;
     futures.reserve(instances.size());
     for (auto i = 0u; i < instances.size(); ++i)
     {
@@ -36,20 +37,23 @@ void ExperimentRunner::run(const cloud::Policy &policy, const cloud::Assessment 
         if (config.stdout)
             logger->addLoggingEndpoint(std::make_unique<logger::Stdout>());
         if (config.files)
-            logger->addLoggingEndpoint(
-                std::make_unique<logger::Files>("logs/" + toString(policy) + "/" + toString(assessment), runName));
+            logger->addLoggingEndpoint(std::make_unique<logger::Files>("logs/" + description, runName));
 
-        futures.emplace_back(std::async([instance = instances[i], policy, assessment, logger, seed]() {
-            Experiment e{instance, policy, assessment, logger};
-            e.run(seed);
+        policyBuilder->setInstance(instances[i]);
+        futures.emplace_back(std::async([instance = instances[i], policyBuilder, logger, seed]() {
+            Experiment e{instance, policyBuilder, logger};
+            return e.run(seed);
         }));
     }
 
+    std::vector<Experiment::Result> results(instances.size());
     for (auto i = 0u; i < instances.size(); ++i)
     {
-        futures[i].get();
+        results[i] = futures[i].get();
         logger.info(std::string{"Experiment " + std::to_string(i) + " finished"}.c_str());
     }
+
+    resultWriter->writeResults(description, results);
 }
 
 } // namespace experiment

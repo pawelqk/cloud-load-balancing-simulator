@@ -10,8 +10,9 @@ namespace loadbalancer
 namespace policy
 {
 
-ShortestRemainingTimeFirst::ShortestRemainingTimeFirst(const InfrastructureCPtr &infrastructure)
-    : PolicyBase(infrastructure)
+ShortestRemainingTimeFirst::ShortestRemainingTimeFirst(const InfrastructureCPtr &infrastructure,
+                                                       const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure, logger)
 {
 }
 
@@ -65,6 +66,11 @@ NodeToTaskMapping ShortestRemainingTimeFirst::buildNodeToTaskMapping(const TaskP
     }
 
     return solution;
+}
+
+std::string ShortestRemainingTimeFirst::toString() const
+{
+    return "ShortestRemainingTimeFirst";
 }
 
 } // namespace policy

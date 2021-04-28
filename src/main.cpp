@@ -8,12 +8,13 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Cloud/CloudBuilder.hpp"
-#include "Cloud/Node.hpp"
-#include "Cloud/Task.hpp"
-#include "Cloud/TaskImpl.hpp"
+#include "Cloud/LoadBalancer/Policy/Builders/RandomBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/Builders/RoundRobinBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/Builders/ShortestRemainingTimeFirstBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/Builders/SimulatedAnnealingBuilder.hpp"
 #include "Experiment/ExperimentRunner.hpp"
 #include "Instance/Instance.hpp"
+#include "Logger/ResultWriter.hpp"
 
 using json = nlohmann::json;
 
@@ -36,15 +37,23 @@ int main(int argc, char *argv[])
 
     const std::uint_fast64_t seed = configuration.value("seed", std::random_device{}());
     const auto algorithms = configuration.at("algorithms");
-    std::vector<cloud::Policy> policies;
+    std::vector<cloud::loadbalancer::policy::builders::PolicyBuilderPtr> policyBuilders;
+    const auto policyConfiguration = instance::PolicyConfiguration::OnlineWithMigrationsAndPreemptions;
     for (auto &&algorithm : algorithms)
     {
         if (algorithm.at("name") == "Random")
-            policies.push_back(cloud::Policy::Random);
+            policyBuilders.push_back(
+                std::make_shared<cloud::loadbalancer::policy::builders::RandomBuilder>(policyConfiguration));
         else if (algorithm.at("name") == "Round robin")
-            policies.push_back(cloud::Policy::RoundRobin);
-        else if (algorithm.at("name") == "Simulated annealing")
-            policies.push_back(cloud::Policy::SimulatedAnnealing);
+            policyBuilders.push_back(
+                std::make_shared<cloud::loadbalancer::policy::builders::RoundRobinBuilder>(policyConfiguration));
+        else if (algorithm.at("name") == "Shortest remaining time first")
+            policyBuilders.push_back(
+                std::make_shared<cloud::loadbalancer::policy::builders::ShortestRemainingTimeFirstBuilder>(
+                    policyConfiguration));
+        // else if (algorithm.at("name") == "Simulated annealing")
+        //   policyBuilders.push_back(
+        //      std::make_shared<cloud::loadbalancer::policy::builders::SimulatedAnnealingBuilder>({}));
     }
 
     std::ifstream instancesFile("instances.json");
@@ -74,14 +83,16 @@ int main(int argc, char *argv[])
         instances.emplace_back(instanceId, tasks, nodesMips);
     }
 
+    auto resultWriter = std::make_unique<logger::ResultWriter>("results");
+
     experiment::ExperimentRunner::Config runnerConfig;
     runnerConfig.debug = cmdOptionExists(argv, argv + argc, "-d");
     runnerConfig.stdout = cmdOptionExists(argv, argv + argc, "--stdout");
     runnerConfig.files = cmdOptionExists(argv, argv + argc, "--files");
 
-    experiment::ExperimentRunner runner{instances, runnerConfig};
-    for (auto &&policy : policies)
-        runner.run(policy, cloud::Assessment::Makespan, seed);
+    experiment::ExperimentRunner runner{instances, runnerConfig, std::move(resultWriter)};
+    for (auto &&policyBuilder : policyBuilders)
+        runner.run(policyBuilder, seed);
 
     return 0;
 }

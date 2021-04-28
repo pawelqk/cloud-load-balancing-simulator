@@ -12,9 +12,10 @@ namespace policy
 class PolicyBase : public Policy
 {
   protected:
-    PolicyBase(const InfrastructureCPtr &infrastructure);
+    PolicyBase(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr logger);
 
     const InfrastructureCPtr infrastructure;
+    const logger::LoggerPtr logger;
 };
 
 } // namespace policy

@@ -33,6 +33,11 @@ bool Cloud::isIdle() const
     return infrastructure->isIdle() && !loadBalancer->areAnyTasksWaiting();
 }
 
+std::string Cloud::toString() const
+{
+    return loadBalancer->toString();
+}
+
 TaskPtrVec Cloud::createTasks(const instance::TaskDataVec taskDatas)
 {
     const auto ticks = timingService->getTicks();

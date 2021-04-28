@@ -24,6 +24,8 @@ class Cloud
 
     bool isIdle() const;
 
+    std::string toString() const;
+
   private:
     TaskPtrVec createTasks(const instance::TaskDataVec taskDatas);
     void addFlowtime(const TaskPtrVec &finishedTasks);

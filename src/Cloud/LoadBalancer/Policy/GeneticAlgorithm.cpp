@@ -14,7 +14,7 @@ namespace policy
 
 GeneticAlgorithm::GeneticAlgorithm(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
                                    const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure), parameters(std::move(parameters)), logger(logger)
+    : PolicyBase(infrastructure, logger), parameters(std::move(parameters)), logger(logger)
 {
 }
 

@@ -2,6 +2,7 @@
 
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Task.hpp"
+#include "Logger/Logger.hpp"
 #include "PolicyBase.hpp"
 
 namespace cloud
@@ -14,9 +15,11 @@ namespace policy
 class RoundRobin : public PolicyBase
 {
   public:
-    RoundRobin(const InfrastructureCPtr &infrastructure);
+    RoundRobin(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+
+    std::string toString() const override;
 
   private:
     NodePtrVec::size_type lastNodeIndex;

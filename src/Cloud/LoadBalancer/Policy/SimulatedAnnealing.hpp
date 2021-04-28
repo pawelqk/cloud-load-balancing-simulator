@@ -32,6 +32,8 @@ class SimulatedAnnealing : public PolicyBase
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 
+    std::string toString() const override;
+
   private:
     NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
     NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks);

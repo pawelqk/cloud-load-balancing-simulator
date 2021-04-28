@@ -7,7 +7,8 @@ namespace loadbalancer
 namespace policy
 {
 
-PolicyBase::PolicyBase(const InfrastructureCPtr &infrastructure) : infrastructure(infrastructure)
+PolicyBase::PolicyBase(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr logger)
+    : infrastructure(infrastructure), logger(logger)
 {
 }
 

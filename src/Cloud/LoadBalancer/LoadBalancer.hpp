@@ -20,6 +20,7 @@ class LoadBalancer
     virtual void scheduleNewTasks(const TaskPtrVec &tasks) = 0;
     virtual void scheduleWaitingTasks() = 0;
     virtual bool areAnyTasksWaiting() const = 0;
+    virtual std::string toString() const = 0;
 };
 
 using LoadBalancerPtr = std::unique_ptr<LoadBalancer>;

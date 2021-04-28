@@ -8,6 +8,7 @@
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"
 #include "Cloud/Task.hpp"
+#include "Logger/Logger.hpp"
 #include "PolicyBase.hpp"
 
 namespace cloud
@@ -23,6 +24,8 @@ class Random : public PolicyBase
     Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+
+    std::string toString() const override;
 
     const logger::LoggerPtr logger;
 };

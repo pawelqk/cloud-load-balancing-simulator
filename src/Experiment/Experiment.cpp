@@ -10,18 +10,17 @@
 namespace experiment
 {
 
-Experiment::Experiment(const instance::Instance &instance, const cloud::Policy &policy,
-                       const cloud::Assessment &assessment, const logger::LoggerPtr &logger)
-    : instance(instance), policy(policy), assessment(assessment), logger(logger)
+Experiment::Experiment(const instance::Instance &instance,
+                       const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
+                       const logger::LoggerPtr &logger)
+    : instance(instance), policyBuilder(policyBuilder), logger(logger),
+      timingService(std::make_shared<cloud::TimingServiceImpl>(logger)),
+      cloud(cloud::CloudBuilder{instance.getNodesMips(), timingService, policyBuilder, logger}.build())
 {
 }
 
-void Experiment::run(const std::uint_fast64_t seed)
+Experiment::Result Experiment::run(const std::uint_fast64_t seed)
 {
-    cloud::CloudBuilder builder{policy, assessment};
-    const auto timingService = std::make_shared<cloud::TimingServiceImpl>(logger);
-    const auto cloud = builder.build(instance.getNodesMips(), timingService, logger);
-
     logger->info("Beginning experiment with seed: %u", seed);
     utility::RandomNumberGenerator::getInstance(seed);
     logger->info("Instance: \n%s", instance.toString().c_str());
@@ -37,7 +36,12 @@ void Experiment::run(const std::uint_fast64_t seed)
         timingService->tick();
     }
 
-    logger->info("Done. Makespan: %u, Flowtime: %u", timingService->getTicks(), timingService->getTotalFlowtime());
+    const auto makespan = timingService->getTicks();
+    const auto flowtime = timingService->getTotalFlowtime();
+
+    logger->info("Done. Makespan: %u, Flowtime: %u", makespan, flowtime);
+
+    return {instance.getId(), makespan, flowtime};
 }
 
 } // namespace experiment

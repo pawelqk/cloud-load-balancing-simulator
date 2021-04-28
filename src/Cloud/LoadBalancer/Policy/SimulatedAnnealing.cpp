@@ -14,7 +14,7 @@ namespace policy
 
 SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
                                        const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure), parameters(std::move(parameters)), logger(logger)
+    : PolicyBase(infrastructure, logger), parameters(std::move(parameters))
 {
 }
 
@@ -25,6 +25,11 @@ NodeToTaskMapping SimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &t
     const auto solution = createNewSolution(tasks);
 
     return solution;
+}
+
+std::string SimulatedAnnealing::toString() const
+{
+    return "SimulatedAnnealing";
 }
 
 NodeToTaskMapping SimulatedAnnealing::createNewSolution(const TaskPtrVec &tasks)

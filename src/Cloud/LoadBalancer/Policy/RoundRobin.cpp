@@ -7,7 +7,8 @@ namespace loadbalancer
 namespace policy
 {
 
-RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure) : PolicyBase(infrastructure), lastNodeIndex(0)
+RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure, logger), lastNodeIndex(0)
 {
 }
 
@@ -39,6 +40,11 @@ NodeToTaskMapping RoundRobin::buildNodeToTaskMapping(const TaskPtrVec &tasks)
     }
 
     return mapping;
+}
+
+std::string RoundRobin::toString() const
+{
+    return "RoundRobin";
 }
 
 } // namespace policy

@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <ios>
 #include <iostream>
 
 namespace logger

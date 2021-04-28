@@ -15,7 +15,7 @@ namespace policy
 {
 
 Random::Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure), logger(logger)
+    : PolicyBase(infrastructure, logger)
 {
 }
 
@@ -48,6 +48,11 @@ NodeToTaskMapping Random::buildNodeToTaskMapping(const TaskPtrVec &tasks)
     }
 
     return solution;
+}
+
+std::string Random::toString() const
+{
+    return "Random";
 }
 
 } // namespace policy

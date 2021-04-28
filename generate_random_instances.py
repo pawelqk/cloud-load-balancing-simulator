@@ -6,7 +6,7 @@ from datetime import datetime
 
 TYPE = "online"
 ADDITIONAL_ACTIONS = ["migrations, preemptions"]
-NUMBER_OF_INSTANCES = 1
+NUMBER_OF_INSTANCES = 20
 
 
 def generate_random_node(config):

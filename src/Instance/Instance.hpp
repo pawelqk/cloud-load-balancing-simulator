@@ -17,6 +17,14 @@ struct TaskData
     std::uint32_t length;
 };
 
+enum class PolicyConfiguration
+{
+    Offline,
+    Online,
+    OnlineWithMigrations,
+    OnlineWithMigrationsAndPreemptions
+};
+
 using TaskDataVec = std::vector<TaskData>;
 
 class Instance
@@ -24,6 +32,8 @@ class Instance
   public:
     Instance(const std::uint32_t id, const std::map<std::uint32_t, TaskDataVec> &tasks,
              const std::vector<std::uint32_t> &nodesMips);
+
+    std::uint32_t getId() const;
 
     TaskDataVec getTasksInTimePoint(const std::uint32_t timePoint) const;
 

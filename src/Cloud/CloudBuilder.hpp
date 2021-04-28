@@ -9,6 +9,7 @@
 #include "LoadBalancer/Mapping/DifferenceCalculator.hpp"
 #include "LoadBalancer/Mapping/DifferenceCalculatorImpl.hpp"
 #include "LoadBalancer/Mapping/MappingAssessor.hpp"
+#include "LoadBalancer/Policy/Builders/PolicyBuilder.hpp"
 #include "LoadBalancer/Policy/Policy.hpp"
 #include "Logger/Logger.hpp"
 #include "TimingService.hpp"
@@ -39,22 +40,17 @@ std::string toString(const Assessment &assessment);
 class CloudBuilder
 {
   public:
-    CloudBuilder(const Policy &policy, const Assessment &assessment);
+    CloudBuilder(const std::vector<std::uint32_t> &nodesMips, const TimingServicePtr &timingService,
+                 const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
+                 const logger::LoggerPtr &logger);
 
-    std::unique_ptr<Cloud> build(const std::vector<std::uint32_t> &nodesMips, const TimingServicePtr &timingService,
-                                 const logger::LoggerPtr &logger);
+    std::unique_ptr<Cloud> build();
 
   private:
-    loadbalancer::policy::PolicyPtr buildPolicy(
-        const InfrastructurePtr &infrastructure,
-        const loadbalancer::mapping::DifferenceCalculatorPtr &differenceCalculator,
-        const TimingServicePtr &timingService, const logger::LoggerPtr &logger);
-    loadbalancer::mapping::MappingAssessorPtr buildAssessor(
-        const loadbalancer::mapping::DifferenceCalculatorPtr &differenceCalculator,
-        const TimingServicePtr &timingService);
-
-    Policy chosenPolicy;
-    Assessment chosenAssessment;
+    const std::vector<std::uint32_t> nodesMips;
+    const TimingServicePtr timingService;
+    const cloud::loadbalancer::policy::builders::PolicyBuilderPtr policyBuilder;
+    const logger::LoggerPtr logger;
 };
 
 using CloudBuilderPtr = std::shared_ptr<CloudBuilder>;

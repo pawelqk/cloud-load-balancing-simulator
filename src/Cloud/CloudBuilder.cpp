@@ -55,56 +55,22 @@ std::string toString(const Assessment &assessment)
     return "";
 }
 
-CloudBuilder::CloudBuilder(const Policy &policy, const Assessment &assessment)
-    : chosenPolicy(policy), chosenAssessment(assessment)
+CloudBuilder::CloudBuilder(const std::vector<std::uint32_t> &nodesMips, const TimingServicePtr &timingService,
+                           const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
+                           const logger::LoggerPtr &logger)
+    : nodesMips(nodesMips), timingService(timingService), policyBuilder(policyBuilder), logger(logger)
 {
 }
 
-std::unique_ptr<Cloud> CloudBuilder::build(const std::vector<std::uint32_t> &nodesMips,
-                                           const TimingServicePtr &timingService, const logger::LoggerPtr &logger)
+std::unique_ptr<Cloud> CloudBuilder::build()
 {
     const auto infrastructure = std::make_shared<InfrastructureImpl>(nodesMips, logger);
+    policyBuilder->setInfrastructure(infrastructure);
+
     const auto differenceCalculator = std::make_shared<loadbalancer::mapping::DifferenceCalculatorImpl>(infrastructure);
     return std::make_unique<Cloud>(std::make_unique<loadbalancer::LoadBalancerImpl>(
-                                       buildPolicy(infrastructure, differenceCalculator, timingService, logger),
-                                       infrastructure, differenceCalculator, logger),
+                                       policyBuilder->build(logger), infrastructure, differenceCalculator, logger),
                                    infrastructure, timingService, logger);
-}
-
-loadbalancer::policy::PolicyPtr CloudBuilder::buildPolicy(
-    const InfrastructurePtr &infrastructure, const loadbalancer::mapping::DifferenceCalculatorPtr &differenceCalculator,
-    const TimingServicePtr &timingService, const logger::LoggerPtr &logger)
-{
-    switch (chosenPolicy)
-    {
-    case Policy::Random:
-        return std::make_unique<loadbalancer::policy::Random>(infrastructure, logger);
-    case Policy::RoundRobin:
-        return std::make_unique<loadbalancer::policy::RoundRobin>(infrastructure);
-    case Policy::ShortestRemainingTimeFirst:
-        return std::make_unique<loadbalancer::policy::ShortestRemainingTimeFirst>(infrastructure);
-    case Policy::SimulatedAnnealing: {
-        loadbalancer::policy::SimulatedAnnealing::Parameters params{0.997, 1000, 0.00001, 1000,
-                                                                    buildAssessor(differenceCalculator, timingService)};
-        return std::make_unique<loadbalancer::policy::SimulatedAnnealing>(infrastructure, std::move(params), logger);
-    }
-    default:
-        throw std::runtime_error("Unimplemented policy!");
-    }
-}
-
-loadbalancer::mapping::MappingAssessorPtr CloudBuilder::buildAssessor(
-    const loadbalancer::mapping::DifferenceCalculatorPtr &differenceCalculator, const TimingServicePtr &timingService)
-{
-    switch (chosenAssessment)
-    {
-    case Assessment::Flowtime:
-        return std::make_unique<loadbalancer::mapping::FlowtimeAssessor>(differenceCalculator, timingService);
-    case Assessment::Makespan:
-        return std::make_unique<loadbalancer::mapping::MakespanAssessor>(differenceCalculator);
-    }
-
-    return {};
 }
 
 } // namespace cloud

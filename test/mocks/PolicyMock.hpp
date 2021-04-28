@@ -19,6 +19,11 @@ class PolicyMock : public testing::StrictMock<Policy>
 {
   public:
     MOCK_METHOD(NodeToTaskMapping, buildNodeToTaskMapping, (const TaskPtrVec &), (override));
+
+    inline std::string toString() const override
+    {
+        return "";
+    }
 };
 
 using PolicyMockPtr = std::unique_ptr<PolicyMock>;

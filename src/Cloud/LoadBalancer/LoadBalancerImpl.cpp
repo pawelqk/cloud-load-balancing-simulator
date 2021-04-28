@@ -65,6 +65,11 @@ bool LoadBalancerImpl::areAnyTasksWaiting() const
                        [](auto &&entry) { return !entry.second.empty(); });
 }
 
+std::string LoadBalancerImpl::toString() const
+{
+    return policy->toString();
+}
+
 TaskPtrVec LoadBalancerImpl::getWaitingTasks()
 {
     TaskPtrVec waitingTasks;

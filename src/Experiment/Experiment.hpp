@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cloud/CloudBuilder.hpp"
+#include "Cloud/TimingService.hpp"
 #include "Instance/Instance.hpp"
 
 namespace experiment
@@ -9,16 +10,27 @@ namespace experiment
 class Experiment
 {
   public:
-    Experiment(const instance::Instance &instance, const cloud::Policy &policy, const cloud::Assessment &assessment,
+    struct Result
+    {
+        std::uint32_t instanceId;
+        std::uint32_t makespan;
+        std::uint32_t flowtime;
+    };
+
+    Experiment(const instance::Instance &instance,
+               const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
                const logger::LoggerPtr &logger);
 
-    void run(const std::uint_fast64_t seed);
+    Result run(const std::uint_fast64_t seed);
+
+    std::string toString();
 
   private:
     instance::Instance instance;
-    const cloud::Policy policy;
-    const cloud::Assessment assessment;
+    const cloud::loadbalancer::policy::builders::PolicyBuilderPtr policyBuilder;
     const logger::LoggerPtr logger;
+    const cloud::TimingServicePtr timingService;
+    const std::unique_ptr<cloud::Cloud> cloud;
 };
 
 } // namespace experiment

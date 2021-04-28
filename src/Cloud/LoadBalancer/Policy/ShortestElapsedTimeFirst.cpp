@@ -7,8 +7,9 @@ namespace loadbalancer
 namespace policy
 {
 
-ShortestElapsedTimeFirst::ShortestElapsedTimeFirst(const InfrastructureCPtr &infrastructure)
-    : PolicyBase(infrastructure)
+ShortestElapsedTimeFirst::ShortestElapsedTimeFirst(const InfrastructureCPtr &infrastructure,
+                                                   const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure, logger)
 {
 }
 

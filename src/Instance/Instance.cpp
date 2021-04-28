@@ -10,6 +10,11 @@ Instance::Instance(const std::uint32_t id, const std::map<std::uint32_t, TaskDat
 {
 }
 
+std::uint32_t Instance::getId() const
+{
+    return id;
+}
+
 TaskDataVec Instance::getTasksInTimePoint(const std::uint32_t timePoint) const
 {
     const auto taskIt = tasks.find(timePoint);

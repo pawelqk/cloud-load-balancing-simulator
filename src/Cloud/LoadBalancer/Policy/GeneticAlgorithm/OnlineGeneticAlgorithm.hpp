@@ -17,7 +17,7 @@ namespace policy
 namespace geneticalgorithm
 {
 
-class GeneticAlgorithm : public PolicyBase
+class OnlineGeneticAlgorithm : public PolicyBase
 {
   public:
     struct Parameters
@@ -25,8 +25,8 @@ class GeneticAlgorithm : public PolicyBase
         mapping::MappingAssessorPtr solutionAssessor;
     };
 
-    GeneticAlgorithm(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
-                     const logger::LoggerPtr &logger);
+    OnlineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
+                           const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 

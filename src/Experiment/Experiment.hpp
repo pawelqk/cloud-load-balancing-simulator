@@ -18,7 +18,7 @@ class Experiment
     };
 
     Experiment(const configuration::Instance &instance,
-               const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder,
+               const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
                const logger::LoggerPtr &logger);
 
     Result run(const std::uint_fast64_t seed);
@@ -27,9 +27,9 @@ class Experiment
 
   private:
     configuration::Instance instance;
-    const cloud::loadbalancer::policy::PolicyBuilderPtr policyBuilder;
-    const logger::LoggerPtr logger;
-    const cloud::TimingServicePtr timingService;
+    cloud::loadbalancer::policy::PolicyBuilderPtr policyBuilder;
+    logger::LoggerPtr logger;
+    cloud::TimingServicePtr timingService;
     std::unique_ptr<cloud::Cloud> cloud;
 };
 

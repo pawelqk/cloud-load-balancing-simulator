@@ -2,7 +2,7 @@
 
 #include "Cloud/LoadBalancer/Policy/PolicyBuilderBase.hpp"
 #include "Configuration/ConfigurationReader.hpp"
-#include "SimulatedAnnealing.hpp"
+#include "SimulatedAnnealingBase.hpp"
 
 namespace cloud
 {
@@ -18,6 +18,8 @@ class SimulatedAnnealingBuilder : public PolicyBuilderBase
   public:
     SimulatedAnnealingBuilder(const configuration::PolicyConfiguration &policyConfiguration,
                               const configuration::Assessment assessment, const Parameters &parameters);
+
+    PolicyBuilderPtr clone() override;
 
     PolicyPtr build(const logger::LoggerPtr &logger) override;
 

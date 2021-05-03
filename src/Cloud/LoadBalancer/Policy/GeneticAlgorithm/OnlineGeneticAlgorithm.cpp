@@ -1,4 +1,4 @@
-#include "GeneticAlgorithm.hpp"
+#include "OnlineGeneticAlgorithm.hpp"
 
 #include <cmath>
 #include <random>
@@ -14,13 +14,13 @@ namespace policy
 namespace geneticalgorithm
 {
 
-GeneticAlgorithm::GeneticAlgorithm(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
-                                   const logger::LoggerPtr &logger)
+OnlineGeneticAlgorithm::OnlineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, Parameters &&parameters,
+                                               const logger::LoggerPtr &logger)
     : PolicyBase(infrastructure, logger), parameters(std::move(parameters)), logger(logger)
 {
 }
 
-NodeToTaskMapping GeneticAlgorithm::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OnlineGeneticAlgorithm::buildNodeToTaskMapping(const TaskPtrVec &tasks)
 {
     logger->debug("Mapping %u tasks", tasks.size());
     NodeToTaskMapping mappingActions;

@@ -17,11 +17,11 @@ class ResultWriter
     void writeResults(const std::string &description, const std::vector<experiment::Experiment::Result> &results);
 
   private:
-    std::string prepareFileName();
+    std::string getCurrentDate();
     std::string createColumns();
     std::string createResultRecord(const experiment::Experiment::Result &result);
 
-    const std::string directoryName;
+    const std::string directoryPath;
 };
 
 using ResultWriterPtr = std::unique_ptr<ResultWriter>;

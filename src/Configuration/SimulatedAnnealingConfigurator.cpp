@@ -80,8 +80,6 @@ std::optional<PolicyConfiguration> SimulatedAnnealingConfigurator::readPolicyCon
         return PolicyConfiguration::Offline;
     else if (type == "Online")
         return PolicyConfiguration::Online;
-    else if (type == "Online with migrations")
-        return PolicyConfiguration::OnlineWithMigrations;
     else if (type == "Online with migrations and preemptions")
         return PolicyConfiguration::OnlineWithMigrationsAndPreemptions;
     else

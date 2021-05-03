@@ -31,14 +31,10 @@ class TaskMock : public testing::StrictMock<Task>
     MOCK_METHOD(std::uint32_t, getMips, (), (const, override));
     MOCK_METHOD(std::uint32_t, getInitialLength, (), (const, override));
     MOCK_METHOD(std::uint32_t, getArrivalTime, (), (const, override));
+    MOCK_METHOD(std::uint32_t, getElapsedTime, (), (const, override));
     MOCK_METHOD(std::uint32_t, estimateTimeLeft, (), (const, override));
     MOCK_METHOD(std::uint32_t, estimateTimeLeftAfterMigration, (), (const, override));
     MOCK_METHOD(std::uint32_t, estimateTimeLeftAfterPreemption, (), (const, override));
-
-    inline std::string toString() const override
-    {
-        return "";
-    }
 
   private:
     const std::uint32_t id;

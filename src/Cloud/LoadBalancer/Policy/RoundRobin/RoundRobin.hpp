@@ -24,7 +24,11 @@ class RoundRobin : public PolicyBase
     std::string toString() const override;
 
   private:
+    NodeToTaskMapping rebuildMapping();
+    TaskPtrVec filterOutScheduledTasks(const NodeToTaskMapping &mapping, const TaskPtrVec &tasks);
+
     NodePtrVec::size_type lastNodeIndex;
+    NodeToTaskMapping lastMapping;
 };
 
 } // namespace roundrobin

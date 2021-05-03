@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cloud/Infrastructure.hpp"
-#include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
+#include "Cloud/LoadBalancer/Policy/HeuristicPolicy.hpp"
 #include "Cloud/Task.hpp"
 #include "Logger/Logger.hpp"
 
@@ -14,12 +14,15 @@ namespace policy
 namespace shortestelapsedtimefirst
 {
 
-class ShortestElapsedTimeFirst : public PolicyBase
+class ShortestElapsedTimeFirst : public HeuristicPolicy
 {
   public:
     ShortestElapsedTimeFirst(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    std::string toString() const override;
+
+  private:
+    bool heuristic(const TaskPtr &left, const TaskPtr &right) const override;
 };
 
 } // namespace shortestelapsedtimefirst

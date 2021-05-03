@@ -1,0 +1,42 @@
+#pragma once
+
+#include <functional>
+#include <list>
+
+#include "Cloud/Infrastructure.hpp"
+#include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
+#include "Cloud/Task.hpp"
+#include "Configuration/Instance.hpp"
+#include "SimulatedAnnealingBase.hpp"
+
+namespace cloud
+{
+namespace loadbalancer
+{
+namespace policy
+{
+namespace simulatedannealing
+{
+
+class OfflineSimulatedAnnealing : public SimulatedAnnealingBase
+{
+  public:
+    OfflineSimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
+                              mapping::MappingAssessorPtr &&mappingAssessor, const configuration::Instance &instance,
+                              const logger::LoggerPtr &logger);
+
+    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+
+    std::string toString() const override;
+
+  private:
+    NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution) override;
+
+    const configuration::Instance instance;
+};
+
+} // namespace simulatedannealing
+} // namespace policy
+} // namespace loadbalancer
+} // namespace cloud

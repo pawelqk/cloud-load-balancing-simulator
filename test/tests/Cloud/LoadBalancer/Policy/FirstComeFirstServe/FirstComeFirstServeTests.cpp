@@ -2,10 +2,10 @@
 
 #include <gtest/gtest.h>
 
-#include "Cloud/LoadBalancer/Policy/ShortestRemainingTimeFirst/ShortestRemainingTimeFirst.hpp"
-#include "mocks/InfrastructureMock.hpp"
+#include "Cloud/LoadBalancer/Policy/FirstComeFirstServe/FirstComeFirstServe.hpp"
 #include "mocks/NodeMock.hpp"
 #include "mocks/TaskMock.hpp"
+#include "tests/Cloud/LoadBalancer/Policy/PolicyBaseFixture.hpp"
 
 namespace cloud
 {
@@ -13,27 +13,20 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace shortestremainingtimefirst
+namespace firstcomefirstserve
 {
 namespace tests
 {
 
 using testing::_;
 using testing::Return;
-using testing::ReturnRef;
 
-struct ShortestRemainingTimeFirstShould : testing::Test
+struct FirstComeFirstServeShould : cloud::loadbalancer::policy::tests::PolicyBaseFixture
 {
-    void expectGettingNodes(const std::vector<NodePtr> &nodeMocks)
-    {
-        EXPECT_CALL(Const(*infrastructureMock), getNodes()).WillRepeatedly(ReturnRef(nodeMocks));
-    }
-    const mocks::InfrastructureMockPtr infrastructureMock{std::make_shared<mocks::InfrastructureMock>()};
-
-    ShortestRemainingTimeFirst sut{infrastructureMock, std::make_shared<logger::Logger>("", false)};
+    FirstComeFirstServe sut{infrastructureMock, std::make_shared<logger::Logger>("", false)};
 };
 
-TEST_F(ShortestRemainingTimeFirstShould, ScheduleTakingCurrentAndPredictedNodesStateIntoAccount)
+TEST_F(FirstComeFirstServeShould, ScheduleTakingCurrentAndPredictedNodesStateIntoAccount)
 {
     const mocks::TaskMockPtr task0Mock = std::make_shared<mocks::TaskMock>(0);
     const mocks::TaskMockPtr task1Mock = std::make_shared<mocks::TaskMock>(1);
@@ -47,8 +40,12 @@ TEST_F(ShortestRemainingTimeFirstShould, ScheduleTakingCurrentAndPredictedNodesS
     const NodeToTaskMapping expectedNodeToTaskMapping{{0, {task0Mock, task3Mock, task2Mock}},
                                                       {1, {task1Mock, task4Mock}}};
 
+    // NOTE: task2 and task4 have the same arrival time so their ids will be taken into consideration instead
     EXPECT_CALL(*task0Mock, estimateTimeLeft()).WillRepeatedly(Return(10));
     EXPECT_CALL(*task1Mock, estimateTimeLeft()).WillRepeatedly(Return(15));
+    EXPECT_CALL(*task2Mock, getArrivalTime()).WillRepeatedly(Return(2));
+    EXPECT_CALL(*task3Mock, getArrivalTime()).WillRepeatedly(Return(1));
+    EXPECT_CALL(*task4Mock, getArrivalTime()).WillRepeatedly(Return(2));
     EXPECT_CALL(*task2Mock, estimateTimeLeft()).WillRepeatedly(Return(5));
     EXPECT_CALL(*task3Mock, estimateTimeLeft()).WillRepeatedly(Return(4));
     EXPECT_CALL(*task4Mock, estimateTimeLeft()).WillRepeatedly(Return(6));
@@ -60,7 +57,7 @@ TEST_F(ShortestRemainingTimeFirstShould, ScheduleTakingCurrentAndPredictedNodesS
     ASSERT_EQ(sut.buildNodeToTaskMapping({task2Mock, task3Mock, task4Mock}), expectedNodeToTaskMapping);
 }
 
-TEST_F(ShortestRemainingTimeFirstShould, ScheduleNotTakingNotFeasibleNodesIntoAccount)
+TEST_F(FirstComeFirstServeShould, ScheduleNotTakingNotFeasibleNodesIntoAccount)
 {
     const mocks::TaskMockPtr task0Mock = std::make_shared<mocks::TaskMock>(0);
     const mocks::TaskMockPtr task1Mock = std::make_shared<mocks::TaskMock>(1);
@@ -74,6 +71,8 @@ TEST_F(ShortestRemainingTimeFirstShould, ScheduleNotTakingNotFeasibleNodesIntoAc
 
     EXPECT_CALL(*task0Mock, estimateTimeLeft()).WillRepeatedly(Return(10));
     EXPECT_CALL(*task1Mock, estimateTimeLeft()).WillRepeatedly(Return(15));
+    EXPECT_CALL(*task2Mock, getArrivalTime()).WillRepeatedly(Return(2));
+    EXPECT_CALL(*task3Mock, getArrivalTime()).WillRepeatedly(Return(1));
     EXPECT_CALL(*task2Mock, estimateTimeLeft()).WillRepeatedly(Return(5));
     EXPECT_CALL(*task3Mock, estimateTimeLeft()).WillRepeatedly(Return(4));
     EXPECT_CALL(*node0Mock, canTaskFit(std::static_pointer_cast<Task>(task3Mock))).WillOnce(Return(false));
@@ -86,7 +85,7 @@ TEST_F(ShortestRemainingTimeFirstShould, ScheduleNotTakingNotFeasibleNodesIntoAc
 }
 
 } // namespace tests
-} // namespace shortestremainingtimefirst
+} // namespace firstcomefirstserve
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

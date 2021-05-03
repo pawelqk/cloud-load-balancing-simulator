@@ -79,10 +79,20 @@ std::vector<cloud::loadbalancer::policy::PolicyBuilderPtr> JsonConfigurationRead
 
 JsonAlgorithmConfiguratorPtr JsonConfigurationReader::getAlgorithmConfigurator(const std::string &algorithmName)
 {
+    if (algorithmName == "Artificial bee colony")
+        return nullptr;
+    if (algorithmName == "First come first serve")
+        return std::make_unique<GenericConfigurator>(Policy::FirstComeFirstServe);
+    if (algorithmName == "Genetic algorithm")
+        return nullptr;
+    if (algorithmName == "Longest remaining time first")
+        return std::make_unique<GenericConfigurator>(Policy::LongestRemainingTimeFirst);
     if (algorithmName == "Random")
         return std::make_unique<GenericConfigurator>(Policy::Random);
     if (algorithmName == "Round robin")
         return std::make_unique<GenericConfigurator>(Policy::RoundRobin);
+    if (algorithmName == "Shortest elapsed time first")
+        return std::make_unique<GenericConfigurator>(Policy::ShortestElapsedTimeFirst);
     if (algorithmName == "Shortest remaining time first")
         return std::make_unique<GenericConfigurator>(Policy::ShortestRemainingTimeFirst);
     if (algorithmName == "Simulated annealing")

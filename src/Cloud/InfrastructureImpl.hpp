@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "Configuration/Instance.hpp"
 #include "Infrastructure.hpp"
 #include "Logger/Logger.hpp"
 #include "Node.hpp"
@@ -14,7 +15,7 @@ namespace cloud
 class InfrastructureImpl : public Infrastructure
 {
   public:
-    InfrastructureImpl(const std::vector<std::uint32_t> &nodesMips, const logger::LoggerPtr &logger);
+    InfrastructureImpl(const configuration::NodeDataVec &nodesData, const logger::LoggerPtr &logger);
 
     InfrastructureImpl() = delete;
     InfrastructureImpl(const InfrastructureImpl &) = delete;
@@ -31,7 +32,7 @@ class InfrastructureImpl : public Infrastructure
     TaskPtrVec advanceProcessing() override;
 
   private:
-    void prepareNodes(const std::vector<uint32_t> &nodesMips);
+    void prepareNodes(const configuration::NodeDataVec &nodesData);
     std::string toString() const;
 
     const logger::LoggerPtr logger;

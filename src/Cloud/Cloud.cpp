@@ -10,9 +10,9 @@ namespace cloud
 {
 
 Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructurePtr &infrastructure,
-             const TimingServicePtr &timingService, const logger::LoggerPtr &logger)
+             const TimingServicePtr &timingService, const double penaltyFactor, const logger::LoggerPtr &logger)
     : loadBalancer(std::move(loadBalancer)), infrastructure(infrastructure), timingService(timingService),
-      logger(logger), nextTaskId(0)
+      penaltyFactor(penaltyFactor), logger(logger)
 {
 }
 
@@ -45,7 +45,8 @@ TaskPtrVec Cloud::createTasks(const configuration::TaskDataVec taskDatas)
     TaskPtrVec tasks;
     tasks.reserve(taskDatas.size());
     for (auto &&taskData : taskDatas)
-        tasks.push_back(std::make_shared<TaskImpl>(nextTaskId++, taskData.requiredMips, taskData.length, ticks));
+        tasks.push_back(
+            std::make_shared<TaskImpl>(taskData.id, taskData.requiredMips, taskData.length, ticks, penaltyFactor));
 
     logNewTasks(tasks);
 

@@ -37,6 +37,11 @@ std::string toString(const NodeToTaskMapping &mapping)
     return output;
 }
 
+void PrintTo(const NodeToTaskMapping &mapping, std::ostream *os)
+{
+    *os << toString(mapping);
+}
+
 Policy::~Policy() = default;
 
 } // namespace policy

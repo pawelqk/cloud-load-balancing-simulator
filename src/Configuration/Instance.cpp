@@ -4,9 +4,8 @@
 namespace configuration
 {
 
-Instance::Instance(const std::uint32_t id, const std::map<std::uint32_t, TaskDataVec> &tasks,
-                   const std::vector<std::uint32_t> &nodesMips)
-    : id(id), tasks(tasks), nodesMips(nodesMips)
+Instance::Instance(const std::uint32_t id, const std::map<std::uint32_t, TaskDataVec> &tasks, const NodeDataVec &nodes)
+    : id(id), tasks(tasks), nodes(nodes)
 {
 }
 
@@ -27,9 +26,9 @@ TaskDataVec Instance::getTasksInTimePoint(const std::uint32_t timePoint) const
     return {};
 }
 
-const std::vector<std::uint32_t> &Instance::getNodesMips() const
+const NodeDataVec &Instance::getNodesData() const
 {
-    return nodesMips;
+    return nodes;
 }
 
 bool Instance::allTasksInserted(const std::uint32_t currentPointInTime) const
@@ -42,27 +41,24 @@ std::string Instance::toString() const
 {
     std::stringstream ss;
     ss << "Nodes : [";
-    for (auto i = 0u; i < nodesMips.size() - 1; ++i)
-        ss << nodesMips[i] << ", ";
-    ss << nodesMips[nodesMips.size() - 1];
-    ss << "]\n";
+    for (auto i = 0u; i < nodes.size() - 1; ++i)
+        ss << "(id: " << nodes[i].id << ", mips: " << nodes[i].mips << "), ";
+    ss << "(id: " << nodes[nodes.size() - 1].id << ", mips: " << nodes[nodes.size() - 1].mips << ")]\n";
 
     ss << "Tasks:\n";
     for (auto &&[time, tasksInTime] : tasks)
     {
         ss << "T=" << time << ": [";
         for (auto i = 0u; i < tasksInTime.size() - 1; ++i)
-            ss << "(mips: " << tasksInTime[i].requiredMips << ", length: " << tasksInTime[i].length << "), ";
-        ss << "(mips: " << tasksInTime[tasksInTime.size() - 1].requiredMips
+            ss << "(id: " << tasksInTime[i].id << ", mips: " << tasksInTime[i].requiredMips
+               << ", length: " << tasksInTime[i].length << "), ";
+        ss << "(id: " << tasksInTime[tasksInTime.size() - 1].id
+           << ", mips: " << tasksInTime[tasksInTime.size() - 1].requiredMips
            << ", length: " << tasksInTime[tasksInTime.size() - 1].length << ")";
         ss << "]\n";
     }
 
     auto output = ss.str();
-
-    const auto newLineToDeletePos = output.rfind('\n');
-    if (newLineToDeletePos != std::string::npos)
-        output.erase(newLineToDeletePos);
 
     return output;
 }

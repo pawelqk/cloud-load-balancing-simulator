@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include "Cloud/LoadBalancer/Policy/SimulatedAnnealing/SimulatedAnnealing.hpp"
+#include "Cloud/LoadBalancer/Policy/SimulatedAnnealing/SimulatedAnnealingBase.hpp"
 #include "ConfigurationReader.hpp"
 #include "JsonAlgorithmConfigurator.hpp"
 

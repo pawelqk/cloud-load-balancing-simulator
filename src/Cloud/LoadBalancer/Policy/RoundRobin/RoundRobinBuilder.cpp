@@ -16,6 +16,11 @@ RoundRobinBuilder::RoundRobinBuilder(const configuration::PolicyConfiguration po
 {
 }
 
+PolicyBuilderPtr RoundRobinBuilder::clone()
+{
+    return std::make_shared<RoundRobinBuilder>(policyConfiguration);
+}
+
 PolicyPtr RoundRobinBuilder::build(const logger::LoggerPtr &logger)
 {
     return std::make_unique<RoundRobin>(infrastructure, logger);

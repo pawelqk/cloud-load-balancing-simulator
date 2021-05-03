@@ -3,19 +3,13 @@
 #include <cmath>
 #include <iostream>
 
-namespace
-{
-
-constexpr auto PENALTY_FACTOR = 0.2;
-
-}
-
 namespace cloud
 {
 
 TaskImpl::TaskImpl(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength,
-                   const std::uint32_t arrivalTime)
-    : id(id), mips(mips), initialLength(initialLength), arrivalTime(arrivalTime), currentLength(initialLength)
+                   const std::uint32_t arrivalTime, const double penaltyFactor)
+    : id(id), mips(mips), initialLength(initialLength), arrivalTime(arrivalTime), penaltyFactor(penaltyFactor),
+      currentLength(initialLength), elapsedTime(0)
 {
 }
 
@@ -25,6 +19,8 @@ void TaskImpl::work()
         currentLength = 0;
     else
         currentLength -= mips;
+
+    ++elapsedTime;
 }
 
 bool TaskImpl::isDone() const
@@ -62,6 +58,11 @@ std::uint32_t TaskImpl::getArrivalTime() const
     return arrivalTime;
 }
 
+std::uint32_t TaskImpl::getElapsedTime() const
+{
+    return elapsedTime;
+}
+
 std::uint32_t TaskImpl::estimateTimeLeft() const
 {
     return estimateTime(currentLength);
@@ -85,7 +86,7 @@ std::string TaskImpl::toString() const
 
 std::uint32_t TaskImpl::calculateMigrationPenalty() const
 {
-    return std::ceil(initialLength * PENALTY_FACTOR);
+    return std::ceil(initialLength * penaltyFactor);
 }
 
 std::uint32_t TaskImpl::estimateTime(const std::uint32_t lengthToEstimate) const

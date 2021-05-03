@@ -2,6 +2,10 @@
 
 #include "Cloud/LoadBalancer/Mapping/FlowtimeAssessor.hpp"
 #include "Cloud/LoadBalancer/Mapping/MakespanAssessor.hpp"
+#include "Configuration/ConfigurationReader.hpp"
+#include "OfflineSimulatedAnnealing.hpp"
+#include "OnlineSimulatedAnnealing.hpp"
+#include "OnlineSimulatedAnnealingWithMigrationsAndPreemptions.hpp"
 
 namespace cloud
 {
@@ -19,9 +23,27 @@ SimulatedAnnealingBuilder::SimulatedAnnealingBuilder(const configuration::Policy
 {
 }
 
+PolicyBuilderPtr SimulatedAnnealingBuilder::clone()
+{
+    return std::make_shared<SimulatedAnnealingBuilder>(policyConfiguration, assessment, parameters);
+}
+
 PolicyPtr SimulatedAnnealingBuilder::build(const logger::LoggerPtr &logger)
 {
-    return std::make_unique<SimulatedAnnealing>(infrastructure, parameters, buildAssessor(), logger);
+    using configuration::PolicyConfiguration;
+    switch (policyConfiguration)
+    {
+    case PolicyConfiguration::Offline:
+        return std::make_unique<OfflineSimulatedAnnealing>(infrastructure, parameters, buildAssessor(), *instance,
+                                                           logger);
+    case PolicyConfiguration::Online:
+        return std::make_unique<OnlineSimulatedAnnealing>(infrastructure, parameters, buildAssessor(), logger);
+    case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
+        return std::make_unique<OnlineSimulatedAnnealingWithMigrationsAndPreemptions>(infrastructure, parameters,
+                                                                                      buildAssessor(), logger);
+    }
+
+    return nullptr;
 }
 
 std::string SimulatedAnnealingBuilder::toString() const

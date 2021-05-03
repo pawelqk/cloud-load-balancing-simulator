@@ -23,7 +23,7 @@ class PolicyBuilderBase : public PolicyBuilder
     PolicyBuilderBase(const configuration::PolicyConfiguration policyConfiguration);
 
     void setInstance(const configuration::Instance &instance) override;
-    void setInfrastructure(const InfrastructureCPtr &infrastructure) override;
+    void setInfrastructure(const InfrastructurePtr &infrastructure) override;
     void setDifferenceCalculator(const mapping::DifferenceCalculatorPtr &differenceCalculator) override;
     void setTimingService(const TimingServicePtr &timingService) override;
 
@@ -31,7 +31,7 @@ class PolicyBuilderBase : public PolicyBuilder
     const configuration::PolicyConfiguration policyConfiguration;
 
     std::optional<configuration::Instance> instance;
-    InfrastructureCPtr infrastructure;
+    InfrastructurePtr infrastructure;
     mapping::DifferenceCalculatorPtr differenceCalculator;
     TimingServicePtr timingService;
 };

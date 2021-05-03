@@ -17,21 +17,25 @@ namespace loadbalancer
 namespace policy
 {
 
+class PolicyBuilder;
+
+using PolicyBuilderPtr = std::shared_ptr<PolicyBuilder>;
+
 class PolicyBuilder
 {
   public:
     virtual ~PolicyBuilder() = default;
 
+    virtual PolicyBuilderPtr clone() = 0;
+
     virtual void setInstance(const configuration::Instance &instance) = 0;
-    virtual void setInfrastructure(const InfrastructureCPtr &) = 0;
+    virtual void setInfrastructure(const InfrastructurePtr &) = 0;
     virtual void setDifferenceCalculator(const mapping::DifferenceCalculatorPtr &) = 0;
     virtual void setTimingService(const TimingServicePtr &) = 0;
     virtual PolicyPtr build(const logger::LoggerPtr &) = 0;
 
     virtual std::string toString() const = 0;
 };
-
-using PolicyBuilderPtr = std::shared_ptr<PolicyBuilder>;
 
 } // namespace policy
 } // namespace loadbalancer

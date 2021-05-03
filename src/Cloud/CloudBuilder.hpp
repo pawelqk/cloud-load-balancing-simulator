@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Cloud.hpp"
+#include "Configuration/Instance.hpp"
 #include "Infrastructure.hpp"
 #include "LoadBalancer/Mapping/DifferenceCalculator.hpp"
 #include "LoadBalancer/Mapping/DifferenceCalculatorImpl.hpp"
@@ -19,15 +20,17 @@ namespace cloud
 class CloudBuilder
 {
   public:
-    CloudBuilder(const std::vector<std::uint32_t> &nodesMips, const TimingServicePtr &timingService,
-                 const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const logger::LoggerPtr &logger);
+    CloudBuilder(const configuration::NodeDataVec &nodesData, const TimingServicePtr &timingService,
+                 const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
+                 const logger::LoggerPtr &logger);
 
     std::unique_ptr<Cloud> build();
 
   private:
-    const std::vector<std::uint32_t> nodesMips;
+    const configuration::NodeDataVec nodesData;
     const TimingServicePtr timingService;
     const cloud::loadbalancer::policy::PolicyBuilderPtr policyBuilder;
+    const double penaltyFactor;
     const logger::LoggerPtr logger;
 };
 

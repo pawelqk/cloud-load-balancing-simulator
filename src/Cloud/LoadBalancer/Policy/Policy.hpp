@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ostream>
 
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"
@@ -19,6 +20,8 @@ namespace policy
 using NodeToTaskMapping = std::map<NodeId, TaskPtrList>;
 
 std::string toString(const NodeToTaskMapping &mapping);
+
+void PrintTo(const NodeToTaskMapping &mapping, std::ostream *os);
 
 class Policy
 {

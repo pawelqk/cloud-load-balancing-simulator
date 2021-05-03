@@ -10,20 +10,18 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace shortestremainingtimefirst
-{
 
-class ShortestRemainingTimeFirstWithMigrations : public PolicyBase
+class HeuristicPolicy : public PolicyBase
 {
   public:
-    ShortestRemainingTimeFirstWithMigrations(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
+    HeuristicPolicy(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 
-    std::string toString() const override;
+  protected:
+    virtual bool heuristic(const TaskPtr &left, const TaskPtr &right) const = 0;
 };
 
-} // namespace shortestremainingtimefirst
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

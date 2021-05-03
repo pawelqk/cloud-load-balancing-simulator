@@ -6,7 +6,7 @@ namespace cloud
 {
 
 NodeImpl::NodeImpl(const NodeId id, const std::uint32_t mips, const logger::LoggerPtr &logger)
-    : id(id), mips(mips), logger(logger)
+    : id(id), mips(mips), logger(logger), task(nullptr)
 {
 }
 
@@ -18,9 +18,7 @@ void NodeImpl::assign(const TaskPtr &task)
 void NodeImpl::work()
 {
     if (task != nullptr)
-    {
         task->work();
-    }
 }
 
 TaskPtr NodeImpl::extractTask()

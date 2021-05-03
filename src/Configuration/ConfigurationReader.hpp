@@ -22,7 +22,9 @@ struct GeneralConfiguration
 enum class Policy
 {
     ArtificialBeeColony,
+    FirstComeFirstServe,
     GeneticAlgorithm,
+    LongestRemainingTimeFirst,
     Random,
     RoundRobin,
     ShortestElapsedTimeFirst,
@@ -34,7 +36,6 @@ enum class PolicyConfiguration
 {
     Offline,
     Online,
-    OnlineWithMigrations,
     OnlineWithMigrationsAndPreemptions
 };
 

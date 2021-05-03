@@ -41,8 +41,8 @@ class NodeImpl : public Node
     const NodeId id;
     const std::uint32_t mips;
 
-    TaskPtr task;
     const logger::LoggerPtr logger;
+    TaskPtr task;
 };
 
 } // namespace cloud

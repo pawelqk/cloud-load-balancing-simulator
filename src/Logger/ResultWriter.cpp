@@ -8,9 +8,9 @@ namespace logger
 
 namespace fs = std::filesystem;
 
-ResultWriter::ResultWriter(const std::string &directoryName) : directoryName(directoryName)
+ResultWriter::ResultWriter(const std::string &directoryName) : directoryPath(directoryName + "/" + getCurrentDate())
 {
-    fs::create_directories(directoryName);
+    fs::create_directories(directoryPath);
 }
 
 void ResultWriter::writeResults(const std::string &description,
@@ -19,14 +19,14 @@ void ResultWriter::writeResults(const std::string &description,
     if (results.empty())
         return;
 
-    std::ofstream file{directoryName + "/" + description + "_" + prepareFileName()};
+    std::ofstream file{directoryPath + "/" + description};
     file << createColumns() << std::endl;
 
     for (auto &&result : results)
         file << createResultRecord(result) << std::endl;
 }
 
-std::string ResultWriter::prepareFileName()
+std::string ResultWriter::getCurrentDate()
 {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 

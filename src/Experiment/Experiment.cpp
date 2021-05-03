@@ -11,20 +11,20 @@ namespace experiment
 {
 
 Experiment::Experiment(const configuration::Instance &instance,
-                       const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder,
+                       const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
                        const logger::LoggerPtr &logger)
     : instance(instance), policyBuilder(policyBuilder), logger(logger),
       timingService(std::make_shared<cloud::TimingServiceImpl>(logger))
 {
     policyBuilder->setTimingService(timingService);
-    cloud = cloud::CloudBuilder{instance.getNodesMips(), timingService, policyBuilder, logger}.build();
+    cloud = cloud::CloudBuilder{instance.getNodesData(), timingService, policyBuilder, penaltyFactor, logger}.build();
 }
 
 Experiment::Result Experiment::run(const std::uint_fast64_t seed)
 {
     logger->info("Beginning experiment with seed: %u", seed);
     utility::RandomNumberGenerator::getInstance(seed);
-    logger->info("Instance: \n%s", instance.toString().c_str());
+    logger->debug("Instance: \n%s", instance.toString().c_str());
 
     while (true)
     {

@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "Infrastructure.hpp"
 #include "Configuration/Instance.hpp"
+#include "Infrastructure.hpp"
 #include "LoadBalancer/LoadBalancer.hpp"
 #include "Logger/Logger.hpp"
 #include "Node.hpp"
@@ -18,7 +18,7 @@ class Cloud
 {
   public:
     Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructurePtr &infrastructure,
-          const TimingServicePtr &timingService, const logger::LoggerPtr &logger);
+          const TimingServicePtr &timingService, const double penaltyFactor, const logger::LoggerPtr &logger);
 
     void tick(const configuration::TaskDataVec taskDatas);
 
@@ -34,9 +34,8 @@ class Cloud
     const loadbalancer::LoadBalancerPtr loadBalancer;
     const InfrastructurePtr infrastructure;
     const TimingServicePtr timingService;
+    const double penaltyFactor;
     const logger::LoggerPtr logger;
-
-    std::uint32_t nextTaskId;
 };
 
 } // namespace cloud

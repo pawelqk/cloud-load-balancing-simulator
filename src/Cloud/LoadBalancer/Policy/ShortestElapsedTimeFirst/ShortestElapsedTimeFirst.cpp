@@ -11,15 +11,19 @@ namespace shortestelapsedtimefirst
 
 ShortestElapsedTimeFirst::ShortestElapsedTimeFirst(const InfrastructureCPtr &infrastructure,
                                                    const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger)
+    : HeuristicPolicy(infrastructure, logger)
 {
 }
 
-NodeToTaskMapping ShortestElapsedTimeFirst::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+std::string ShortestElapsedTimeFirst::toString() const
 {
-    NodeToTaskMapping actions;
+    return "ShortestElapsedTimeFirst";
+}
 
-    return actions;
+bool ShortestElapsedTimeFirst::heuristic(const TaskPtr &left, const TaskPtr &right) const
+{
+    return left->getElapsedTime() == right->getElapsedTime() ? left->getId() < right->getId()
+                                                             : left->getElapsedTime() < right->getElapsedTime();
 }
 
 } // namespace shortestelapsedtimefirst

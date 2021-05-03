@@ -1,13 +1,9 @@
 #pragma once
 
-#include <list>
-#include <map>
-#include <memory>
-#include <optional>
+#include <string>
 
-#include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBuilderBase.hpp"
-#include "Configuration/Instance.hpp"
+#include "Configuration/ConfigurationReader.hpp"
 #include "Logger/Logger.hpp"
 
 namespace cloud
@@ -23,6 +19,9 @@ class ShortestRemainingTimeFirstBuilder : public PolicyBuilderBase
 {
   public:
     ShortestRemainingTimeFirstBuilder(const configuration::PolicyConfiguration policyConfiguration);
+
+    PolicyBuilderPtr clone() override;
+
     PolicyPtr build(const logger::LoggerPtr &logger) override;
 
     std::string toString() const override;

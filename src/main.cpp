@@ -68,15 +68,19 @@ int main(int argc, char *argv[])
     {
         std::map<std::uint32_t, configuration::TaskDataVec> tasks;
         const auto &tasksData = instanceData.at("tasks");
-        for (auto &&taskData : tasksData)
+        for (auto i = 0u; i < tasksData.size(); ++i)
         {
-            tasks[taskData.at("arrivalTime")].emplace_back(taskData.at("requiredMips"), taskData.at("length"));
+            tasks[tasksData[i].at("arrivalTime")].emplace_back(i, tasksData[i].at("requiredMips"),
+                                                               tasksData[i].at("length"));
         }
 
         const auto &instanceId = instanceData.at("id");
         const auto &nodesMips = instanceData.at("nodesMips");
+        configuration::NodeDataVec nodesData(nodesMips.size());
+        for (auto i = 0u; i < nodesMips.size(); ++i)
+            nodesData[i] = {i, nodesMips[i]};
 
-        instances.emplace_back(instanceId, tasks, nodesMips);
+        instances.emplace_back(instanceId, tasks, nodesData);
     }
 
     auto resultWriter = std::make_unique<logger::ResultWriter>("results");

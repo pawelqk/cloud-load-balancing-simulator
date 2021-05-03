@@ -5,7 +5,7 @@ import random
 from datetime import datetime
 
 
-NUMBER_OF_INSTANCES = 25
+NUMBER_OF_INSTANCES = 100000
 
 
 def generate_random_node(config):
@@ -20,10 +20,7 @@ def generate_random_task(config, max_task_mips):
     }
 
 
-with open("config.json", 'r') as file:
-    config = json.load(file)
-
-    random_instances = []
+def generate_random_instances():
     for instance_id in range(NUMBER_OF_INSTANCES):
         mips_of_nodes = set()
 
@@ -39,12 +36,27 @@ with open("config.json", 'r') as file:
         for task_id in range(config["numberOfTasks"]):
             random_tasks.append(generate_random_task(config, max_task_mips))
 
-        random_instances.append({
+        yield {
             "id": instance_id,
             "nodesMips": random_nodes,
             "tasks": random_tasks
-        })
+        }
+
+
+class IteratorAsList(list):
+    def __init__(self, it):
+        self.it = it
+    def __iter__(self):
+        return self.it
+    def __len__(self):
+        return 1
+
+
+with open("config.json", 'r') as file:
+    config = json.load(file)
+
+    random_instances = []
 
     current_time = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
     with open(f"instances_{current_time}.json", 'w') as output:
-        output.write(json.dumps(random_instances, indent=4, sort_keys=True))
+        output.write(json.dumps(IteratorAsList(generate_random_instances()), indent=4, sort_keys=True))

@@ -14,7 +14,7 @@ class TaskImpl : public Task
 {
   public:
     explicit TaskImpl(const std::uint32_t id, const std::uint32_t mips, const std::uint32_t initialLength,
-                      const std::uint32_t arrivalTime);
+                      const std::uint32_t arrivalTime, const double penaltyFactor);
     TaskImpl() = delete;
     TaskImpl(const TaskImpl &) = delete;
     TaskImpl(TaskImpl &&) = delete;
@@ -30,6 +30,7 @@ class TaskImpl : public Task
     std::uint32_t getMips() const override;
     std::uint32_t getInitialLength() const override;
     std::uint32_t getArrivalTime() const override;
+    std::uint32_t getElapsedTime() const override;
     std::uint32_t estimateTimeLeft() const override;
     std::uint32_t estimateTimeLeftAfterMigration() const override;
     std::uint32_t estimateTimeLeftAfterPreemption() const override;
@@ -44,8 +45,10 @@ class TaskImpl : public Task
     const std::uint32_t mips;
     const std::uint32_t initialLength;
     const std::uint32_t arrivalTime;
+    const double penaltyFactor;
 
     std::uint32_t currentLength;
+    std::uint32_t elapsedTime;
 };
 
 } // namespace cloud

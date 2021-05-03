@@ -19,6 +19,9 @@ class RandomBuilder : public PolicyBuilderBase
 {
   public:
     RandomBuilder(const configuration::PolicyConfiguration policyConfiguration);
+
+    PolicyBuilderPtr clone() override;
+
     PolicyPtr build(const logger::LoggerPtr &logger) override;
 
     std::string toString() const override;

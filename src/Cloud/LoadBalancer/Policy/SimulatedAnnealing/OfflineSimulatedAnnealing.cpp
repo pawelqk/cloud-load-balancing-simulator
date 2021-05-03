@@ -1,4 +1,4 @@
-#include "SimulatedAnnealing.hpp"
+#include "OfflineSimulatedAnnealing.hpp"
 
 #include <cmath>
 #include <random>
@@ -14,13 +14,16 @@ namespace policy
 namespace simulatedannealing
 {
 
-SimulatedAnnealing::SimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                                       mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor))
+OfflineSimulatedAnnealing::OfflineSimulatedAnnealing(const InfrastructureCPtr &infrastructure,
+                                                     const Parameters &parameters,
+                                                     mapping::MappingAssessorPtr &&mappingAssessor,
+                                                     const configuration::Instance &instance,
+                                                     const logger::LoggerPtr &logger)
+    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger), instance(instance)
 {
 }
 
-NodeToTaskMapping SimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OfflineSimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &tasks)
 {
     logger->debug("Mapping %u tasks", tasks.size());
 
@@ -29,50 +32,12 @@ NodeToTaskMapping SimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &t
     return solution;
 }
 
-std::string SimulatedAnnealing::toString() const
+std::string OfflineSimulatedAnnealing::toString() const
 {
-    return "SimulatedAnnealing";
+    return "OfflineSimulatedAnnealing";
 }
 
-NodeToTaskMapping SimulatedAnnealing::createNewSolution(const TaskPtrVec &tasks)
-{
-    auto bestSolution = createRandomSolution(tasks);
-    if (bestSolution.empty())
-        return bestSolution;
-
-    auto nextSolution = bestSolution;
-    auto currentSolution = bestSolution;
-
-    auto &rng = utility::RandomNumberGenerator::getInstance();
-    std::uniform_real_distribution<> distribution{0, 1.0};
-
-    auto temperature = parameters.startTemperature;
-
-    std::uint32_t numberOfIterations{0};
-
-    logger->debug("Starting annealing");
-    while (temperature > parameters.endTemperature)
-    {
-        nextSolution = getNewSolutionFromNeighbourhood(currentSolution);
-        const auto nextSolutionValue = mappingAssessor->assess(nextSolution);
-        const auto currentSolutionValue = mappingAssessor->assess(currentSolution);
-
-        if (nextSolutionValue <= currentSolutionValue)
-        {
-            currentSolution = nextSolution;
-            bestSolution = nextSolution;
-        }
-        else if (distribution(rng) < std::exp((currentSolutionValue - nextSolutionValue) / temperature))
-            currentSolution = nextSolution;
-
-        if ((++numberOfIterations) % parameters.iterationsPerStep == 0)
-            temperature *= parameters.coolingRatio;
-    }
-
-    return bestSolution;
-}
-
-NodeToTaskMapping SimulatedAnnealing::createRandomSolution(const TaskPtrVec &tasks)
+NodeToTaskMapping OfflineSimulatedAnnealing::createRandomSolution(const TaskPtrVec &tasks)
 {
     logger->debug("Creating random solution");
     NodeToTaskMapping solution;
@@ -96,8 +61,9 @@ NodeToTaskMapping SimulatedAnnealing::createRandomSolution(const TaskPtrVec &tas
     return solution;
 }
 
-NodeToTaskMapping SimulatedAnnealing::getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution)
+NodeToTaskMapping OfflineSimulatedAnnealing::getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution)
 {
+    // neighbourhood of type INSERT
     auto solutionInNeighbourhood = solution;
     auto &rng = utility::RandomNumberGenerator::getInstance();
 
@@ -137,18 +103,6 @@ NodeToTaskMapping SimulatedAnnealing::getNewSolutionFromNeighbourhood(const Node
     randomNode.insert(newRandomElementIt, randomElement);
 
     return solutionInNeighbourhood;
-}
-
-std::vector<NodeId> SimulatedAnnealing::extractFreeNodeIds()
-{
-    std::vector<NodeId> freeNodeIds;
-    for (auto &&node : infrastructure->getNodes())
-    {
-        if (node->isIdle())
-            freeNodeIds.push_back(node->getId());
-    }
-
-    return freeNodeIds;
 }
 
 } // namespace simulatedannealing

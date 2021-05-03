@@ -26,23 +26,29 @@ void ExperimentRunner::run(const cloud::loadbalancer::policy::PolicyBuilderPtr &
 
     const auto description = policyBuilder->toString();
     logger.info("Running experiments for %s", description.c_str());
+
     const auto &seed = configuration.seed;
     logger.info("Seed: %u", seed);
 
+    const auto &penaltyFactor = configuration.penaltyFactor;
+    logger.info("Penalty factor: %f", penaltyFactor);
+
     std::vector<std::future<Experiment::Result>> futures;
     futures.reserve(instances.size());
-    for (auto i = 0u; i < instances.size(); ++i)
+    for (auto &&instance : instances)
     {
-        const std::string runName{"Experiment-" + std::to_string(i)};
+        const std::string runName{"Experiment-" + std::to_string(instance.getId())};
         const auto logger = std::make_shared<logger::Logger>(runName, config.debug);
         if (config.stdout)
             logger->addLoggingEndpoint(std::make_unique<logger::Stdout>());
         if (config.files)
             logger->addLoggingEndpoint(std::make_unique<logger::Files>("logs/" + description, runName));
 
-        policyBuilder->setInstance(instances[i]);
-        futures.emplace_back(std::async([instance = instances[i], policyBuilder, logger, seed]() {
-            Experiment e{instance, policyBuilder, logger};
+        const auto builder = policyBuilder->clone();
+        builder->setInstance(instance);
+
+        futures.emplace_back(std::async([instance, builder, penaltyFactor, logger, seed]() {
+            Experiment e{instance, builder, penaltyFactor, logger};
             return e.run(seed);
         }));
     }

@@ -16,6 +16,11 @@ RandomBuilder::RandomBuilder(const configuration::PolicyConfiguration policyConf
 {
 }
 
+PolicyBuilderPtr RandomBuilder::clone()
+{
+    return std::make_shared<RandomBuilder>(policyConfiguration);
+}
+
 PolicyPtr RandomBuilder::build(const logger::LoggerPtr &logger)
 {
     return std::make_unique<Random>(infrastructure, logger);

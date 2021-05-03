@@ -16,15 +16,16 @@ namespace cloud
 namespace tests
 {
 
+using testing::Return;
+using testing::UnorderedElementsAreArray;
+
 MATCHER_P(TasksAre, tasks, "")
 {
     return std::equal(tasks.cbegin(), tasks.cend(), arg.cbegin(), [](auto &&leftTask, auto &&rightTask) {
-        return leftTask->getMips() == rightTask->getMips() &&
+        return leftTask->getId() == rightTask->getId() && leftTask->getMips() == rightTask->getMips() &&
                rightTask->getInitialLength() == rightTask->getInitialLength();
     });
 }
-
-using testing::Return;
 
 struct CloudShould : testing::Test
 {
@@ -32,7 +33,7 @@ struct CloudShould : testing::Test
     const mocks::InfrastructureMockPtr infrastructureMock{std::make_shared<mocks::InfrastructureMock>()};
     const mocks::TimingServiceMockPtr timingServiceMock{std::make_shared<mocks::TimingServiceMock>()};
 
-    Cloud sut{loadbalancer::mocks::LoadBalancerMockPtr{loadBalancerMock}, infrastructureMock, timingServiceMock,
+    Cloud sut{loadbalancer::mocks::LoadBalancerMockPtr{loadBalancerMock}, infrastructureMock, timingServiceMock, 0.3,
               std::make_shared<logger::Logger>("", false)};
 };
 
@@ -57,9 +58,9 @@ TEST_F(CloudShould, BeIdleWhenInfrastructureIsIdleAndThereAreNoTasksWaiting)
 TEST_F(CloudShould, InsertNewTasks)
 {
     constexpr std::uint32_t arrivalTime{5};
-    const TaskPtrVec tasks{std::make_shared<TaskImpl>(0, 2, 3, arrivalTime),
-                           std::make_shared<TaskImpl>(1, 4, 6, arrivalTime)};
-    const configuration::TaskDataVec taskDatas{{2, 3}, {4, 6}};
+    const TaskPtrVec tasks{std::make_shared<TaskImpl>(10, 2, 3, arrivalTime, 0.3),
+                           std::make_shared<TaskImpl>(11, 4, 6, arrivalTime, 0.3)};
+    const configuration::TaskDataVec taskDatas{{10, 2, 3}, {11, 4, 6}};
 
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(TaskPtrVec{}));
     EXPECT_CALL(*timingServiceMock, getTicks()).WillRepeatedly(Return(arrivalTime));
@@ -77,7 +78,7 @@ TEST_F(CloudShould, NotScheduleWaitingTasksIfThereAreNotAnyFinished)
 
 TEST_F(CloudShould, NotScheduleWaitingTasksIfThereAreNotAnyWaiting)
 {
-    const TaskPtrVec tasks{std::make_shared<TaskImpl>(1, 2, 3, 4), std::make_shared<TaskImpl>(4, 5, 6, 5)};
+    const TaskPtrVec tasks{std::make_shared<TaskImpl>(1, 2, 3, 4, 0.3), std::make_shared<TaskImpl>(4, 5, 6, 5, 0.3)};
     EXPECT_CALL(*timingServiceMock, getTicks()).WillOnce(Return(10));
 
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(tasks));
@@ -89,7 +90,7 @@ TEST_F(CloudShould, NotScheduleWaitingTasksIfThereAreNotAnyWaiting)
 
 TEST_F(CloudShould, ScheduleWaitingTasksIfThereAreWaiting)
 {
-    const TaskPtrVec tasks{std::make_shared<TaskImpl>(1, 2, 3, 1), std::make_shared<TaskImpl>(4, 5, 6, 1)};
+    const TaskPtrVec tasks{std::make_shared<TaskImpl>(1, 2, 3, 1, 0.3), std::make_shared<TaskImpl>(4, 5, 6, 1, 0.3)};
     EXPECT_CALL(*timingServiceMock, getTicks()).WillOnce(Return(2));
 
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(tasks));

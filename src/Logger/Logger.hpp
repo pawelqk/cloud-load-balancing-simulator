@@ -38,7 +38,7 @@ class Logger
     template <class... Args>
     void log(const std::string &prefix, const char *msg, Args... args)
     {
-        char buffer[700];
+        char buffer[2000];
         const auto nameBuffer = nameTag.c_str();
         const auto nameBufferSize = nameTag.size();
         const auto prefixBuffer = prefix.c_str();

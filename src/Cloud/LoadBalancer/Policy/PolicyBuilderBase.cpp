@@ -18,7 +18,7 @@ void PolicyBuilderBase::setInstance(const configuration::Instance &instance)
         this->instance.emplace(instance);
 }
 
-void PolicyBuilderBase::setInfrastructure(const InfrastructureCPtr &infrastructure)
+void PolicyBuilderBase::setInfrastructure(const InfrastructurePtr &infrastructure)
 {
     this->infrastructure = infrastructure;
 }

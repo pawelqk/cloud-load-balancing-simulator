@@ -11,14 +11,14 @@
 namespace experiment
 {
 
-ExperimentRunner::ExperimentRunner(const std::vector<instance::Instance> &instances, const Config &config,
+ExperimentRunner::ExperimentRunner(const std::vector<configuration::Instance> &instances, const Config &config,
                                    logger::ResultWriterPtr &&resultWriter)
     : instances(instances), config(config), resultWriter(std::move(resultWriter))
 {
 }
 
-void ExperimentRunner::run(const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
-                           const std::uint_fast64_t seed)
+void ExperimentRunner::run(const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder,
+                           const configuration::GeneralConfiguration &configuration)
 {
     logger::Logger logger{"ExperimentRunner", config.debug};
     if (config.stdout)
@@ -26,6 +26,7 @@ void ExperimentRunner::run(const cloud::loadbalancer::policy::builders::PolicyBu
 
     const auto description = policyBuilder->toString();
     logger.info("Running experiments for %s", description.c_str());
+    const auto &seed = configuration.seed;
     logger.info("Seed: %u", seed);
 
     std::vector<std::future<Experiment::Result>> futures;

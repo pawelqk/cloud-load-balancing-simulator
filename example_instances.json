@@ -2,8 +2,6 @@
     {
         "id": 0,
         "nodesMips": [10, 10, 10, 10],
-        "type": "online",
-        "additionalActions": ["preemptions", "migrations"],
         "tasks": [
             {
                 "requiredMips": 1,

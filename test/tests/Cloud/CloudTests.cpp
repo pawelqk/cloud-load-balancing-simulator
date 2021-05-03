@@ -5,7 +5,7 @@
 #include "Cloud/Cloud.hpp"
 #include "Cloud/Task.hpp"
 #include "Cloud/TaskImpl.hpp"
-#include "Instance/Instance.hpp"
+#include "Configuration/Instance.hpp"
 #include "Logger/Logger.hpp"
 #include "mocks/InfrastructureMock.hpp"
 #include "mocks/LoadBalancerMock.hpp"
@@ -59,7 +59,7 @@ TEST_F(CloudShould, InsertNewTasks)
     constexpr std::uint32_t arrivalTime{5};
     const TaskPtrVec tasks{std::make_shared<TaskImpl>(0, 2, 3, arrivalTime),
                            std::make_shared<TaskImpl>(1, 4, 6, arrivalTime)};
-    const instance::TaskDataVec taskDatas{{2, 3}, {4, 6}};
+    const configuration::TaskDataVec taskDatas{{2, 3}, {4, 6}};
 
     EXPECT_CALL(*infrastructureMock, advanceProcessing()).WillOnce(Return(TaskPtrVec{}));
     EXPECT_CALL(*timingServiceMock, getTicks()).WillRepeatedly(Return(arrivalTime));

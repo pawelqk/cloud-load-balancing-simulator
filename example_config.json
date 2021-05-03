@@ -1,8 +1,29 @@
 {
     "seed": 912997702,
+    "penaltyFactor": 0.2,
     "algorithms": [
         {
-            "name": "Round robin"
+            "name": "Round robin",
+            "configuration": {
+                "type": "Online"
+            }
+        },
+        {
+            "name": "Random",
+            "configuration": {
+                "type": "Offline"
+            }
+        },
+        {
+            "name": "Simulated annealing",
+            "configuration": {
+                "type": "Online with migrations",
+                "coolingRatio": 0.997,
+                "startTemperature": 1000,
+                "endTemperature": 0.00001,
+                "iterationsPerStep": 1000,
+                "criteria": "Flowtime"
+            }
         }
     ],
     "minMips": 1,

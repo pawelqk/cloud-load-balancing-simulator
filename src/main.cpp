@@ -8,12 +8,14 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Cloud/LoadBalancer/Policy/Builders/RandomBuilder.hpp"
-#include "Cloud/LoadBalancer/Policy/Builders/RoundRobinBuilder.hpp"
-#include "Cloud/LoadBalancer/Policy/Builders/ShortestRemainingTimeFirstBuilder.hpp"
-#include "Cloud/LoadBalancer/Policy/Builders/SimulatedAnnealingBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/Random/RandomBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/RoundRobin/RoundRobinBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/ShortestRemainingTimeFirst/ShortestRemainingTimeFirstBuilder.hpp"
+#include "Cloud/LoadBalancer/Policy/SimulatedAnnealing/SimulatedAnnealingBuilder.hpp"
+#include "Configuration/ConfigurationReader.hpp"
+#include "Configuration/Instance.hpp"
+#include "Configuration/JsonConfigurationReader.hpp"
 #include "Experiment/ExperimentRunner.hpp"
-#include "Instance/Instance.hpp"
 #include "Logger/ResultWriter.hpp"
 
 using json = nlohmann::json;
@@ -35,25 +37,19 @@ int main(int argc, char *argv[])
     json configuration;
     configFile >> configuration;
 
-    const std::uint_fast64_t seed = configuration.value("seed", std::random_device{}());
-    const auto algorithms = configuration.at("algorithms");
-    std::vector<cloud::loadbalancer::policy::builders::PolicyBuilderPtr> policyBuilders;
-    const auto policyConfiguration = instance::PolicyConfiguration::OnlineWithMigrationsAndPreemptions;
-    for (auto &&algorithm : algorithms)
+    configuration::JsonConfigurationReader configurationReader{configuration};
+
+    configuration::GeneralConfiguration generalConfiguration;
+    std::vector<cloud::loadbalancer::policy::PolicyBuilderPtr> policyBuilders;
+    try
     {
-        if (algorithm.at("name") == "Random")
-            policyBuilders.push_back(
-                std::make_shared<cloud::loadbalancer::policy::builders::RandomBuilder>(policyConfiguration));
-        else if (algorithm.at("name") == "Round robin")
-            policyBuilders.push_back(
-                std::make_shared<cloud::loadbalancer::policy::builders::RoundRobinBuilder>(policyConfiguration));
-        else if (algorithm.at("name") == "Shortest remaining time first")
-            policyBuilders.push_back(
-                std::make_shared<cloud::loadbalancer::policy::builders::ShortestRemainingTimeFirstBuilder>(
-                    policyConfiguration));
-        // else if (algorithm.at("name") == "Simulated annealing")
-        //   policyBuilders.push_back(
-        //      std::make_shared<cloud::loadbalancer::policy::builders::SimulatedAnnealingBuilder>({}));
+        generalConfiguration = configurationReader.readGeneralConfiguration();
+        policyBuilders = configurationReader.readPolicies();
+    }
+    catch (configuration::InvalidConfigurationException &ex)
+    {
+        std::cout << ex.what();
+        return 1;
     }
 
     std::ifstream instancesFile("instances.json");
@@ -66,11 +62,11 @@ int main(int argc, char *argv[])
     json instancesData;
     instancesFile >> instancesData;
 
-    std::vector<instance::Instance> instances;
+    std::vector<configuration::Instance> instances;
     instances.reserve(instancesData.size());
     for (auto &&instanceData : instancesData)
     {
-        std::map<std::uint32_t, instance::TaskDataVec> tasks;
+        std::map<std::uint32_t, configuration::TaskDataVec> tasks;
         const auto &tasksData = instanceData.at("tasks");
         for (auto &&taskData : tasksData)
         {
@@ -92,7 +88,7 @@ int main(int argc, char *argv[])
 
     experiment::ExperimentRunner runner{instances, runnerConfig, std::move(resultWriter)};
     for (auto &&policyBuilder : policyBuilders)
-        runner.run(policyBuilder, seed);
+        runner.run(policyBuilder, generalConfiguration);
 
     return 0;
 }

@@ -16,7 +16,7 @@ Cloud::Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructureP
 {
 }
 
-void Cloud::tick(const instance::TaskDataVec taskDatas)
+void Cloud::tick(const configuration::TaskDataVec taskDatas)
 {
     const auto finishedTasks = infrastructure->advanceProcessing();
     if (!finishedTasks.empty())
@@ -38,7 +38,7 @@ std::string Cloud::toString() const
     return loadBalancer->toString();
 }
 
-TaskPtrVec Cloud::createTasks(const instance::TaskDataVec taskDatas)
+TaskPtrVec Cloud::createTasks(const configuration::TaskDataVec taskDatas)
 {
     const auto ticks = timingService->getTicks();
 

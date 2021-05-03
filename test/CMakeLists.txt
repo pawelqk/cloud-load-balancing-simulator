@@ -1,7 +1,7 @@
 project("${CMAKE_PROJECT_NAME}-test")
 
-file(GLOB_RECURSE S_SRCS ../src/Cloud/*.cpp ../src/Experiment/*.cpp ../src/Instance/*.cpp ../src/Logger/*.cpp ../src/Utility/*.cpp)
-file(GLOB_RECURSE S_HEADERS ../src/Cloud/*.hpp ../src/Experiment/*.hpp ../src/Instance/*.hpp ../src/Logger/*.hpp ../src/Utility/*.hpp)
+file(GLOB_RECURSE S_SRCS ../src/Cloud/*.cpp ../src/Experiment/*.cpp ../src/Configuration/*.cpp ../src/Logger/*.cpp ../src/Utility/*.cpp)
+file(GLOB_RECURSE S_HEADERS ../src/Cloud/*.hpp ../src/Experiment/*.hpp ../src/Configuration/*.hpp ../src/Logger/*.hpp ../src/Utility/*.hpp)
 file(GLOB_RECURSE T_SRCS tests/*.cpp)
 file(GLOB_RECURSE T_HEADERS tests/*.hpp)
 
@@ -18,6 +18,8 @@ target_link_libraries(${PROJECT_NAME}
     libgtest_main
     libgmock
 )
+
+target_link_libraries(${PROJECT_NAME} Threads::Threads nlohmann_json)
 
 add_test(NAME ${PROJECT_NAME}
          COMMAND ${PROJECT_NAME})

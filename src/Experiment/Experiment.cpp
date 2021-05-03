@@ -10,13 +10,14 @@
 namespace experiment
 {
 
-Experiment::Experiment(const instance::Instance &instance,
-                       const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
+Experiment::Experiment(const configuration::Instance &instance,
+                       const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder,
                        const logger::LoggerPtr &logger)
     : instance(instance), policyBuilder(policyBuilder), logger(logger),
-      timingService(std::make_shared<cloud::TimingServiceImpl>(logger)),
-      cloud(cloud::CloudBuilder{instance.getNodesMips(), timingService, policyBuilder, logger}.build())
+      timingService(std::make_shared<cloud::TimingServiceImpl>(logger))
 {
+    policyBuilder->setTimingService(timingService);
+    cloud = cloud::CloudBuilder{instance.getNodesMips(), timingService, policyBuilder, logger}.build();
 }
 
 Experiment::Result Experiment::run(const std::uint_fast64_t seed)

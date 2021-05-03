@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Infrastructure.hpp"
-#include "Instance/Instance.hpp"
+#include "Configuration/Instance.hpp"
 #include "LoadBalancer/LoadBalancer.hpp"
 #include "Logger/Logger.hpp"
 #include "Node.hpp"
@@ -20,14 +20,14 @@ class Cloud
     Cloud(loadbalancer::LoadBalancerPtr &&loadBalancer, const InfrastructurePtr &infrastructure,
           const TimingServicePtr &timingService, const logger::LoggerPtr &logger);
 
-    void tick(const instance::TaskDataVec taskDatas);
+    void tick(const configuration::TaskDataVec taskDatas);
 
     bool isIdle() const;
 
     std::string toString() const;
 
   private:
-    TaskPtrVec createTasks(const instance::TaskDataVec taskDatas);
+    TaskPtrVec createTasks(const configuration::TaskDataVec taskDatas);
     void addFlowtime(const TaskPtrVec &finishedTasks);
     void logNewTasks(const TaskPtrVec &tasks);
 

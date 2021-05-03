@@ -4,9 +4,8 @@ import json
 import random
 from datetime import datetime
 
-TYPE = "online"
-ADDITIONAL_ACTIONS = ["migrations, preemptions"]
-NUMBER_OF_INSTANCES = 20
+
+NUMBER_OF_INSTANCES = 25
 
 
 def generate_random_node(config):
@@ -43,8 +42,6 @@ with open("config.json", 'r') as file:
         random_instances.append({
             "id": instance_id,
             "nodesMips": random_nodes,
-            "type": TYPE,
-            "additionalActions": ADDITIONAL_ACTIONS,
             "tasks": random_tasks
         })
 

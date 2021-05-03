@@ -2,7 +2,7 @@
 
 #include "Cloud/CloudBuilder.hpp"
 #include "Cloud/TimingService.hpp"
-#include "Instance/Instance.hpp"
+#include "Configuration/Instance.hpp"
 
 namespace experiment
 {
@@ -17,8 +17,8 @@ class Experiment
         std::uint32_t flowtime;
     };
 
-    Experiment(const instance::Instance &instance,
-               const cloud::loadbalancer::policy::builders::PolicyBuilderPtr &policyBuilder,
+    Experiment(const configuration::Instance &instance,
+               const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder,
                const logger::LoggerPtr &logger);
 
     Result run(const std::uint_fast64_t seed);
@@ -26,11 +26,11 @@ class Experiment
     std::string toString();
 
   private:
-    instance::Instance instance;
-    const cloud::loadbalancer::policy::builders::PolicyBuilderPtr policyBuilder;
+    configuration::Instance instance;
+    const cloud::loadbalancer::policy::PolicyBuilderPtr policyBuilder;
     const logger::LoggerPtr logger;
     const cloud::TimingServicePtr timingService;
-    const std::unique_ptr<cloud::Cloud> cloud;
+    std::unique_ptr<cloud::Cloud> cloud;
 };
 
 } // namespace experiment

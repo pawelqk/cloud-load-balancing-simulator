@@ -28,6 +28,7 @@ NodeToTaskMapping OnlineSimulatedAnnealing::buildNodeToTaskMapping(const TaskPtr
 
     auto solution = createNewSolution(tasks);
 
+    // TODO: validation
     return adjustSolutionWithExistingTasks(solution);
 }
 

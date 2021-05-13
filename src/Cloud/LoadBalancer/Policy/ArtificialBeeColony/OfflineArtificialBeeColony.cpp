@@ -14,8 +14,10 @@ namespace artificialbeecolony
 OfflineArtificialBeeColony::OfflineArtificialBeeColony(const InfrastructureCPtr &infrastructure,
                                                        const Parameters &parameters,
                                                        mapping::MappingAssessorPtr &&mappingAssessor,
+                                                       const configuration::Instance &instance,
                                                        const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor))
+    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor)),
+      instance(instance)
 {
 }
 

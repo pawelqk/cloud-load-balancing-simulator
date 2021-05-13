@@ -28,8 +28,18 @@ class OnlineArtificialBeeColony : public PolicyBase
     std::string toString() const override;
 
   protected:
+    BestSolution generateRandomSolutions(const TaskPtrVec &tasks);
+    NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks);
+    NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution);
+    NodeToTaskMapping adjustSolutionWithExistingTasks(const NodeToTaskMapping &solution);
+    std::vector<NodeId> extractFreeNodeIds();
+    std::vector<NodeId> findNotEmptyNodeIds(const NodeToTaskMapping &solution);
+    std::vector<NodeId> findFeasibleNodeIds(const NodeToTaskMapping &solution, const TaskPtr &task);
+
     const Parameters parameters;
     const mapping::MappingAssessorPtr mappingAssessor;
+
+    std::vector<BeeSolution> solutions;
 };
 
 } // namespace artificialbeecolony

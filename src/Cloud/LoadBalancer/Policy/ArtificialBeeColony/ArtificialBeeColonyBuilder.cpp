@@ -13,7 +13,7 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace simulatedannealing
+namespace artificialbeecolony
 {
 
 ArtificialBeeColonyBuilder::ArtificialBeeColonyBuilder(const configuration::PolicyConfiguration &policyConfiguration,
@@ -64,7 +64,7 @@ mapping::MappingAssessorPtr ArtificialBeeColonyBuilder::buildAssessor()
     return {};
 }
 
-} // namespace simulatedannealing
+} // namespace artificialbeecolony
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

@@ -23,7 +23,7 @@ struct Parameters
     double startTemperature;
     double endTemperature;
     std::uint16_t iterationsPerStep;
-    // std::uint16_t maxIterationsWithoutChange;
+    // std::uint32_t maxIterationsWithoutChange;
 };
 
 class SimulatedAnnealingBase : public PolicyBase

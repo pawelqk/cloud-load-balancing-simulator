@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ArtificialBeeColony.hpp"
+#include "ArtificialBeeColonyBase.hpp"
+#include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBuilderBase.hpp"
 #include "Configuration/ConfigurationReader.hpp"
 
@@ -10,7 +11,7 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace simulatedannealing
+namespace artificialbeecolony
 {
 
 class ArtificialBeeColonyBuilder : public PolicyBuilderBase
@@ -32,7 +33,7 @@ class ArtificialBeeColonyBuilder : public PolicyBuilderBase
     Parameters parameters;
 };
 
-} // namespace simulatedannealing
+} // namespace artificialbeecolony
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

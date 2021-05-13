@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <list>
 
+#include "ArtificialBeeColonyBase.hpp"
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
-#include "GeneticAlgorithmBase.hpp"
 
 namespace cloud
 {
@@ -14,14 +15,14 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace geneticalgorithm
+namespace artificialbeecolony
 {
 
-class OnlineGeneticAlgorithm : public PolicyBase
+class OfflineArtificialBeeColony : public PolicyBase
 {
   public:
-    OnlineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                           mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+    OfflineArtificialBeeColony(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
+                               mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 
@@ -32,7 +33,7 @@ class OnlineGeneticAlgorithm : public PolicyBase
     const mapping::MappingAssessorPtr mappingAssessor;
 };
 
-} // namespace geneticalgorithm
+} // namespace artificialbeecolony
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

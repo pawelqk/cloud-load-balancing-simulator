@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <list>
 
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
@@ -14,14 +15,14 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace geneticalgorithm
+namespace artificialbeecolony
 {
 
-class OnlineGeneticAlgorithm : public PolicyBase
+class OfflineGeneticAlgorithm : public PolicyBase
 {
   public:
-    OnlineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                           mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+    OfflineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
+                            mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
 
@@ -32,7 +33,7 @@ class OnlineGeneticAlgorithm : public PolicyBase
     const mapping::MappingAssessorPtr mappingAssessor;
 };
 
-} // namespace geneticalgorithm
+} // namespace artificialbeecolony
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

@@ -14,19 +14,27 @@ namespace geneticalgorithm
 OnlineGeneticAlgorithmWithMigrationsAndPreemptions::OnlineGeneticAlgorithmWithMigrationsAndPreemptions(
     const InfrastructureCPtr &infrastructure, const Parameters &parameters,
     const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor, const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(mappingAssessor)
+    : GeneticAlgorithmBase(infrastructure, parameters, mappingAssessor, logger)
 {
 }
 
 NodeToTaskMapping OnlineGeneticAlgorithmWithMigrationsAndPreemptions::buildNodeToTaskMappingInternal(
     const TaskPtrVec &tasks)
 {
-    return {};
+    auto allTasks = tasks;
+    for (auto &&node : infrastructure->getNodes())
+    {
+        const auto task = node->getTask();
+        if (task != nullptr)
+            allTasks.push_back(task);
+    }
+
+    return createNewSolution(allTasks);
 }
 
 std::string OnlineGeneticAlgorithmWithMigrationsAndPreemptions::toString() const
 {
-    return "";
+    return "OnlineGeneticAlgorithmWithMigrationsAndPreemptions";
 }
 
 } // namespace geneticalgorithm

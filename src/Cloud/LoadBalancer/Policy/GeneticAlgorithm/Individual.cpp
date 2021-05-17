@@ -48,9 +48,6 @@ Individual Individual::crossover(const Individual &leftParent, const Individual 
     auto [beginIndex, endIndex] = leftParent.getRandomChromosomeSlice();
     std::vector<Gene> offspring(leftParent.chromosome.size());
 
-    std::cout << "begin: " << beginIndex << "\n";
-    std::cout << "end: " << endIndex << "\n";
-
     std::set<std::uint32_t> insertedGenes;
     for (auto i = beginIndex; i <= endIndex; ++i)
     {
@@ -58,40 +55,15 @@ Individual Individual::crossover(const Individual &leftParent, const Individual 
         insertedGenes.insert(offspring[i].taskId);
     }
 
-    std::cout << "leftParent: \n";
-    for (auto i = 0u; i < leftParent.chromosome.size(); ++i)
-        std::cout << leftParent.chromosome[i].taskId << " ";
-    std::cout << "\n";
-
-    std::cout << "rightParent: \n";
-    for (auto i = 0u; i < rightParent.chromosome.size(); ++i)
-        std::cout << rightParent.chromosome[i].taskId << " ";
-    std::cout << "\n";
-
-    std::cout << "offspring after left: \n";
-    for (auto i = 0u; i < offspring.size(); ++i)
-        std::cout << offspring[i].taskId << " ";
-    std::cout << "\n";
-
     auto offspringIndex = (endIndex + 1) % offspring.size();
-
-    std::cout << "offspringIndex: " << offspringIndex << "\n";
     for (auto i = (endIndex + 1) % offspring.size(); offspringIndex != beginIndex; i = (i + 1) % offspring.size())
     {
         if (!insertedGenes.contains(rightParent.chromosome[i].taskId))
         {
             offspring[offspringIndex] = rightParent.chromosome[i];
             offspringIndex = (offspringIndex + 1) % offspring.size();
-            std::cout << "Inserting " << rightParent.chromosome[i].taskId << " at " << i;
         }
-        else
-            std::cout << "iscontained: " << rightParent.chromosome[i].taskId << "\n";
     }
-
-    std::cout << "new offspring: \n";
-    for (auto i = 0u; i < offspring.size(); ++i)
-        std::cout << offspring[i].taskId << " ";
-    std::cout << "\n";
 
     return Individual{leftParent.solution, offspring, leftParent.infrastructure, leftParent.mappingAssessor};
 }

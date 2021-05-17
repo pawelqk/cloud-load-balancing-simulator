@@ -18,7 +18,7 @@ namespace policy
 namespace geneticalgorithm
 {
 
-class OnlineGeneticAlgorithmWithMigrationsAndPreemptions : public PolicyBase
+class OnlineGeneticAlgorithmWithMigrationsAndPreemptions : public GeneticAlgorithmBase
 {
   public:
     OnlineGeneticAlgorithmWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
@@ -26,13 +26,10 @@ class OnlineGeneticAlgorithmWithMigrationsAndPreemptions : public PolicyBase
                                                        const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
                                                        const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
-
     std::string toString() const override;
 
-  protected:
-    const Parameters parameters;
-    const std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
+  private:
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 };
 
 } // namespace geneticalgorithm

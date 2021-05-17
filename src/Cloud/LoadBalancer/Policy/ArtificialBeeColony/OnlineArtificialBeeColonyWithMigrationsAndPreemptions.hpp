@@ -18,7 +18,7 @@ namespace policy
 namespace artificialbeecolony
 {
 
-class OnlineArtificialBeeColonyWithMigrationsAndPreemptions : public PolicyBase
+class OnlineArtificialBeeColonyWithMigrationsAndPreemptions : public ArtificialBeeColonyBase
 {
   public:
     OnlineArtificialBeeColonyWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
@@ -26,13 +26,10 @@ class OnlineArtificialBeeColonyWithMigrationsAndPreemptions : public PolicyBase
                                                           mapping::MappingAssessorPtr &&mappingAssessor,
                                                           const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
-
     std::string toString() const override;
 
-  protected:
-    const Parameters parameters;
-    const mapping::MappingAssessorPtr mappingAssessor;
+  private:
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 };
 
 } // namespace artificialbeecolony

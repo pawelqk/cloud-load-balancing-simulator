@@ -17,7 +17,7 @@ LoadBalancerImpl::LoadBalancerImpl(policy::PolicyPtr &&policy, const Infrastruct
 
 void LoadBalancerImpl::scheduleNewTasks(const TaskPtrVec &tasks)
 {
-    logger->debug("Scheduling %u new tasks", tasks.size());
+    logger->info("Scheduling %u new tasks", tasks.size());
 
     TaskPtrVec tasksToSchedule = getWaitingTasks();
     tasksToSchedule.insert(tasksToSchedule.end(), tasks.cbegin(), tasks.cend());

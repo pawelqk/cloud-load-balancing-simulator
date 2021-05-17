@@ -18,12 +18,9 @@ HeuristicPolicyWithMigrationsAndPreemptions::HeuristicPolicyWithMigrationsAndPre
 {
 }
 
-NodeToTaskMapping HeuristicPolicyWithMigrationsAndPreemptions::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping HeuristicPolicyWithMigrationsAndPreemptions::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     const auto solution = withMigrationsFixing ? buildWithMigrationsFixing(tasks) : build(tasks);
-
-    if (!validateSolution(tasks, solution))
-        throw std::runtime_error("Something is really wrong with the algorithm!");
 
     return solution;
 }
@@ -174,36 +171,6 @@ NodeToTaskMapping HeuristicPolicyWithMigrationsAndPreemptions::build(const TaskP
     }
 
     return solution;
-}
-
-bool HeuristicPolicyWithMigrationsAndPreemptions::validateSolution(const TaskPtrVec &insertedTasks,
-                                                                   const NodeToTaskMapping &mapping)
-{
-    logger->debug("Validating %s", ::cloud::loadbalancer::policy::toString(mapping).c_str());
-
-    std::vector<std::uint32_t> allTaskIds;
-    for (auto &&task : insertedTasks)
-        allTaskIds.push_back(task->getId());
-
-    auto &nodes = infrastructure->getNodes();
-    for (auto &&node : nodes)
-    {
-        const auto task = node->getTask();
-        if (task != nullptr)
-            allTaskIds.push_back(task->getId());
-    }
-
-    std::sort(allTaskIds.begin(), allTaskIds.end());
-    std::vector<std::uint32_t> mappedTaskIds;
-    for (auto &&entry : mapping)
-    {
-        for (auto &&task : entry.second)
-            mappedTaskIds.push_back(task->getId());
-    }
-
-    std::sort(mappedTaskIds.begin(), mappedTaskIds.end());
-
-    return allTaskIds == mappedTaskIds;
 }
 
 } // namespace policy

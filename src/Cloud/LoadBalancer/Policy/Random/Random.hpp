@@ -21,7 +21,7 @@ class Random : public PolicyBase
   public:
     Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
 

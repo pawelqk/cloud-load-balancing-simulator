@@ -48,8 +48,8 @@ TEST_F(ShortestRemainingTimeFirstShould, ScheduleTakingCurrentAndPredictedNodesS
     EXPECT_CALL(*node0Mock, canTaskFit(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*node1Mock, canTaskFit(_)).WillRepeatedly(Return(true));
     expectGettingNodes(nodeMocks);
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(task0Mock));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(task1Mock));
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(task0Mock)).WillOnce(Return(task0Mock));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(task1Mock)).WillOnce(Return(task1Mock));
     ASSERT_EQ(sut.buildNodeToTaskMapping({task2Mock, task3Mock, task4Mock}), expectedNodeToTaskMapping);
 }
 
@@ -73,8 +73,8 @@ TEST_F(ShortestRemainingTimeFirstShould, ScheduleNotTakingNotFeasibleNodesIntoAc
     EXPECT_CALL(*node0Mock, canTaskFit(std::static_pointer_cast<Task>(task2Mock))).WillOnce(Return(true));
     EXPECT_CALL(*node1Mock, canTaskFit(_)).WillRepeatedly(Return(true));
     expectGettingNodes(nodeMocks);
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(task0Mock));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(task1Mock));
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(task0Mock)).WillOnce(Return(task0Mock));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(task1Mock)).WillOnce(Return(task1Mock));
     ASSERT_EQ(sut.buildNodeToTaskMapping({task2Mock, task3Mock}), expectedNodeToTaskMapping);
 }
 

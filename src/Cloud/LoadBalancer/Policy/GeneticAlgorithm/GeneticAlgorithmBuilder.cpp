@@ -51,14 +51,14 @@ std::string GeneticAlgorithmBuilder::toString() const
     return "GeneticAlgorithm" + configuration::toString(policyConfiguration);
 }
 
-mapping::MappingAssessorPtr GeneticAlgorithmBuilder::buildAssessor()
+std::shared_ptr<mapping::MappingAssessor> GeneticAlgorithmBuilder::buildAssessor()
 {
     switch (assessment)
     {
     case configuration::Assessment::Makespan:
-        return std::make_unique<mapping::MakespanAssessor>(differenceCalculator);
+        return std::make_shared<mapping::MakespanAssessor>(differenceCalculator);
     case configuration::Assessment::Flowtime:
-        return std::make_unique<mapping::FlowtimeAssessor>(differenceCalculator, timingService);
+        return std::make_shared<mapping::FlowtimeAssessor>(differenceCalculator, timingService);
     }
 
     return {};

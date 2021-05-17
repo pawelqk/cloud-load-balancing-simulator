@@ -25,7 +25,7 @@ class OnlineSimulatedAnnealingWithMigrationsAndPreemptions : public SimulatedAnn
                                                          mapping::MappingAssessorPtr &&mappingAssessor,
                                                          const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
 

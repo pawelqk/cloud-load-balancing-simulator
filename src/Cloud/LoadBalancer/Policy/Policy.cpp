@@ -9,6 +9,10 @@ namespace loadbalancer
 namespace policy
 {
 
+PolicyException::PolicyException(const std::string &msg) : std::runtime_error(msg)
+{
+}
+
 std::string toString(const NodeToTaskMapping &mapping)
 {
     std::stringstream ss;

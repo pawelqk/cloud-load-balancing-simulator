@@ -47,17 +47,16 @@ TEST_F(RoundRobinShould, TakePreviousMappingIntoAccount)
     EXPECT_CALL(*node0Mock, canTaskFit(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*node1Mock, canTaskFit(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*node2Mock, canTaskFit(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node2Mock, getTask()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node2Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
     ASSERT_EQ(sut.buildNodeToTaskMapping({task0Mock, task1Mock, task2Mock, task3Mock, task4Mock, task5Mock}),
               expectedFirstNodeToTaskMapping);
 
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(task4Mock));
-    EXPECT_CALL(*node2Mock, getTask()).WillOnce(Return(task2Mock));
-    ASSERT_EQ(sut.buildNodeToTaskMapping({task2Mock, task4Mock, task5Mock, task6Mock}),
-              expectedSecondNodeToTaskMapping);
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(task4Mock)).WillOnce(Return(task4Mock));
+    EXPECT_CALL(*node2Mock, getTask()).Times(2).WillOnce(Return(task2Mock)).WillOnce(Return(task2Mock));
+    ASSERT_EQ(sut.buildNodeToTaskMapping({task5Mock, task6Mock}), expectedSecondNodeToTaskMapping);
 }
 
 TEST_F(RoundRobinShould, ResumeMappingFromLastlySelectedNode)
@@ -75,12 +74,12 @@ TEST_F(RoundRobinShould, ResumeMappingFromLastlySelectedNode)
     expectGettingNodes(nodeMocks);
     EXPECT_CALL(*node0Mock, canTaskFit(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*node1Mock, canTaskFit(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
     ASSERT_EQ(sut.buildNodeToTaskMapping({task0Mock, task1Mock, task2Mock}), expectedFirstNodeToTaskMapping);
 
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
     ASSERT_EQ(sut.buildNodeToTaskMapping({task3Mock}), expectedSecondNodeToTaskMapping);
 }
 
@@ -97,9 +96,9 @@ TEST_F(RoundRobinShould, ScheduleNotTakingNotFeasibleNodesIntoAccount)
     const NodeToTaskMapping expectedNodeToTaskMapping{{0, {task0Mock}}, {1, {task2Mock}}, {2, {task1Mock, task3Mock}}};
 
     expectGettingNodes(nodeMocks);
-    EXPECT_CALL(*node0Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node1Mock, getTask()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*node2Mock, getTask()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node0Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node1Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*node2Mock, getTask()).Times(2).WillOnce(Return(nullptr)).WillOnce(Return(nullptr));
     EXPECT_CALL(*node0Mock, canTaskFit(std::static_pointer_cast<Task>(task0Mock))).WillOnce(Return(true));
     EXPECT_CALL(*node1Mock, canTaskFit(std::static_pointer_cast<Task>(task1Mock))).WillOnce(Return(false));
     EXPECT_CALL(*node2Mock, canTaskFit(std::static_pointer_cast<Task>(task1Mock))).WillOnce(Return(true));

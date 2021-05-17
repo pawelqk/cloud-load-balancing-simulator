@@ -21,7 +21,8 @@ OnlineSimulatedAnnealingWithMigrationsAndPreemptions::OnlineSimulatedAnnealingWi
 {
 }
 
-NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::buildNodeToTaskMappingInternal(
+    const TaskPtrVec &tasks)
 {
     logger->debug("Mapping %u tasks", tasks.size());
 

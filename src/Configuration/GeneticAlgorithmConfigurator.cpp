@@ -30,6 +30,10 @@ std::optional<cloud::loadbalancer::policy::geneticalgorithm::Parameters> Genetic
     cloud::loadbalancer::policy::geneticalgorithm::Parameters parameters;
     try
     {
+        parameters.mutationProbability = configuration.at("mutationProbability");
+        parameters.populationSize = configuration.at("populationSize");
+        parameters.maxIterations = configuration.at("maxIterations");
+        parameters.eliteIndividualsRatio = configuration.at("eliteIndividualsRatio");
     }
     catch (nlohmann::json::out_of_range &)
     {

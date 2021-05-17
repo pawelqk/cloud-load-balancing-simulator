@@ -16,10 +16,11 @@ class HeuristicPolicy : public PolicyBase
   public:
     HeuristicPolicy(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
-
   protected:
     virtual bool heuristic(const TaskPtr &left, const TaskPtr &right) const = 0;
+
+  private:
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 };
 
 } // namespace policy

@@ -13,12 +13,13 @@ namespace geneticalgorithm
 
 OnlineGeneticAlgorithmWithMigrationsAndPreemptions::OnlineGeneticAlgorithmWithMigrationsAndPreemptions(
     const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-    mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor))
+    const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor, const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(mappingAssessor)
 {
 }
 
-NodeToTaskMapping OnlineGeneticAlgorithmWithMigrationsAndPreemptions::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OnlineGeneticAlgorithmWithMigrationsAndPreemptions::buildNodeToTaskMappingInternal(
+    const TaskPtrVec &tasks)
 {
     return {};
 }

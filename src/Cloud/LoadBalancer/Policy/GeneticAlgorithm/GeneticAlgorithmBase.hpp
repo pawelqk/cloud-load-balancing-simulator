@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace cloud
 {
 namespace loadbalancer
@@ -11,6 +13,10 @@ namespace geneticalgorithm
 
 struct Parameters
 {
+    double mutationProbability;
+    std::uint32_t populationSize;
+    std::uint32_t maxIterations;
+    double eliteIndividualsRatio;
 };
 
 } // namespace geneticalgorithm

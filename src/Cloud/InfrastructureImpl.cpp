@@ -52,4 +52,16 @@ void InfrastructureImpl::prepareNodes(const configuration::NodeDataVec &nodesDat
         nodes.emplace_back(std::make_shared<NodeImpl>(nodeData.id, nodeData.mips, logger));
 }
 
+std::vector<NodeId> InfrastructureImpl::findFeasibleNodeIds(const TaskPtr &task) const
+{
+    std::vector<NodeId> feasibleNodeIds;
+    for (auto &&node : nodes)
+    {
+        if (node->canTaskFit(task))
+            feasibleNodeIds.push_back(node->getId());
+    }
+
+    return feasibleNodeIds;
+}
+
 } // namespace cloud

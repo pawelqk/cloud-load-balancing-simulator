@@ -1,7 +1,9 @@
 #include "JsonConfigurationReader.hpp"
 
+#include "ArtificialBeeColonyConfigurator.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBuilder.hpp"
 #include "GenericConfigurator.hpp"
+#include "GeneticAlgorithmConfigurator.hpp"
 #include "SimulatedAnnealingConfigurator.hpp"
 
 #include <random>

@@ -23,16 +23,16 @@ class OnlineGeneticAlgorithmWithMigrationsAndPreemptions : public PolicyBase
   public:
     OnlineGeneticAlgorithmWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
                                                        const Parameters &parameters,
-                                                       mapping::MappingAssessorPtr &&mappingAssessor,
+                                                       const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
                                                        const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
 
   protected:
     const Parameters parameters;
-    const mapping::MappingAssessorPtr mappingAssessor;
+    const std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
 };
 
 } // namespace geneticalgorithm

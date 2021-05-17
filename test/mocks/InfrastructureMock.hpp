@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <gmock/gmock.h>
 
 #include "Cloud/Infrastructure.hpp"
+#include "Cloud/Task.hpp"
 
 namespace cloud
 {
@@ -20,6 +22,7 @@ class InfrastructureMock : public testing::StrictMock<Infrastructure>
     MOCK_METHOD(bool, isIdle, (), (const, override));
 
     MOCK_METHOD(TaskPtrVec, advanceProcessing, (), (override));
+    MOCK_METHOD(std::vector<NodeId>, findFeasibleNodeIds, (const TaskPtr &), (const, override));
 };
 
 using InfrastructureMockPtr = std::shared_ptr<InfrastructureMock>;

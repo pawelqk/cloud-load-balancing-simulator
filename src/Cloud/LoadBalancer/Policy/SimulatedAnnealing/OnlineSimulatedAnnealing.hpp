@@ -23,11 +23,11 @@ class OnlineSimulatedAnnealing : public SimulatedAnnealingBase
     OnlineSimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                              mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
-
     std::string toString() const override;
 
   private:
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks);
+
     NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks) override;
     NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution) override;
     NodeToTaskMapping adjustSolutionWithExistingTasks(const NodeToTaskMapping &solution);

@@ -21,7 +21,7 @@ Random::Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr
 {
 }
 
-NodeToTaskMapping Random::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping Random::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     NodeToTaskMapping solution;
 

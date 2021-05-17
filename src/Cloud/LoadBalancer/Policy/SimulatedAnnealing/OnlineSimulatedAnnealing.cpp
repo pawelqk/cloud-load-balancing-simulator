@@ -22,13 +22,11 @@ OnlineSimulatedAnnealing::OnlineSimulatedAnnealing(const InfrastructureCPtr &inf
 {
 }
 
-NodeToTaskMapping OnlineSimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OnlineSimulatedAnnealing::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     logger->debug("Mapping %u tasks", tasks.size());
 
     auto solution = createNewSolution(tasks);
-
-    // TODO: validation
     return adjustSolutionWithExistingTasks(solution);
 }
 

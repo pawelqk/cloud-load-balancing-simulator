@@ -30,6 +30,9 @@ std::optional<cloud::loadbalancer::policy::artificialbeecolony::Parameters> Arti
     cloud::loadbalancer::policy::artificialbeecolony::Parameters parameters;
     try
     {
+        parameters.populationSize = configuration.at("populationSize");
+        parameters.maxIterationsWithoutChange = configuration.at("maxIterationsWithoutChange");
+        parameters.maxIterations = configuration.at("maxIterations");
     }
     catch (nlohmann::json::out_of_range &)
     {

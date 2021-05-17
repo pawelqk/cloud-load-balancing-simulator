@@ -24,6 +24,16 @@
                 "iterationsPerStep": 1000,
                 "criteria": "Flowtime"
             }
+        },
+        {
+            "name": "Artificial bee colony",
+            "configuration": {
+                "type": "Online with migrations",
+                "populationSize": 100,
+                "maxIterationsWithoutChange": 100,
+                "maxIterations": 10000,
+                "criteria": "Makespan"
+            }
         }
     ],
     "minMips": 1,

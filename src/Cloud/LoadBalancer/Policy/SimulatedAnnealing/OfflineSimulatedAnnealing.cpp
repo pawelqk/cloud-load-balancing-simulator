@@ -23,7 +23,7 @@ OfflineSimulatedAnnealing::OfflineSimulatedAnnealing(const InfrastructureCPtr &i
 {
 }
 
-NodeToTaskMapping OfflineSimulatedAnnealing::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OfflineSimulatedAnnealing::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     logger->debug("Mapping %u tasks", tasks.size());
 

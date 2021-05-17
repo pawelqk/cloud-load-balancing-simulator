@@ -15,7 +15,7 @@ RoundRobin::RoundRobin(const InfrastructureCPtr &infrastructure, const logger::L
 {
 }
 
-NodeToTaskMapping RoundRobin::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping RoundRobin::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     NodeToTaskMapping solution = rebuildMapping();
     const auto tasksToSchedule = filterOutScheduledTasks(solution, tasks);

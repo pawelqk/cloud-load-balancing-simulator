@@ -21,7 +21,7 @@ OfflineArtificialBeeColony::OfflineArtificialBeeColony(const InfrastructureCPtr 
 {
 }
 
-NodeToTaskMapping OfflineArtificialBeeColony::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OfflineArtificialBeeColony::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     return {};
 }

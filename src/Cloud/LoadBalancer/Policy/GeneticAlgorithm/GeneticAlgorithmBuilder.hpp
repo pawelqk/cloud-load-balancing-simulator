@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBuilderBase.hpp"
 #include "Configuration/ConfigurationReader.hpp"
 #include "GeneticAlgorithmBase.hpp"
@@ -26,7 +27,7 @@ class GeneticAlgorithmBuilder : public PolicyBuilderBase
     std::string toString() const override;
 
   private:
-    mapping::MappingAssessorPtr buildAssessor();
+    std::shared_ptr<mapping::MappingAssessor> buildAssessor();
 
     const configuration::Assessment assessment;
     Parameters parameters;

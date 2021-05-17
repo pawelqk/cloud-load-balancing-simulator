@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include "Utility/RandomNumberGenerator.hpp"
+
 namespace cloud
 {
 namespace loadbalancer
@@ -14,18 +16,27 @@ namespace artificialbeecolony
 OnlineArtificialBeeColonyWithMigrationsAndPreemptions::OnlineArtificialBeeColonyWithMigrationsAndPreemptions(
     const InfrastructureCPtr &infrastructure, const Parameters &parameters,
     mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor))
+    : ArtificialBeeColonyBase(infrastructure, parameters, std::move(mappingAssessor), logger)
 {
-}
-
-NodeToTaskMapping OnlineArtificialBeeColonyWithMigrationsAndPreemptions::buildNodeToTaskMapping(const TaskPtrVec &tasks)
-{
-    return {};
 }
 
 std::string OnlineArtificialBeeColonyWithMigrationsAndPreemptions::toString() const
 {
-    return "";
+    return "OnlineArtificialBeeColonyWithMigrationsAndPreemptions";
+}
+
+NodeToTaskMapping OnlineArtificialBeeColonyWithMigrationsAndPreemptions::buildNodeToTaskMappingInternal(
+    const TaskPtrVec &tasks)
+{
+    auto allTasks = tasks;
+    for (auto &&node : infrastructure->getNodes())
+    {
+        const auto task = node->getTask();
+        if (task != nullptr)
+            allTasks.push_back(task);
+    }
+
+    return createNewSolution(allTasks);
 }
 
 } // namespace artificialbeecolony

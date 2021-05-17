@@ -16,6 +16,8 @@ class Infrastructure
     virtual bool isIdle() const = 0;
 
     virtual TaskPtrVec advanceProcessing() = 0;
+
+    virtual std::vector<NodeId> findFeasibleNodeIds(const TaskPtr &task) const = 0;
 };
 
 using InfrastructurePtr = std::shared_ptr<Infrastructure>;

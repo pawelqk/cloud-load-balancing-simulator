@@ -19,7 +19,7 @@ class RoundRobin : public PolicyBase
   public:
     RoundRobin(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
 

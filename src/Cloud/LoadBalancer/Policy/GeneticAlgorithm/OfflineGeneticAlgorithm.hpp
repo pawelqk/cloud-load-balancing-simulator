@@ -7,6 +7,7 @@
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
+#include "Configuration/Instance.hpp"
 #include "GeneticAlgorithmBase.hpp"
 
 namespace cloud
@@ -15,25 +16,29 @@ namespace loadbalancer
 {
 namespace policy
 {
-namespace artificialbeecolony
+namespace geneticalgorithm
 {
 
 class OfflineGeneticAlgorithm : public PolicyBase
 {
   public:
     OfflineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                            mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+                            const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
+                            const configuration::Instance &instance, const logger::LoggerPtr &logger);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
 
   protected:
     const Parameters parameters;
-    const mapping::MappingAssessorPtr mappingAssessor;
+    const std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
+
+  private:
+    const configuration::Instance instance;
 };
 
-} // namespace artificialbeecolony
+} // namespace geneticalgorithm
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

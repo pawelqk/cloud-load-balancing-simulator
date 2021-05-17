@@ -17,7 +17,7 @@ class HeuristicPolicyWithMigrationsAndPreemptions : public PolicyBase
     HeuristicPolicyWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
                                                 const logger::LoggerPtr &logger, const bool withMigrationsFixing);
 
-    NodeToTaskMapping buildNodeToTaskMapping(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
   protected:
     virtual bool heuristic(const TaskPtr &left, const TaskPtr &right) const = 0;
@@ -25,7 +25,6 @@ class HeuristicPolicyWithMigrationsAndPreemptions : public PolicyBase
 
   private:
     NodeToTaskMapping buildWithMigrationsFixing(const TaskPtrVec &tasks);
-    bool validateSolution(const TaskPtrVec &insertedTasks, const NodeToTaskMapping &mapping);
 
     bool withMigrationsFixing;
 };

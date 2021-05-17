@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <stdexcept>
 
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/Node.hpp"
@@ -22,6 +23,11 @@ using NodeToTaskMapping = std::map<NodeId, TaskPtrList>;
 std::string toString(const NodeToTaskMapping &mapping);
 
 void PrintTo(const NodeToTaskMapping &mapping, std::ostream *os);
+
+struct PolicyException : std::runtime_error
+{
+    PolicyException(const std::string &msg);
+};
 
 class Policy
 {

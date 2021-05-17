@@ -31,6 +31,8 @@ class InfrastructureImpl : public Infrastructure
 
     TaskPtrVec advanceProcessing() override;
 
+    std::vector<NodeId> findFeasibleNodeIds(const TaskPtr &task) const;
+
   private:
     void prepareNodes(const configuration::NodeDataVec &nodesData);
     std::string toString() const;

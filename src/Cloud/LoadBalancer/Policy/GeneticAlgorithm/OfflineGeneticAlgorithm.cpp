@@ -1,24 +1,23 @@
 #include "OfflineGeneticAlgorithm.hpp"
 
-#include <utility>
-
 namespace cloud
 {
 namespace loadbalancer
 {
 namespace policy
 {
-namespace artificialbeecolony
+namespace geneticalgorithm
 {
 
 OfflineGeneticAlgorithm::OfflineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                                                 mapping::MappingAssessorPtr &&mappingAssessor,
+                                                 const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
+                                                 const configuration::Instance &instance,
                                                  const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor))
+    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(mappingAssessor), instance(instance)
 {
 }
 
-NodeToTaskMapping OfflineGeneticAlgorithm::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping OfflineGeneticAlgorithm::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     return {};
 }
@@ -28,7 +27,7 @@ std::string OfflineGeneticAlgorithm::toString() const
     return "";
 }
 
-} // namespace artificialbeecolony
+} // namespace geneticalgorithm
 } // namespace policy
 } // namespace loadbalancer
 } // namespace cloud

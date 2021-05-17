@@ -16,7 +16,7 @@ HeuristicPolicy::HeuristicPolicy(const InfrastructureCPtr &infrastructure, const
 {
 }
 
-NodeToTaskMapping HeuristicPolicy::buildNodeToTaskMapping(const TaskPtrVec &tasks)
+NodeToTaskMapping HeuristicPolicy::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     NodeToTaskMapping solution;
     auto tasksSortedByShortestRemainingTime = tasks;

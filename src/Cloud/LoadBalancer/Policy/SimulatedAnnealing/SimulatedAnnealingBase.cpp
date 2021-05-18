@@ -1,7 +1,9 @@
 #include "SimulatedAnnealingBase.hpp"
 
 #include <cmath>
+#include <cstdint>
 #include <random>
+#include <sstream>
 
 #include "Utility/RandomNumberGenerator.hpp"
 
@@ -14,6 +16,25 @@ namespace policy
 namespace simulatedannealing
 {
 
+std::string toString(const Parameters &parameters)
+{
+    std::stringstream ss;
+    ss << parameters.coolingRatio << "_" << parameters.startTemperature << "_" << parameters.endTemperature << "_"
+       << parameters.iterationsPerStep << "_" << parameters.maxIterationsWithoutChange << "_";
+
+    switch (parameters.initialPopulationGenerationMethod)
+    {
+    case InitialPopulationGenerationMethod::Random:
+        ss << "Random";
+        break;
+    case InitialPopulationGenerationMethod::SRTF:
+        ss << "SRTF";
+        break;
+    }
+
+    return ss.str();
+}
+
 SimulatedAnnealingBase::SimulatedAnnealingBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                                mapping::MappingAssessorPtr &&mappingAssessor,
                                                const logger::LoggerPtr &logger)
@@ -24,7 +45,7 @@ SimulatedAnnealingBase::SimulatedAnnealingBase(const InfrastructureCPtr &infrast
 
 NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &tasks)
 {
-    auto bestSolution = createRandomSolution(tasks);
+    auto bestSolution = createInitialSolution(tasks);
     if (bestSolution.empty())
         return bestSolution;
 
@@ -64,9 +85,8 @@ NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &ta
         else
             iterationsWithoutChange = 0;
 
-        // if (iterationsWithoutChange == 10000)
-        // currentSolution = tweakSolution(currentSolution);
-        // break;
+        if (iterationsWithoutChange == parameters.maxIterationsWithoutChange)
+            break;
 
         if ((++numberOfIterations) % parameters.iterationsPerStep == 0)
             temperature *= parameters.coolingRatio;

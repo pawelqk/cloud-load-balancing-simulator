@@ -35,6 +35,7 @@ class Instance
     std::uint32_t getId() const;
 
     TaskDataVec getTasksInTimePoint(const std::uint32_t timePoint) const;
+    const std::map<std::uint32_t, TaskDataVec> &getTasks() const;
 
     const NodeDataVec &getNodesData() const;
 

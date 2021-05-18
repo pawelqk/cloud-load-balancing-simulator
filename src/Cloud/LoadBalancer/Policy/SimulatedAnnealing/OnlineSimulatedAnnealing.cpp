@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 
+#include "Cloud/LoadBalancer/Policy/ShortestRemainingTimeFirst/ShortestRemainingTimeFirst.hpp"
 #include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
@@ -35,28 +36,33 @@ std::string OnlineSimulatedAnnealing::toString() const
     return "OnlineSimulatedAnnealing";
 }
 
-NodeToTaskMapping OnlineSimulatedAnnealing::createRandomSolution(const TaskPtrVec &tasks)
+NodeToTaskMapping OnlineSimulatedAnnealing::createInitialSolution(const TaskPtrVec &tasks)
 {
     logger->debug("Creating random solution");
-    NodeToTaskMapping solution;
-
-    auto tasksShuffled = tasks;
-    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
-
-    for (auto &&task : tasksShuffled)
+    if (parameters.initialPopulationGenerationMethod == InitialPopulationGenerationMethod::SRTF)
+        return shortestremainingtimefirst::ShortestRemainingTimeFirst{infrastructure, logger}.buildStartingSolution(
+            tasks);
+    else
     {
-        std::vector<NodeId> possibleNodeIds;
-        for (auto &&node : infrastructure->getNodes())
+        NodeToTaskMapping solution;
+        auto tasksShuffled = tasks;
+        std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+
+        for (auto &&task : tasksShuffled)
         {
-            if (node->canTaskFit(task))
-                possibleNodeIds.push_back(node->getId());
+            std::vector<NodeId> possibleNodeIds;
+            for (auto &&node : infrastructure->getNodes())
+            {
+                if (node->canTaskFit(task))
+                    possibleNodeIds.push_back(node->getId());
+            }
+
+            std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
+            solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
         }
 
-        std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
+        return solution;
     }
-
-    return solution;
 }
 
 NodeToTaskMapping OnlineSimulatedAnnealing::getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution)

@@ -19,9 +19,9 @@ class Experiment
 
     Experiment(const configuration::Instance &instance,
                const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
-               const logger::LoggerPtr &logger);
+               const logger::LoggerPtr &logger, const std::uint_fast64_t seed);
 
-    Result run(const std::uint_fast64_t seed);
+    Result run();
 
     std::string toString();
 

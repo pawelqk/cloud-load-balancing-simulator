@@ -26,6 +26,11 @@ TaskDataVec Instance::getTasksInTimePoint(const std::uint32_t timePoint) const
     return {};
 }
 
+const std::map<std::uint32_t, TaskDataVec> &Instance::getTasks() const
+{
+    return tasks;
+}
+
 const NodeDataVec &Instance::getNodesData() const
 {
     return nodes;

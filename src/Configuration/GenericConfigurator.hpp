@@ -14,7 +14,8 @@ class GenericConfigurator : public JsonAlgorithmConfigurator
     cloud::loadbalancer::policy::PolicyBuilderPtr configure(const nlohmann::json &configuration) override;
 
   private:
-    cloud::loadbalancer::policy::PolicyBuilderPtr build(const PolicyConfiguration policyConfiguration);
+    cloud::loadbalancer::policy::PolicyBuilderPtr build(const PolicyConfiguration policyConfiguration,
+                                                        bool withMigrationsFixing);
 
     const Policy policy;
 };

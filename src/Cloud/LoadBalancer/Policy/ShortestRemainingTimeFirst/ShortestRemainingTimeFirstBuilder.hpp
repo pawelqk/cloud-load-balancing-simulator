@@ -18,13 +18,17 @@ namespace shortestremainingtimefirst
 class ShortestRemainingTimeFirstBuilder : public PolicyBuilderBase
 {
   public:
-    ShortestRemainingTimeFirstBuilder(const configuration::PolicyConfiguration policyConfiguration);
+    ShortestRemainingTimeFirstBuilder(const configuration::PolicyConfiguration policyConfiguration,
+                                      const bool withMigrationsFixing);
 
     PolicyBuilderPtr clone() override;
 
     PolicyPtr build(const logger::LoggerPtr &logger) override;
 
     std::string toString() const override;
+
+  private:
+    const bool withMigrationsFixing;
 };
 
 } // namespace shortestremainingtimefirst

@@ -1,5 +1,7 @@
 #include "LongestRemainingTimeFirstBuilder.hpp"
 
+#include <sstream>
+
 #include "LongestRemainingTimeFirst.hpp"
 #include "LongestRemainingTimeFirstWithMigrationsAndPreemptions.hpp"
 
@@ -13,14 +15,14 @@ namespace longestremainingtimefirst
 {
 
 LongestRemainingTimeFirstBuilder::LongestRemainingTimeFirstBuilder(
-    const configuration::PolicyConfiguration policyConfiguration)
-    : PolicyBuilderBase(policyConfiguration)
+    const configuration::PolicyConfiguration policyConfiguration, const bool withMigrationsFixing)
+    : PolicyBuilderBase(policyConfiguration), withMigrationsFixing(withMigrationsFixing)
 {
 }
 
 PolicyBuilderPtr LongestRemainingTimeFirstBuilder::clone()
 {
-    return std::make_shared<LongestRemainingTimeFirstBuilder>(policyConfiguration);
+    return std::make_shared<LongestRemainingTimeFirstBuilder>(policyConfiguration, withMigrationsFixing);
 }
 
 PolicyPtr LongestRemainingTimeFirstBuilder::build(const logger::LoggerPtr &logger)
@@ -32,7 +34,8 @@ PolicyPtr LongestRemainingTimeFirstBuilder::build(const logger::LoggerPtr &logge
     case PolicyConfiguration::Online:
         return std::make_unique<LongestRemainingTimeFirst>(infrastructure, logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
-        return std::make_unique<LongestRemainingTimeFirstWithMigrationsAndPreemptions>(infrastructure, logger, true);
+        return std::make_unique<LongestRemainingTimeFirstWithMigrationsAndPreemptions>(infrastructure, logger,
+                                                                                       withMigrationsFixing);
     }
 
     return nullptr;
@@ -40,7 +43,11 @@ PolicyPtr LongestRemainingTimeFirstBuilder::build(const logger::LoggerPtr &logge
 
 std::string LongestRemainingTimeFirstBuilder::toString() const
 {
-    return "LongestRemainingTimeFirst" + configuration::toString(policyConfiguration);
+    std::stringstream ss;
+    ss << "LongestRemainingTimeFirst" << configuration::toString(policyConfiguration) << "_" << std::boolalpha
+       << withMigrationsFixing;
+
+    return ss.str();
 }
 
 } // namespace longestremainingtimefirst

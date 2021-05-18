@@ -28,7 +28,7 @@ class OnlineSimulatedAnnealing : public SimulatedAnnealingBase
   private:
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks);
 
-    NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping createInitialSolution(const TaskPtrVec &tasks) override;
     NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution) override;
     NodeToTaskMapping adjustSolutionWithExistingTasks(const NodeToTaskMapping &solution);
 };

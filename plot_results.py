@@ -30,14 +30,14 @@ def shorten_filename(filename):
 
 
 def split_filename(filename):
-    for algorithm_name in POSSIBLE_ALGORITHM_TYPES:
-        idx = filename.find(algorithm_name)
+    for algorithm_type in POSSIBLE_ALGORITHM_TYPES:
+        idx = filename.find(algorithm_type)
         if idx != -1:
-            return filename[:idx], filename[idx:idx+len(algorithm_name)]
+            return filename[:idx], filename[idx:idx+len(algorithm_type)], filename[idx+len(algorithm_type):]
 
 
-def prettify_algorithm_name(algorithm_name):
-    return ALGORITHM_NAMES[algorithm_name]
+def prettify_algorithm_name(algorithm_name, algorithm_data):
+    return ALGORITHM_NAMES[algorithm_name] + algorithm_data
 
 
 def prettify_criteria(criteria):
@@ -55,15 +55,16 @@ def main():
     alg_type = sys.argv[2]
 
     algorithm_types = set()
-    result_files = [filename for filename in os.listdir(results_path) if filename.endswith(alg_type)]
+    result_files = [filename for filename in os.listdir(results_path) if split_filename(filename)[1] == alg_type]
+    print(result_files)
     results_dict = {algorithm_type: {criteria: {} for criteria in CRITERIAS} for algorithm_type in POSSIBLE_ALGORITHM_TYPES}
     prettified_alg_names = {}
     for result_file in result_files:
         df = pd.read_csv('/'.join((results_path, result_file)), delimiter='|')
         shortened_filename = shorten_filename(result_file)
-        algorithm_name, algorithm_type = split_filename(result_file)
+        algorithm_name, algorithm_type, additional_data = split_filename(result_file)
         algorithm_types.add(algorithm_type)
-        prettified_alg_name = prettify_algorithm_name(algorithm_name)
+        prettified_alg_name = prettify_algorithm_name(algorithm_name, additional_data)
 
         if algorithm_type not in prettified_alg_names:
             prettified_alg_names[algorithm_type] = []

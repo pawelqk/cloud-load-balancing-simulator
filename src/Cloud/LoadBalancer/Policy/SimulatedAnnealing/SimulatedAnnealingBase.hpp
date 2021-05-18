@@ -17,14 +17,23 @@ namespace policy
 namespace simulatedannealing
 {
 
+enum class InitialPopulationGenerationMethod
+{
+    Random,
+    SRTF
+};
+
 struct Parameters
 {
     double coolingRatio;
     double startTemperature;
     double endTemperature;
     std::uint16_t iterationsPerStep;
-    // std::uint32_t maxIterationsWithoutChange;
+    std::uint32_t maxIterationsWithoutChange;
+    InitialPopulationGenerationMethod initialPopulationGenerationMethod;
 };
+
+std::string toString(const Parameters &parameters);
 
 class SimulatedAnnealingBase : public PolicyBase
 {
@@ -34,7 +43,7 @@ class SimulatedAnnealingBase : public PolicyBase
 
   protected:
     NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
-    virtual NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks) = 0;
+    virtual NodeToTaskMapping createInitialSolution(const TaskPtrVec &tasks) = 0;
     virtual NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution) = 0;
     NodeToTaskMapping tweakSolution(const NodeToTaskMapping &solution);
     std::vector<NodeId> findNotEmptyNodeIds(const NodeToTaskMapping &solution);

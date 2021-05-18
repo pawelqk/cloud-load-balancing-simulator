@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 
+#include "Cloud/TaskImpl.hpp"
 #include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
@@ -18,18 +19,15 @@ OfflineSimulatedAnnealing::OfflineSimulatedAnnealing(const InfrastructureCPtr &i
                                                      const Parameters &parameters,
                                                      mapping::MappingAssessorPtr &&mappingAssessor,
                                                      const configuration::Instance &instance,
-                                                     const logger::LoggerPtr &logger)
-    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger), instance(instance)
+                                                     const logger::LoggerPtr &logger, const double penaltyFactor)
+    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger), instance(instance),
+      penaltyFactor(penaltyFactor), offlineProblemAdapter(infrastructure, buildSolution())
 {
 }
 
 NodeToTaskMapping OfflineSimulatedAnnealing::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
-    logger->debug("Mapping %u tasks", tasks.size());
-
-    const auto solution = createNewSolution(tasks);
-
-    return solution;
+    return offlineProblemAdapter.getNextMapping(tasks);
 }
 
 std::string OfflineSimulatedAnnealing::toString() const
@@ -37,13 +35,36 @@ std::string OfflineSimulatedAnnealing::toString() const
     return "OfflineSimulatedAnnealing";
 }
 
-NodeToTaskMapping OfflineSimulatedAnnealing::createRandomSolution(const TaskPtrVec &tasks)
+NodeToTaskMapping OfflineSimulatedAnnealing::buildSolution()
+{
+    const auto &taskDatasOverTime = instance.getTasks();
+
+    TaskPtrVec tasks;
+    tasks.reserve(taskDatasOverTime.size());
+    for (auto &&[timePoint, taskDatas] : taskDatasOverTime)
+    {
+        for (auto &&taskData : taskDatas)
+            tasks.push_back(std::make_shared<TaskImpl>(taskData.id, taskData.requiredMips, taskData.length, timePoint,
+                                                       penaltyFactor));
+    }
+
+    auto solution = createNewSolution(tasks);
+    logger->debug("whole solution: %s", ::cloud::loadbalancer::policy::toString(solution).c_str());
+
+    return solution;
+}
+
+NodeToTaskMapping OfflineSimulatedAnnealing::createInitialSolution(const TaskPtrVec &tasks)
 {
     logger->debug("Creating random solution");
     NodeToTaskMapping solution;
 
     auto tasksShuffled = tasks;
     std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+
+    std::stable_sort(tasksShuffled.begin(), tasksShuffled.end(), [](auto &&leftTask, auto &&rightTask) {
+        return leftTask->getArrivalTime() < rightTask->getArrivalTime();
+    });
 
     for (auto &&task : tasksShuffled)
     {
@@ -58,49 +79,39 @@ NodeToTaskMapping OfflineSimulatedAnnealing::createRandomSolution(const TaskPtrV
         solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
     }
 
+    logger->debug("random solution: %s", ::cloud::loadbalancer::policy::toString(solution).c_str());
     return solution;
 }
 
 NodeToTaskMapping OfflineSimulatedAnnealing::getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution)
 {
-    // neighbourhood of type INSERT
     auto solutionInNeighbourhood = solution;
     auto &rng = utility::RandomNumberGenerator::getInstance();
 
-    auto randomNodeIt = solutionInNeighbourhood.begin();
+    const auto notEmptyNodeIds = findNotEmptyNodeIds(solution);
+    const auto randomNotEmptyNodeId =
+        notEmptyNodeIds[std::uniform_int_distribution<>(0, notEmptyNodeIds.size() - 1)(rng)];
+    const auto randomSourceNodeIt = solutionInNeighbourhood.find(randomNotEmptyNodeId);
+    if (randomSourceNodeIt == solutionInNeighbourhood.end())
+        throw std::runtime_error("Cannot find node " + std::to_string(randomNotEmptyNodeId) +
+                                 " in solutionInNeighbourhood");
 
-    while (randomNodeIt->second.empty())
-        randomNodeIt = std::next(solutionInNeighbourhood.begin(),
-                                 std::uniform_int_distribution<>(0, solutionInNeighbourhood.size() - 1)(rng));
+    const auto movedElementSourceIt =
+        std::next(randomSourceNodeIt->second.begin(),
+                  std::uniform_int_distribution<>(0, randomSourceNodeIt->second.size() - 1)(rng));
+    const auto movedElement = *movedElementSourceIt;
+    randomSourceNodeIt->second.erase(movedElementSourceIt);
 
-    const auto randomElementIt = std::next(randomNodeIt->second.begin(),
-                                           std::uniform_int_distribution<>(0, randomNodeIt->second.size() - 1)(rng));
-
-    const auto randomElement = *randomElementIt;
-
-    randomNodeIt->second.erase(randomElementIt);
-
-    // get subset of tasks that are feasible to put it in
-    const auto &nodes = infrastructure->getNodes();
-    std::vector<NodeId> feasibleNodeIds;
-    for (auto &&[nodeId, tasks] : solutionInNeighbourhood)
-    {
-        const auto nodeIt = std::find_if(nodes.begin(), nodes.end(),
-                                         [nodeId = nodeId](auto &&node) { return node->getId() == nodeId; });
-        if (nodeIt == nodes.end())
-            throw std::runtime_error("Cannot find node " + std::to_string(nodeId) + " in solutionInNeighbourhood");
-
-        if ((*nodeIt)->canTaskFit(*randomElementIt))
-            feasibleNodeIds.push_back((*nodeIt)->getId());
-    }
-
-    auto &randomNode =
+    const auto feasibleNodeIds = findFeasibleNodeIds(solution, movedElement);
+    auto &randomDestinationNode =
         solutionInNeighbourhood[feasibleNodeIds[std::uniform_int_distribution<>(0, feasibleNodeIds.size() - 1)(rng)]];
-    const auto newRandomElementIt =
-        randomNode.empty()
-            ? randomNode.begin()
-            : std::next(randomNode.begin(), std::uniform_int_distribution<>(0, randomNode.size() - 1)(rng));
-    randomNode.insert(newRandomElementIt, randomElement);
+    const auto movedElementDestinationIt =
+        randomDestinationNode.empty()
+            ? randomDestinationNode.begin()
+            : std::next(randomDestinationNode.begin(),
+                        std::uniform_int_distribution<>(0, randomDestinationNode.size() - 1)(rng));
+
+    randomDestinationNode.insert(movedElementDestinationIt, movedElement);
 
     return solutionInNeighbourhood;
 }

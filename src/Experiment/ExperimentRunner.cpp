@@ -48,8 +48,8 @@ void ExperimentRunner::run(const cloud::loadbalancer::policy::PolicyBuilderPtr &
         builder->setInstance(instance);
 
         futures.emplace_back(std::async([instance, builder, penaltyFactor, logger, seed]() {
-            Experiment e{instance, builder, penaltyFactor, logger};
-            return e.run(seed);
+            Experiment e{instance, builder, penaltyFactor, logger, seed};
+            return e.run();
         }));
     }
 

@@ -1,5 +1,6 @@
 #include "ArtificialBeeColonyBase.hpp"
 
+#include <sstream>
 #include <utility>
 
 #include "Utility/RandomNumberGenerator.hpp"
@@ -12,6 +13,14 @@ namespace policy
 {
 namespace artificialbeecolony
 {
+
+std::string toString(const Parameters &parameters)
+{
+    std::stringstream ss;
+    ss << parameters.populationSize << "_" << parameters.maxIterationsWithoutChange << "_" << parameters.maxIterations;
+
+    return ss.str();
+}
 
 ArtificialBeeColonyBase::ArtificialBeeColonyBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                                  mapping::MappingAssessorPtr &&mappingAssessor,

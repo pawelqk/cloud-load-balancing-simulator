@@ -1,9 +1,15 @@
 #include "SimulatedAnnealingConfigurator.hpp"
 
+#include "Cloud/LoadBalancer/Policy/SimulatedAnnealing/SimulatedAnnealingBase.hpp"
 #include "Cloud/LoadBalancer/Policy/SimulatedAnnealing/SimulatedAnnealingBuilder.hpp"
 
 namespace configuration
 {
+
+SimulatedAnnealingConfigurator::SimulatedAnnealingConfigurator(const double penaltyFactor)
+    : penaltyFactor(penaltyFactor)
+{
+}
 
 cloud::loadbalancer::policy::PolicyBuilderPtr SimulatedAnnealingConfigurator::configure(
     const nlohmann::json &configuration)
@@ -21,7 +27,7 @@ cloud::loadbalancer::policy::PolicyBuilderPtr SimulatedAnnealingConfigurator::co
         return nullptr;
 
     return std::make_shared<cloud::loadbalancer::policy::simulatedannealing::SimulatedAnnealingBuilder>(
-        *policyConfiguration, *assessment, *parameters);
+        *policyConfiguration, *assessment, *parameters, penaltyFactor);
 }
 
 std::optional<cloud::loadbalancer::policy::simulatedannealing::Parameters> SimulatedAnnealingConfigurator::
@@ -34,11 +40,31 @@ std::optional<cloud::loadbalancer::policy::simulatedannealing::Parameters> Simul
         parameters.startTemperature = configuration.at("startTemperature");
         parameters.endTemperature = configuration.at("endTemperature");
         parameters.iterationsPerStep = configuration.at("iterationsPerStep");
+        parameters.maxIterationsWithoutChange = configuration.at("maxIterationsWithoutChange");
     }
     catch (nlohmann::json::out_of_range &)
     {
         return std::nullopt;
     }
+
+    std::string initialPopulationGenerationMethod;
+    try
+    {
+        initialPopulationGenerationMethod = configuration.at("initialPopulationGenerationMethod");
+    }
+    catch (nlohmann::json::out_of_range &e)
+    {
+        return std::nullopt;
+    }
+
+    if (initialPopulationGenerationMethod == "Random")
+        parameters.initialPopulationGenerationMethod =
+            cloud::loadbalancer::policy::simulatedannealing::InitialPopulationGenerationMethod::Random;
+    else if (initialPopulationGenerationMethod == "SRTF")
+        parameters.initialPopulationGenerationMethod =
+            cloud::loadbalancer::policy::simulatedannealing::InitialPopulationGenerationMethod::SRTF;
+    else
+        return std::nullopt;
 
     return parameters;
 }

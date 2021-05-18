@@ -5,6 +5,7 @@
 #include <iterator>
 #include <optional>
 #include <random>
+#include <sstream>
 
 #include "Utility/RandomNumberGenerator.hpp"
 
@@ -21,6 +22,16 @@ namespace
 {
 constexpr auto POPULATION_TO_SELECT_ELITE_MULTIPLIER = 100;
 };
+
+std::string toString(const Parameters &parameters)
+{
+    std::stringstream ss;
+    ss << parameters.mutationProbability << "_" << parameters.populationSize << "_" << parameters.maxIterations << "_"
+       << parameters.eliteIndividualsInInitialGenerationRatio << "_"
+       << parameters.eliteIndividualsInNextGenerationRatio;
+
+    return ss.str();
+}
 
 GeneticAlgorithmBase::GeneticAlgorithmBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                            const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,

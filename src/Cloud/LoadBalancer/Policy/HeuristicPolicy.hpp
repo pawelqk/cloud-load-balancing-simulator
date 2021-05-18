@@ -15,6 +15,7 @@ class HeuristicPolicy : public PolicyBase
 {
   public:
     HeuristicPolicy(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
+    NodeToTaskMapping buildStartingSolution(const TaskPtrVec &tasks);
 
   protected:
     virtual bool heuristic(const TaskPtr &left, const TaskPtr &right) const = 0;

@@ -17,7 +17,8 @@ class SimulatedAnnealingBuilder : public PolicyBuilderBase
 {
   public:
     SimulatedAnnealingBuilder(const configuration::PolicyConfiguration &policyConfiguration,
-                              const configuration::Assessment assessment, const Parameters &parameters);
+                              const configuration::Assessment assessment, const Parameters &parameters,
+                              const double penaltyFactor);
 
     PolicyBuilderPtr clone() override;
 
@@ -30,6 +31,7 @@ class SimulatedAnnealingBuilder : public PolicyBuilderBase
 
     const configuration::Assessment assessment;
     Parameters parameters;
+    const double penaltyFactor;
 };
 
 } // namespace simulatedannealing

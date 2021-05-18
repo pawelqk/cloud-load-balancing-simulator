@@ -17,6 +17,8 @@ NodeToTaskMapping PolicyBase::buildNodeToTaskMapping(const TaskPtrVec &tasks)
     const auto solution = buildNodeToTaskMappingInternal(tasks);
     if (!validateSolution(tasks, solution))
         throw PolicyException{"Invalid solution created by " + toString()};
+    else
+        logger->debug("Proper solution");
 
     return solution;
 }

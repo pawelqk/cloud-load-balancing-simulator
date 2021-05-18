@@ -30,7 +30,7 @@ class OnlineSimulatedAnnealingWithMigrationsAndPreemptions : public SimulatedAnn
     std::string toString() const override;
 
   private:
-    NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping createInitialSolution(const TaskPtrVec &tasks) override;
     NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution) override;
 };
 

@@ -28,6 +28,8 @@ GeneralConfiguration JsonConfigurationReader::readGeneralConfiguration()
         throw InvalidConfigurationException{e.what()};
     }
 
+    penaltyFactor = configuration.penaltyFactor;
+
     return configuration;
 }
 
@@ -98,7 +100,7 @@ JsonAlgorithmConfiguratorPtr JsonConfigurationReader::getAlgorithmConfigurator(c
     if (algorithmName == "Shortest remaining time first")
         return std::make_unique<GenericConfigurator>(Policy::ShortestRemainingTimeFirst);
     if (algorithmName == "Simulated annealing")
-        return std::make_unique<SimulatedAnnealingConfigurator>();
+        return std::make_unique<SimulatedAnnealingConfigurator>(penaltyFactor);
 
     return nullptr;
 }

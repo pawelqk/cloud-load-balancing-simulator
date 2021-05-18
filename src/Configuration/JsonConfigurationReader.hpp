@@ -24,6 +24,7 @@ class JsonConfigurationReader : public ConfigurationReader
     JsonAlgorithmConfiguratorPtr getAlgorithmConfigurator(const std::string &algorithmName);
 
     const nlohmann::json json;
+    double penaltyFactor;
 };
 
 } // namespace configuration

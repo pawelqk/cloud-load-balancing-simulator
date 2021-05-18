@@ -12,6 +12,7 @@ namespace configuration
 class SimulatedAnnealingConfigurator : public JsonAlgorithmConfigurator
 {
   public:
+    SimulatedAnnealingConfigurator(const double penaltyFactor);
     cloud::loadbalancer::policy::PolicyBuilderPtr configure(const nlohmann::json &configuration) override;
 
   private:
@@ -19,6 +20,8 @@ class SimulatedAnnealingConfigurator : public JsonAlgorithmConfigurator
         const nlohmann::json &configuration);
     std::optional<Assessment> readAssessment(const nlohmann::json &configuration);
     std::optional<PolicyConfiguration> readPolicyConfiguration(const nlohmann::json &configuration);
+
+    const double penaltyFactor;
 };
 
 } // namespace configuration

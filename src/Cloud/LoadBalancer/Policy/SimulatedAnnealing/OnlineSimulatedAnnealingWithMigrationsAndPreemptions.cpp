@@ -1,4 +1,5 @@
 #include "OnlineSimulatedAnnealingWithMigrationsAndPreemptions.hpp"
+#include "Cloud/LoadBalancer/Policy/ShortestRemainingTimeFirst/ShortestRemainingTimeFirstWithMigrationsAndPreemptions.hpp"
 
 #include <cmath>
 #include <random>
@@ -44,28 +45,35 @@ std::string OnlineSimulatedAnnealingWithMigrationsAndPreemptions::toString() con
     return "OnlineSimulatedAnnealingWithMigrationsAndPreemptions";
 }
 
-NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::createRandomSolution(const TaskPtrVec &tasks)
+NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::createInitialSolution(const TaskPtrVec &tasks)
 {
     logger->debug("Creating random solution");
-    NodeToTaskMapping solution;
-
-    auto tasksShuffled = tasks;
-    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
-
-    for (auto &&task : tasksShuffled)
+    if (parameters.initialPopulationGenerationMethod == InitialPopulationGenerationMethod::SRTF)
+        return shortestremainingtimefirst::ShortestRemainingTimeFirstWithMigrationsAndPreemptions{infrastructure,
+                                                                                                  logger, true}
+            .buildNodeToTaskMappingInternal(tasks);
+    else
     {
-        std::vector<NodeId> possibleNodeIds;
-        for (auto &&node : infrastructure->getNodes())
+        NodeToTaskMapping solution;
+
+        auto tasksShuffled = tasks;
+        std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+
+        for (auto &&task : tasksShuffled)
         {
-            if (node->canTaskFit(task))
-                possibleNodeIds.push_back(node->getId());
+            std::vector<NodeId> possibleNodeIds;
+            for (auto &&node : infrastructure->getNodes())
+            {
+                if (node->canTaskFit(task))
+                    possibleNodeIds.push_back(node->getId());
+            }
+
+            std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
+            solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
         }
 
-        std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
+        return solution;
     }
-
-    return solution;
 }
 
 NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::getNewSolutionFromNeighbourhood(

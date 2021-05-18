@@ -24,6 +24,8 @@ struct Parameters
     std::uint32_t maxIterations;
 };
 
+std::string toString(const Parameters &parameters);
+
 class ArtificialBeeColonyBase : public PolicyBase
 {
   public:

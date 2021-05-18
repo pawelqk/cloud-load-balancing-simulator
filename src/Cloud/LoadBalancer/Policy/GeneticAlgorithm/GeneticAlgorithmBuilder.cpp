@@ -48,7 +48,8 @@ PolicyPtr GeneticAlgorithmBuilder::build(const logger::LoggerPtr &logger)
 
 std::string GeneticAlgorithmBuilder::toString() const
 {
-    return "GeneticAlgorithm" + configuration::toString(policyConfiguration);
+    return "GeneticAlgorithm" + configuration::toString(policyConfiguration) +
+           ::cloud::loadbalancer::policy::geneticalgorithm::toString(parameters);
 }
 
 std::shared_ptr<mapping::MappingAssessor> GeneticAlgorithmBuilder::buildAssessor()

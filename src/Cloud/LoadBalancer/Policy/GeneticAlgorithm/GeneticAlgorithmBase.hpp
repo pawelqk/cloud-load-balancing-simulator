@@ -26,6 +26,8 @@ struct Parameters
     double eliteIndividualsInNextGenerationRatio;
 };
 
+std::string toString(const Parameters &parameters);
+
 class GeneticAlgorithmBase : public PolicyBase
 {
   protected:

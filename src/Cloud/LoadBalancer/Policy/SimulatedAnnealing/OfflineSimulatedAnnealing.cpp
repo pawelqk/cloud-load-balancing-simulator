@@ -1,6 +1,7 @@
 #include "OfflineSimulatedAnnealing.hpp"
 
 #include <cmath>
+#include <iterator>
 #include <random>
 
 #include "Cloud/TaskImpl.hpp"
@@ -105,11 +106,22 @@ NodeToTaskMapping OfflineSimulatedAnnealing::getNewSolutionFromNeighbourhood(con
     const auto feasibleNodeIds = findFeasibleNodeIds(solution, movedElement);
     auto &randomDestinationNode =
         solutionInNeighbourhood[feasibleNodeIds[std::uniform_int_distribution<>(0, feasibleNodeIds.size() - 1)(rng)]];
+
+    const auto randomDestinationNodeBegin =
+        std::find_if(randomDestinationNode.begin(), randomDestinationNode.end(), [movedElement](auto &&task) {
+            return movedElement->getArrivalTime() == task->getArrivalTime() ||
+                   movedElement->getArrivalTime() < task->getArrivalTime();
+        });
+    const auto randomDestinationNodeEnd =
+        std::find_if(randomDestinationNode.begin(), randomDestinationNode.end(),
+                     [movedElement](auto &&task) { return movedElement->getArrivalTime() < task->getArrivalTime(); });
+
     const auto movedElementDestinationIt =
         randomDestinationNode.empty()
             ? randomDestinationNode.begin()
-            : std::next(randomDestinationNode.begin(),
-                        std::uniform_int_distribution<>(0, randomDestinationNode.size() - 1)(rng));
+            : std::next(randomDestinationNodeBegin,
+                        std::uniform_int_distribution<>(
+                            0, std::distance(randomDestinationNodeBegin, randomDestinationNodeEnd))(rng));
 
     randomDestinationNode.insert(movedElementDestinationIt, movedElement);
 

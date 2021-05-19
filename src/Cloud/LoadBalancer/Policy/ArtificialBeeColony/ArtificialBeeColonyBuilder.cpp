@@ -2,6 +2,8 @@
 
 #include "Cloud/LoadBalancer/Mapping/FlowtimeAssessor.hpp"
 #include "Cloud/LoadBalancer/Mapping/MakespanAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OfflineFlowtimeAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OfflineMakespanAssessor.hpp"
 #include "Configuration/ConfigurationReader.hpp"
 #include "OfflineArtificialBeeColony.hpp"
 #include "OnlineArtificialBeeColony.hpp"
@@ -34,8 +36,8 @@ PolicyPtr ArtificialBeeColonyBuilder::build(const logger::LoggerPtr &logger)
     switch (policyConfiguration)
     {
     case PolicyConfiguration::Offline:
-        return std::make_unique<OfflineArtificialBeeColony>(infrastructure, parameters, buildAssessor(), *instance,
-                                                            logger);
+        return std::make_unique<OfflineArtificialBeeColony>(infrastructure, parameters, buildOfflineAssessor(),
+                                                            *instance, logger);
     case PolicyConfiguration::Online:
         return std::make_unique<OnlineArtificialBeeColony>(infrastructure, parameters, buildAssessor(), logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
@@ -60,6 +62,19 @@ mapping::MappingAssessorPtr ArtificialBeeColonyBuilder::buildAssessor()
         return std::make_unique<mapping::MakespanAssessor>(differenceCalculator);
     case configuration::Assessment::Flowtime:
         return std::make_unique<mapping::FlowtimeAssessor>(differenceCalculator, timingService);
+    }
+
+    return {};
+}
+
+mapping::MappingAssessorPtr ArtificialBeeColonyBuilder::buildOfflineAssessor()
+{
+    switch (assessment)
+    {
+    case configuration::Assessment::Makespan:
+        return std::make_unique<mapping::OfflineMakespanAssessor>();
+    case configuration::Assessment::Flowtime:
+        return std::make_unique<mapping::OfflineFlowtimeAssessor>();
     }
 
     return {};

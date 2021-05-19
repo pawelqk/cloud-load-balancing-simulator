@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 
 #include "Cloud/CloudBuilder.hpp"
 #include "Cloud/TimingServiceImpl.hpp"
@@ -37,6 +38,9 @@ Experiment::Result Experiment::run()
 
         timingService->tick();
     }
+
+    if (!cloud->areAllInsertedTasksFinished())
+        throw std::runtime_error("Some tasks were lost during experiment execution");
 
     const auto makespan = timingService->getTicks();
     const auto flowtime = timingService->getTotalFlowtime();

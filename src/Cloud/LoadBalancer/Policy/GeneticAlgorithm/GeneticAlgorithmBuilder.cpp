@@ -2,6 +2,8 @@
 
 #include "Cloud/LoadBalancer/Mapping/FlowtimeAssessor.hpp"
 #include "Cloud/LoadBalancer/Mapping/MakespanAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OfflineFlowtimeAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OfflineMakespanAssessor.hpp"
 #include "Configuration/ConfigurationReader.hpp"
 #include "OfflineGeneticAlgorithm.hpp"
 #include "OnlineGeneticAlgorithm.hpp"
@@ -34,7 +36,7 @@ PolicyPtr GeneticAlgorithmBuilder::build(const logger::LoggerPtr &logger)
     switch (policyConfiguration)
     {
     case PolicyConfiguration::Offline:
-        return std::make_unique<OfflineGeneticAlgorithm>(infrastructure, parameters, buildAssessor(), *instance,
+        return std::make_unique<OfflineGeneticAlgorithm>(infrastructure, parameters, buildOfflineAssessor(), *instance,
                                                          logger);
     case PolicyConfiguration::Online:
         return std::make_unique<OnlineGeneticAlgorithm>(infrastructure, parameters, buildAssessor(), logger);
@@ -60,6 +62,19 @@ std::shared_ptr<mapping::MappingAssessor> GeneticAlgorithmBuilder::buildAssessor
         return std::make_shared<mapping::MakespanAssessor>(differenceCalculator);
     case configuration::Assessment::Flowtime:
         return std::make_shared<mapping::FlowtimeAssessor>(differenceCalculator, timingService);
+    }
+
+    return {};
+}
+
+std::shared_ptr<mapping::MappingAssessor> GeneticAlgorithmBuilder::buildOfflineAssessor()
+{
+    switch (assessment)
+    {
+    case configuration::Assessment::Makespan:
+        return std::make_unique<mapping::OfflineMakespanAssessor>();
+    case configuration::Assessment::Flowtime:
+        return std::make_unique<mapping::OfflineFlowtimeAssessor>();
     }
 
     return {};

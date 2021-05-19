@@ -28,6 +28,7 @@ class SimulatedAnnealingBuilder : public PolicyBuilderBase
 
   private:
     mapping::MappingAssessorPtr buildAssessor();
+    mapping::MappingAssessorPtr buildOfflineAssessor();
 
     const configuration::Assessment assessment;
     Parameters parameters;

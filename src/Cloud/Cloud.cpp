@@ -20,7 +20,10 @@ void Cloud::tick(const configuration::TaskDataVec taskDatas)
 {
     const auto finishedTasks = infrastructure->advanceProcessing();
     if (!finishedTasks.empty())
+    {
         addFlowtime(finishedTasks);
+        saveFinishedTasks(finishedTasks);
+    }
 
     if (!taskDatas.empty())
         loadBalancer->scheduleNewTasks(createTasks(taskDatas));
@@ -38,6 +41,11 @@ std::string Cloud::toString() const
     return loadBalancer->toString();
 }
 
+bool Cloud::areAllInsertedTasksFinished() const
+{
+    return insertedTaskIds == finishedTaskIds;
+}
+
 TaskPtrVec Cloud::createTasks(const configuration::TaskDataVec taskDatas)
 {
     const auto ticks = timingService->getTicks();
@@ -45,8 +53,11 @@ TaskPtrVec Cloud::createTasks(const configuration::TaskDataVec taskDatas)
     TaskPtrVec tasks;
     tasks.reserve(taskDatas.size());
     for (auto &&taskData : taskDatas)
+    {
         tasks.push_back(
             std::make_shared<TaskImpl>(taskData.id, taskData.requiredMips, taskData.length, ticks, penaltyFactor));
+        insertedTaskIds.insert(taskData.id);
+    }
 
     logNewTasks(tasks);
 
@@ -61,6 +72,12 @@ void Cloud::addFlowtime(const TaskPtrVec &finishedTasks)
         totalFlowTime += (currentTime - task->getArrivalTime());
 
     timingService->addFlowtime(totalFlowTime);
+}
+
+void Cloud::saveFinishedTasks(const TaskPtrVec &finishedTasks)
+{
+    for (auto &&task : finishedTasks)
+        finishedTaskIds.insert(task->getId());
 }
 
 void Cloud::logNewTasks(const TaskPtrVec &tasks)

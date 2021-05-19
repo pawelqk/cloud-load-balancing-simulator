@@ -75,7 +75,7 @@ NodeToTaskMapping HeuristicPolicyWithMigrationsAndPreemptions::buildWithMigratio
             if (newNodeIt == nodes.end())
                 throw std::runtime_error("Cannot find node " + std::to_string(nodeId) + " in solutionInNeighbourhood");
 
-            // TODO: write test for this if
+            // simply move the task back to old node
             if (solution[oldMapping[task]].empty())
             {
                 logger->debug("Empty %s", task->toString().c_str());
@@ -88,6 +88,8 @@ NodeToTaskMapping HeuristicPolicyWithMigrationsAndPreemptions::buildWithMigratio
 
                 newMapping[task] = oldMapping[task];
             }
+
+            // exchange the tasks if there's only one there
             else if (solution[oldMapping[task]].size() == 1)
             {
                 auto taskOnOldMapping = solution[oldMapping[task]].front();

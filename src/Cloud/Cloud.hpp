@@ -26,9 +26,12 @@ class Cloud
 
     std::string toString() const;
 
+    bool areAllInsertedTasksFinished() const;
+
   private:
     TaskPtrVec createTasks(const configuration::TaskDataVec taskDatas);
     void addFlowtime(const TaskPtrVec &finishedTasks);
+    void saveFinishedTasks(const TaskPtrVec &finishedTasks);
     void logNewTasks(const TaskPtrVec &tasks);
 
     const loadbalancer::LoadBalancerPtr loadBalancer;
@@ -36,6 +39,9 @@ class Cloud
     const TimingServicePtr timingService;
     const double penaltyFactor;
     const logger::LoggerPtr logger;
+
+    std::set<std::uint32_t> finishedTaskIds;
+    std::set<std::uint32_t> insertedTaskIds;
 };
 
 } // namespace cloud

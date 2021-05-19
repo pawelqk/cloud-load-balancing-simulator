@@ -2,6 +2,8 @@
 
 #include "Cloud/LoadBalancer/Mapping/FlowtimeAssessor.hpp"
 #include "Cloud/LoadBalancer/Mapping/MakespanAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OfflineFlowtimeAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OfflineMakespanAssessor.hpp"
 #include "Configuration/ConfigurationReader.hpp"
 #include "OfflineSimulatedAnnealing.hpp"
 #include "OnlineSimulatedAnnealing.hpp"
@@ -35,8 +37,8 @@ PolicyPtr SimulatedAnnealingBuilder::build(const logger::LoggerPtr &logger)
     switch (policyConfiguration)
     {
     case PolicyConfiguration::Offline:
-        return std::make_unique<OfflineSimulatedAnnealing>(infrastructure, parameters, buildAssessor(), *instance,
-                                                           logger, penaltyFactor);
+        return std::make_unique<OfflineSimulatedAnnealing>(infrastructure, parameters, buildOfflineAssessor(),
+                                                           *instance, logger, penaltyFactor);
     case PolicyConfiguration::Online:
         return std::make_unique<OnlineSimulatedAnnealing>(infrastructure, parameters, buildAssessor(), logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
@@ -61,6 +63,19 @@ mapping::MappingAssessorPtr SimulatedAnnealingBuilder::buildAssessor()
         return std::make_unique<mapping::MakespanAssessor>(differenceCalculator);
     case configuration::Assessment::Flowtime:
         return std::make_unique<mapping::FlowtimeAssessor>(differenceCalculator, timingService);
+    }
+
+    return {};
+}
+
+mapping::MappingAssessorPtr SimulatedAnnealingBuilder::buildOfflineAssessor()
+{
+    switch (assessment)
+    {
+    case configuration::Assessment::Makespan:
+        return std::make_unique<mapping::OfflineMakespanAssessor>();
+    case configuration::Assessment::Flowtime:
+        return std::make_unique<mapping::OfflineFlowtimeAssessor>();
     }
 
     return {};

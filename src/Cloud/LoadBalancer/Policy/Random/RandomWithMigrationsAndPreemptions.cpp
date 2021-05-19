@@ -1,4 +1,4 @@
-#include "Random.hpp"
+#include "RandomWithMigrationsAndPreemptions.hpp"
 
 #include <algorithm>
 #include <list>
@@ -16,16 +16,25 @@ namespace policy
 namespace random
 {
 
-Random::Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger)
+RandomWithMigrationsAndPreemptions::RandomWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
+                                                                       const logger::LoggerPtr &logger)
     : PolicyBase(infrastructure, logger)
 {
 }
 
-NodeToTaskMapping Random::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
+NodeToTaskMapping RandomWithMigrationsAndPreemptions::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks)
 {
     NodeToTaskMapping solution;
 
     auto tasksShuffled = tasks;
+
+    auto &nodes = infrastructure->getNodes();
+    for (auto &&node : nodes)
+    {
+        const auto task = node->getTask();
+        if (task != nullptr)
+            tasksShuffled.push_back(task);
+    }
 
     std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
     for (auto &&task : tasksShuffled)
@@ -41,27 +50,12 @@ NodeToTaskMapping Random::buildNodeToTaskMappingInternal(const TaskPtrVec &tasks
         solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
     }
 
-    return adjustSolutionWithExistingTasks(solution);
+    return solution;
 }
 
-std::string Random::toString() const
+std::string RandomWithMigrationsAndPreemptions::toString() const
 {
-    return "Random";
-}
-
-NodeToTaskMapping Random::adjustSolutionWithExistingTasks(const NodeToTaskMapping &solution)
-{
-    auto adjustedSolution = solution;
-
-    const auto &nodes = infrastructure->getNodes();
-    for (auto &&node : nodes)
-    {
-        const auto task = node->getTask();
-        if (task != nullptr)
-            adjustedSolution[node->getId()].push_front(task);
-    }
-
-    return adjustedSolution;
+    return "RandomWithMigrationsAndPreemptions";
 }
 
 } // namespace random

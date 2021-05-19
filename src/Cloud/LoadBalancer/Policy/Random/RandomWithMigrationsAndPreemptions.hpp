@@ -16,17 +16,14 @@ namespace policy
 namespace random
 {
 
-class Random : public PolicyBase
+class RandomWithMigrationsAndPreemptions : public PolicyBase
 {
   public:
-    Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
+    RandomWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
-
-  private:
-    NodeToTaskMapping adjustSolutionWithExistingTasks(const NodeToTaskMapping &solution);
 
     const logger::LoggerPtr logger;
 };

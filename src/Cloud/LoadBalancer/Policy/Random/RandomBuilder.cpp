@@ -1,6 +1,7 @@
 #include "RandomBuilder.hpp"
 
 #include "Random.hpp"
+#include "RandomWithMigrationsAndPreemptions.hpp"
 
 namespace cloud
 {
@@ -23,7 +24,17 @@ PolicyBuilderPtr RandomBuilder::clone()
 
 PolicyPtr RandomBuilder::build(const logger::LoggerPtr &logger)
 {
-    return std::make_unique<Random>(infrastructure, logger);
+    using configuration::PolicyConfiguration;
+    switch (policyConfiguration)
+    {
+    case PolicyConfiguration::Offline:
+    case PolicyConfiguration::Online:
+        return std::make_unique<Random>(infrastructure, logger);
+    case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
+        return std::make_unique<RandomWithMigrationsAndPreemptions>(infrastructure, logger);
+    }
+
+    return nullptr;
 }
 
 std::string RandomBuilder::toString() const

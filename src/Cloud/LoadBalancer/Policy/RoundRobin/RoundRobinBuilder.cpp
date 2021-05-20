@@ -28,7 +28,7 @@ PolicyPtr RoundRobinBuilder::build(const logger::LoggerPtr &logger)
 
 std::string RoundRobinBuilder::toString() const
 {
-    return "RoundRobin" + configuration::toString(policyConfiguration);
+    return "RoundRobin-" + configuration::toString(policyConfiguration);
 }
 
 } // namespace roundrobin

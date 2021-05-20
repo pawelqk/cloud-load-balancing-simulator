@@ -29,9 +29,9 @@ PolicyPtr RandomBuilder::build(const logger::LoggerPtr &logger)
     {
     case PolicyConfiguration::Offline:
     case PolicyConfiguration::Online:
-        return std::make_unique<Random>(infrastructure, logger);
+        return std::make_unique<Random>(infrastructure, randomNumberGenerator, logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
-        return std::make_unique<RandomWithMigrationsAndPreemptions>(infrastructure, logger);
+        return std::make_unique<RandomWithMigrationsAndPreemptions>(infrastructure, randomNumberGenerator, logger);
     }
 
     return nullptr;
@@ -39,7 +39,7 @@ PolicyPtr RandomBuilder::build(const logger::LoggerPtr &logger)
 
 std::string RandomBuilder::toString() const
 {
-    return "Random" + configuration::toString(policyConfiguration);
+    return "Random-" + configuration::toString(policyConfiguration);
 }
 
 } // namespace random

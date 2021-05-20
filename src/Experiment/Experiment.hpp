@@ -33,9 +33,9 @@ class Experiment
     cloud::loadbalancer::policy::PolicyBuilderPtr policyBuilder;
     const double penaltyFactor;
     logger::LoggerPtr logger;
+    const std::uint_fast64_t seed;
     cloud::TimingServicePtr timingService;
     std::unique_ptr<cloud::Cloud> cloud;
-    const std::uint_fast64_t seed;
 };
 
 } // namespace experiment

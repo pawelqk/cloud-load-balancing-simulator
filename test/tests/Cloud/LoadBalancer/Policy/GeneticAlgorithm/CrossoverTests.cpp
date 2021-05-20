@@ -4,6 +4,7 @@
 
 #include "Cloud/LoadBalancer/Policy/GeneticAlgorithm/Individual.hpp"
 #include "Cloud/LoadBalancer/Policy/Policy.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 #include "mocks/MappingAssessorMock.hpp"
 #include "mocks/NodeMock.hpp"
 #include "mocks/TaskMock.hpp"
@@ -30,6 +31,7 @@ struct CrossoverShould : testing::Test
     }
     const std::shared_ptr<mapping::mocks::MappingAssessorMock> mappingAssessorMock{
         std::make_shared<mapping::mocks::MappingAssessorMock>()};
+    const utility::RandomNumberGeneratorPtr randomNumberGenerator{std::make_shared<utility::RandomNumberGenerator>(0)};
 };
 
 TEST_F(CrossoverShould, HandleOneTaskChromosomes)
@@ -37,8 +39,8 @@ TEST_F(CrossoverShould, HandleOneTaskChromosomes)
     const mocks::TaskMockPtr taskMock = std::make_shared<mocks::TaskMock>(0);
     const mocks::NodeMockPtr nodeMock = std::make_shared<mocks::NodeMock>(0);
     const NodeToTaskMapping mapping{{0, {taskMock}}};
-    const Individual leftParent{mapping, nullptr, mappingAssessorMock};
-    const Individual rightParent{mapping, nullptr, mappingAssessorMock};
+    const Individual leftParent{mapping, nullptr, mappingAssessorMock, randomNumberGenerator};
+    const Individual rightParent{mapping, nullptr, mappingAssessorMock, randomNumberGenerator};
 
     const std::vector<Individual::Gene> expectedOffspring{{0, 0}};
     ASSERT_EQ(Individual::crossover(leftParent, rightParent).getChromosome(), expectedOffspring);

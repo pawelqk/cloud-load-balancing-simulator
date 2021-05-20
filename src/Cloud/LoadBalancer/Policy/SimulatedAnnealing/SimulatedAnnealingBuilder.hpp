@@ -31,7 +31,6 @@ class SimulatedAnnealingBuilder : public PolicyBuilderBase
 
     const configuration::Assessment assessment;
     Parameters parameters;
-    const double penaltyFactor;
 };
 
 } // namespace simulatedannealing

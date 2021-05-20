@@ -19,78 +19,92 @@ ALGORITHM_NAMES = {
 
 POSSIBLE_ALGORITHM_TYPES = ("Offline", "OnlineWithMigrationsAndPreemptions", "Online")
 
-CRITERIAS = ["makespan", "flowtime"]
-
 DPI = 1200
 
 
-def shorten_filename(filename):
-    return filename[: filename.find("_")]
-
-
 def split_filename(filename):
-    for algorithm_type in POSSIBLE_ALGORITHM_TYPES:
-        idx = filename.find(algorithm_type)
-        if idx != -1:
-            return (
-                filename[:idx],
-                filename[idx : idx + len(algorithm_type)],
-                filename[idx + len(algorithm_type) :],
-            )
+    type_and_data_idx = filename.find("-")
+    type_and_data = filename[type_and_data_idx + 1 :]
+
+    data_idx = type_and_data.find("-")
+    if data_idx == -1:
+        alg_type = type_and_data
+    else:
+        alg_type = type_and_data[:data_idx]
+
+    return (filename[:type_and_data_idx], alg_type)
 
 
-def prettify_algorithm_name(algorithm_name, algorithm_data):
-    return ALGORITHM_NAMES[algorithm_name] + algorithm_data
+def prettify_algorithm_name(algorithm_name):
+    return ALGORITHM_NAMES[algorithm_name]
 
 
 def prettify_criteria(criteria):
     return criteria.capitalize()
 
 
-def main():
-    if len(sys.argv) == 2:
-        print("Please provide path to results and alg type")
-        exit(1)
-
+def build_boxplots(results_path, algorithm_type, criteria):
     plt.figure(dpi=DPI)
 
-    results_path = sys.argv[1]
-    alg_type = sys.argv[2]
-
-    algorithm_types = set()
     result_files = [
         filename
         for filename in os.listdir(results_path)
-        if split_filename(filename)[1] == alg_type
+        if split_filename(filename)[1] == algorithm_type
     ]
+
+    prettified_alg_names = []
+    results_dict = {}
+    penalty_factors = set()
     print(result_files)
-    results_dict = {
-        algorithm_type: {criteria: {} for criteria in CRITERIAS}
-        for algorithm_type in POSSIBLE_ALGORITHM_TYPES
-    }
-    prettified_alg_names = {}
     for result_file in result_files:
+        algorithm_name, algorithm_type = split_filename(result_file)
+        prettified_algorithm_name = prettify_algorithm_name(algorithm_name)
+
+        prettified_alg_names.append(prettified_algorithm_name)
+
         df = pd.read_csv("/".join((results_path, result_file)), delimiter="|")
-        shortened_filename = shorten_filename(result_file)
-        algorithm_name, algorithm_type, additional_data = split_filename(result_file)
-        algorithm_types.add(algorithm_type)
-        prettified_alg_name = prettify_algorithm_name(algorithm_name, additional_data)
+        penalty_factors = set(df["penalty_factor"])
+        for penalty_factor in penalty_factors:
+            mean_criteria_by_penalty_factor = (
+                df[df["penalty_factor"] == penalty_factor]
+                .groupby("instance_id")
+                .mean()  # mean value of all instance ids
+            )
 
-        if algorithm_type not in prettified_alg_names:
-            prettified_alg_names[algorithm_type] = []
-        prettified_alg_names[algorithm_type].append(prettified_alg_name)
-        for criteria in CRITERIAS:
-            results_dict[algorithm_type][criteria][prettified_alg_name] = df[criteria]
+            if penalty_factor not in results_dict:
+                results_dict[penalty_factor] = {}
 
-    for algorithm_type in algorithm_types:
-        for criteria in CRITERIAS:
-            boxplot = pd.DataFrame.from_dict(
-                results_dict[algorithm_type][criteria]
-            ).boxplot(column=prettified_alg_names[algorithm_type])
-            plt.title(algorithm_type)
-            plt.xlabel("Algorithm")
-            plt.ylabel(prettify_criteria(criteria))
-            plt.savefig("/".join((results_path, criteria + algorithm_type)))
+            results_dict[penalty_factor][
+                prettified_algorithm_name
+            ] = mean_criteria_by_penalty_factor[criteria]
+
+    for penalty_factor in penalty_factors:
+        boxplot = pd.DataFrame.from_dict(results_dict[penalty_factor]).boxplot(
+            column=prettified_alg_names
+        )
+
+        plt.title(algorithm_type)
+        plt.xlabel("Algorithm")
+        plt.ylabel(prettify_criteria(criteria))
+        plt.savefig(
+            "/".join(
+                (
+                    results_path,
+                    criteria + algorithm_type + str(penalty_factor) + ".png",
+                )
+            )
+        )
+
+
+def main():
+    if len(sys.argv) == 2:
+        print("Please provide path to results and alg type and criteria")
+        exit(1)
+
+    results_path = sys.argv[1]
+    alg_type = sys.argv[2]
+    criteria = sys.argv[3]
+    build_boxplots(results_path, alg_type, criteria)
 
 
 if __name__ == "__main__":

@@ -37,12 +37,13 @@ PolicyPtr GeneticAlgorithmBuilder::build(const logger::LoggerPtr &logger)
     {
     case PolicyConfiguration::Offline:
         return std::make_unique<OfflineGeneticAlgorithm>(infrastructure, parameters, buildOfflineAssessor(), *instance,
-                                                         logger);
+                                                         logger, randomNumberGenerator, penaltyFactor);
     case PolicyConfiguration::Online:
-        return std::make_unique<OnlineGeneticAlgorithm>(infrastructure, parameters, buildAssessor(), logger);
+        return std::make_unique<OnlineGeneticAlgorithm>(infrastructure, parameters, buildAssessor(), logger,
+                                                        randomNumberGenerator);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
-        return std::make_unique<OnlineGeneticAlgorithmWithMigrationsAndPreemptions>(infrastructure, parameters,
-                                                                                    buildAssessor(), logger);
+        return std::make_unique<OnlineGeneticAlgorithmWithMigrationsAndPreemptions>(
+            infrastructure, parameters, buildAssessor(), logger, randomNumberGenerator);
     }
 
     return nullptr;
@@ -50,7 +51,7 @@ PolicyPtr GeneticAlgorithmBuilder::build(const logger::LoggerPtr &logger)
 
 std::string GeneticAlgorithmBuilder::toString() const
 {
-    return "GeneticAlgorithm" + configuration::toString(policyConfiguration) +
+    return "GeneticAlgorithm-" + configuration::toString(policyConfiguration) + "-" +
            ::cloud::loadbalancer::policy::geneticalgorithm::toString(parameters);
 }
 

@@ -39,6 +39,9 @@ class GeneticAlgorithmBase : public PolicyBase
 
     NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
 
+    const std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
+    const utility::RandomNumberGeneratorPtr randomNumberGenerator;
+
   private:
     struct BestSolution
     {
@@ -59,7 +62,7 @@ class GeneticAlgorithmBase : public PolicyBase
     };
 
     void generateInitialPopulation(const TaskPtrVec &tasks);
-    Individual generateRandomIndividual(const TaskPtrVec &tasks);
+    virtual Individual generateRandomIndividual(const TaskPtrVec &tasks);
     IndividualsSplitByElitism splitIndividualsByElitism(const std::vector<Individual> &individuals,
                                                         const std::vector<Individual>::size_type count);
     void insertNewIndividual(const Individual &individual);
@@ -70,8 +73,6 @@ class GeneticAlgorithmBase : public PolicyBase
                                                     const std::vector<Individual>::size_type count);
 
     const Parameters parameters;
-    const std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
-    const utility::RandomNumberGeneratorPtr randomNumberGenerator;
     BestSolution bestSolution;
 
     std::vector<Individual> population;

@@ -6,11 +6,6 @@
 namespace configuration
 {
 
-SimulatedAnnealingConfigurator::SimulatedAnnealingConfigurator(const double penaltyFactor)
-    : penaltyFactor(penaltyFactor)
-{
-}
-
 cloud::loadbalancer::policy::PolicyBuilderPtr SimulatedAnnealingConfigurator::configure(
     const nlohmann::json &configuration)
 {
@@ -27,7 +22,7 @@ cloud::loadbalancer::policy::PolicyBuilderPtr SimulatedAnnealingConfigurator::co
         return nullptr;
 
     return std::make_shared<cloud::loadbalancer::policy::simulatedannealing::SimulatedAnnealingBuilder>(
-        *policyConfiguration, *assessment, *parameters, penaltyFactor);
+        *policyConfiguration, *assessment, *parameters);
 }
 
 std::optional<cloud::loadbalancer::policy::simulatedannealing::Parameters> SimulatedAnnealingConfigurator::

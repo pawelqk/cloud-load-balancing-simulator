@@ -44,7 +44,7 @@ PolicyPtr ShortestElapsedTimeFirstBuilder::build(const logger::LoggerPtr &logger
 std::string ShortestElapsedTimeFirstBuilder::toString() const
 {
     std::stringstream ss;
-    ss << "ShortestElapsedTimeFirst" << configuration::toString(policyConfiguration) << "_" << std::boolalpha
+    ss << "ShortestElapsedTimeFirst-" << configuration::toString(policyConfiguration) << "-" << std::boolalpha
        << withMigrationsFixing;
 
     return ss.str();

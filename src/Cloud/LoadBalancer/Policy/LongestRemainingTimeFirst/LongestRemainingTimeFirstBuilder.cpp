@@ -44,7 +44,7 @@ PolicyPtr LongestRemainingTimeFirstBuilder::build(const logger::LoggerPtr &logge
 std::string LongestRemainingTimeFirstBuilder::toString() const
 {
     std::stringstream ss;
-    ss << "LongestRemainingTimeFirst" << configuration::toString(policyConfiguration) << "_" << std::boolalpha
+    ss << "LongestRemainingTimeFirst-" << configuration::toString(policyConfiguration) << "-" << std::boolalpha
        << withMigrationsFixing;
 
     return ss.str();

@@ -35,8 +35,8 @@ GeneticAlgorithmBase::GeneticAlgorithmBase(const InfrastructureCPtr &infrastruct
                                            const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
                                            const logger::LoggerPtr &logger,
                                            const utility::RandomNumberGeneratorPtr &randomNumberGenerator)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(mappingAssessor),
-      randomNumberGenerator(randomNumberGenerator)
+    : PolicyBase(infrastructure, logger), mappingAssessor(mappingAssessor),
+      randomNumberGenerator(randomNumberGenerator), parameters(parameters)
 {
     population.reserve(parameters.populationSize);
 }

@@ -8,6 +8,7 @@
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
 #include "GeneticAlgorithmBase.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -24,7 +25,8 @@ class OnlineGeneticAlgorithmWithMigrationsAndPreemptions : public GeneticAlgorit
     OnlineGeneticAlgorithmWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
                                                        const Parameters &parameters,
                                                        const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
-                                                       const logger::LoggerPtr &logger);
+                                                       const logger::LoggerPtr &logger,
+                                                       const utility::RandomNumberGeneratorPtr &randomNumberGenerator);
 
     std::string toString() const override;
 

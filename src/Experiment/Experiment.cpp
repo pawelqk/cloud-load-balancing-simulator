@@ -14,8 +14,8 @@ namespace experiment
 Experiment::Experiment(const configuration::Instance &instance,
                        const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
                        const logger::LoggerPtr &logger, const std::uint_fast64_t seed)
-    : instance(instance), policyBuilder(policyBuilder), logger(logger), penaltyFactor(penaltyFactor),
-      timingService(std::make_shared<cloud::TimingServiceImpl>(logger)), seed(seed)
+    : instance(instance), policyBuilder(policyBuilder), penaltyFactor(penaltyFactor), logger(logger), seed(seed),
+      timingService(std::make_shared<cloud::TimingServiceImpl>(logger))
 {
     policyBuilder->setPenaltyFactor(penaltyFactor);
     policyBuilder->setTimingService(timingService);
@@ -46,7 +46,7 @@ Experiment::Result Experiment::run()
 
     logger->info("Done. Makespan: %u, Flowtime: %u", makespan, flowtime);
 
-    return {instance.getId(), makespan, flowtime};
+    return {instance.getId(), makespan, flowtime, seed, penaltyFactor};
 }
 
 } // namespace experiment

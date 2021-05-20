@@ -21,15 +21,14 @@ PolicyBuilderPtr FirstComeFirstServeBuilder::clone()
     return std::make_shared<FirstComeFirstServeBuilder>(policyConfiguration);
 }
 
-PolicyPtr FirstComeFirstServeBuilder::build(const logger::LoggerPtr &logger, const std::uint_fast64_t seed,
-                                            const double penaltyFactor)
+PolicyPtr FirstComeFirstServeBuilder::build(const logger::LoggerPtr &logger)
 {
     return std::make_unique<FirstComeFirstServe>(infrastructure, logger);
 }
 
 std::string FirstComeFirstServeBuilder::toString() const
 {
-    return "FirstComeFirstServe" + configuration::toString(policyConfiguration);
+    return "FirstComeFirstServe-" + configuration::toString(policyConfiguration);
 }
 
 } // namespace firstcomefirstserve

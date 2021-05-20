@@ -21,14 +21,13 @@ namespace simulatedannealing
 SimulatedAnnealingBuilder::SimulatedAnnealingBuilder(const configuration::PolicyConfiguration &policyConfiguration,
                                                      const configuration::Assessment assessment,
                                                      const Parameters &parameters)
-    : PolicyBuilderBase(policyConfiguration), assessment(assessment), parameters(parameters),
-      penaltyFactor(penaltyFactor)
+    : PolicyBuilderBase(policyConfiguration), assessment(assessment), parameters(parameters)
 {
 }
 
 PolicyBuilderPtr SimulatedAnnealingBuilder::clone()
 {
-    return std::make_shared<SimulatedAnnealingBuilder>(policyConfiguration, assessment, parameters, penaltyFactor);
+    return std::make_shared<SimulatedAnnealingBuilder>(policyConfiguration, assessment, parameters);
 }
 
 PolicyPtr SimulatedAnnealingBuilder::build(const logger::LoggerPtr &logger)
@@ -38,12 +37,13 @@ PolicyPtr SimulatedAnnealingBuilder::build(const logger::LoggerPtr &logger)
     {
     case PolicyConfiguration::Offline:
         return std::make_unique<OfflineSimulatedAnnealing>(infrastructure, parameters, buildOfflineAssessor(),
-                                                           *instance, logger, penaltyFactor);
+                                                           randomNumberGenerator, *instance, logger, penaltyFactor);
     case PolicyConfiguration::Online:
-        return std::make_unique<OnlineSimulatedAnnealing>(infrastructure, parameters, buildAssessor(), logger);
+        return std::make_unique<OnlineSimulatedAnnealing>(infrastructure, parameters, buildAssessor(),
+                                                          randomNumberGenerator, logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
-        return std::make_unique<OnlineSimulatedAnnealingWithMigrationsAndPreemptions>(infrastructure, parameters,
-                                                                                      buildAssessor(), logger);
+        return std::make_unique<OnlineSimulatedAnnealingWithMigrationsAndPreemptions>(
+            infrastructure, parameters, buildAssessor(), randomNumberGenerator, logger);
     }
 
     return nullptr;
@@ -51,7 +51,7 @@ PolicyPtr SimulatedAnnealingBuilder::build(const logger::LoggerPtr &logger)
 
 std::string SimulatedAnnealingBuilder::toString() const
 {
-    return "SimulatedAnnealing" + configuration::toString(policyConfiguration) +
+    return "SimulatedAnnealing-" + configuration::toString(policyConfiguration) + "-" +
            ::cloud::loadbalancer::policy::simulatedannealing::toString(parameters);
 }
 

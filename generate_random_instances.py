@@ -3,7 +3,7 @@
 import json
 import random
 from datetime import datetime
-
+import sys
 
 # Workaround for working with large jsons
 # See https://stackoverflow.com/questions/52137608/writing-a-large-json-array-to-file/52137753#52137753
@@ -30,7 +30,7 @@ def generate_random_task(config, max_task_mips):
     }
 
 
-def generate_random_instances(number_of_instances):
+def generate_random_instances(config, number_of_instances):
     for instance_id in range(number_of_instances):
         mips_of_nodes = set()
 
@@ -54,7 +54,7 @@ def main():
         print("Please provide number of instances")
         exit(1)
 
-    number_of_instances = sys.argv[1]
+    number_of_instances = int(sys.argv[1])
 
     with open("config.json", "r") as file:
         config = json.load(file)
@@ -65,7 +65,7 @@ def main():
         with open(f"instances_{current_time}.json", "w") as output:
             output.write(
                 json.dumps(
-                    IteratorAsList(generate_random_instances(number_of_instances)),
+                    IteratorAsList(generate_random_instances(config, number_of_instances)),
                     indent=4,
                     sort_keys=True,
                 )

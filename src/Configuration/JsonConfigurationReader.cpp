@@ -84,7 +84,7 @@ std::vector<cloud::loadbalancer::policy::PolicyBuilderPtr> JsonConfigurationRead
 JsonAlgorithmConfiguratorPtr JsonConfigurationReader::getAlgorithmConfigurator(const std::string &algorithmName)
 {
     if (algorithmName == "Artificial bee colony")
-        return std::make_unique<ArtificialBeeColonyConfigurator>();
+        return std::make_unique<ArtificialBeeColonyConfigurator>(penaltyFactor);
     if (algorithmName == "First come first serve")
         return std::make_unique<GenericConfigurator>(Policy::FirstComeFirstServe);
     if (algorithmName == "Genetic algorithm")

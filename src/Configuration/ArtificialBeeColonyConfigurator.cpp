@@ -5,6 +5,11 @@
 namespace configuration
 {
 
+ArtificialBeeColonyConfigurator::ArtificialBeeColonyConfigurator(const double penaltyFactor)
+    : penaltyFactor(penaltyFactor)
+{
+}
+
 cloud::loadbalancer::policy::PolicyBuilderPtr ArtificialBeeColonyConfigurator::configure(
     const nlohmann::json &configuration)
 {
@@ -21,7 +26,7 @@ cloud::loadbalancer::policy::PolicyBuilderPtr ArtificialBeeColonyConfigurator::c
         return nullptr;
 
     return std::make_shared<cloud::loadbalancer::policy::artificialbeecolony::ArtificialBeeColonyBuilder>(
-        *policyConfiguration, *assessment, *parameters);
+        *policyConfiguration, *assessment, *parameters, penaltyFactor);
 }
 
 std::optional<cloud::loadbalancer::policy::artificialbeecolony::Parameters> ArtificialBeeColonyConfigurator::

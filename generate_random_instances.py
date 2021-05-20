@@ -5,7 +5,7 @@ import random
 from datetime import datetime
 
 
-NUMBER_OF_INSTANCES = 100
+NUMBER_OF_INSTANCES = 1
 
 
 def generate_random_node(config):

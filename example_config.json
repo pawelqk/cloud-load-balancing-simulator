@@ -17,18 +17,20 @@
         {
             "name": "Simulated annealing",
             "configuration": {
-                "type": "Online with migrations",
-                "coolingRatio": 0.997,
+                "type": "Offline",
+                "coolingRatio": 0.97,
                 "startTemperature": 1000,
-                "endTemperature": 0.00001,
-                "iterationsPerStep": 1000,
-                "criteria": "Flowtime"
+                "endTemperature": 0.0001,
+                "iterationsPerStep": 100,
+                "maxIterationsWithoutChange": 100000,
+                "initialPopulationGenerationMethod": "Random",
+                "criteria": "Makespan"
             }
         },
         {
             "name": "Artificial bee colony",
             "configuration": {
-                "type": "Online with migrations",
+                "type": "Online with migrations and preemptions",
                 "populationSize": 100,
                 "maxIterationsWithoutChange": 100,
                 "maxIterations": 10000,
@@ -53,7 +55,8 @@
                 "mutationProbability": 0.05,
                 "populationSize": 100,
                 "maxIterations": 1000,
-                "eliteIndividualsRatio": 0.05,
+                "eliteIndividualsInInitialGenerationRatio": 0.05,
+                "eliteIndividualsInNextGenerationRatio": 0.05,
                 "criteria": "Makespan"
             }
         }

@@ -6,6 +6,7 @@
 #include "ArtificialBeeColonyBase.hpp"
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
+#include "Cloud/LoadBalancer/Policy/OfflineProblemAdapter.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
 #include "Configuration/Instance.hpp"
@@ -19,23 +20,26 @@ namespace policy
 namespace artificialbeecolony
 {
 
-class OfflineArtificialBeeColony : public PolicyBase
+class OfflineArtificialBeeColony : public ArtificialBeeColonyBase
 {
   public:
     OfflineArtificialBeeColony(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                mapping::MappingAssessorPtr &&mappingAssessor, const configuration::Instance &instance,
-                               const logger::LoggerPtr &logger);
+                               const logger::LoggerPtr &logger, const double penaltyFactor);
 
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
     std::string toString() const override;
 
-  protected:
-    const Parameters parameters;
-    const mapping::MappingAssessorPtr mappingAssessor;
-
   private:
+    NodeToTaskMapping buildSolution();
+    NodeToTaskMapping createRandomSolution(const TaskPtrVec &tasks) override;
+    NodeToTaskMapping getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution) override;
+
     const configuration::Instance instance;
+    const double penaltyFactor;
+
+    OfflineProblemAdapter offlineProblemAdapter;
 };
 
 } // namespace artificialbeecolony

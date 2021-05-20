@@ -18,7 +18,8 @@ class ArtificialBeeColonyBuilder : public PolicyBuilderBase
 {
   public:
     ArtificialBeeColonyBuilder(const configuration::PolicyConfiguration &policyConfiguration,
-                               const configuration::Assessment assessment, const Parameters &parameters);
+                               const configuration::Assessment assessment, const Parameters &parameters,
+                               const double penaltyFactor);
 
     PolicyBuilderPtr clone() override;
 
@@ -32,6 +33,7 @@ class ArtificialBeeColonyBuilder : public PolicyBuilderBase
 
     const configuration::Assessment assessment;
     Parameters parameters;
+    const double penaltyFactor;
 };
 
 } // namespace artificialbeecolony

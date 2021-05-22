@@ -5,8 +5,6 @@
 #include <tuple>
 #include <utility>
 
-#include <Utility/RandomNumberGenerator.hpp>
-
 namespace cloud
 {
 namespace loadbalancer
@@ -16,9 +14,10 @@ namespace policy
 namespace random
 {
 
-RandomWithMigrationsAndPreemptions::RandomWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
-                                                                       const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger)
+RandomWithMigrationsAndPreemptions::RandomWithMigrationsAndPreemptions(
+    const InfrastructureCPtr &infrastructure, const utility::RandomNumberGeneratorPtr &randomNumberGenerator,
+    const logger::LoggerPtr &logger)
+    : PolicyBase(infrastructure, logger), randomNumberGenerator(randomNumberGenerator)
 {
 }
 
@@ -36,7 +35,7 @@ NodeToTaskMapping RandomWithMigrationsAndPreemptions::buildNodeToTaskMappingInte
             tasksShuffled.push_back(task);
     }
 
-    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), *randomNumberGenerator);
     for (auto &&task : tasksShuffled)
     {
         std::vector<NodeId> possibleNodeIds;
@@ -47,7 +46,7 @@ NodeToTaskMapping RandomWithMigrationsAndPreemptions::buildNodeToTaskMappingInte
         }
 
         std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
+        solution[possibleNodeIds[dis(*randomNumberGenerator)]].push_back(task);
     }
 
     return solution;

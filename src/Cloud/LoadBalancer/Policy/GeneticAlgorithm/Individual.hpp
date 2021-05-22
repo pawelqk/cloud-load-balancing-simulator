@@ -3,6 +3,7 @@
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -27,7 +28,8 @@ class Individual
     Individual();
 
     Individual(const NodeToTaskMapping &solution, const InfrastructureCPtr &infrastructure,
-               const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor);
+               const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
+               const utility::RandomNumberGeneratorPtr randomNumberGenerator);
 
     static Individual crossover(const Individual &leftParent, const Individual &rightParent);
 
@@ -42,7 +44,8 @@ class Individual
   private:
     Individual(const NodeToTaskMapping &parentSolution, const std::vector<Gene> &chromosome,
                const InfrastructureCPtr &infrastructure,
-               const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor);
+               const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
+               const utility::RandomNumberGeneratorPtr randomNumberGenerator);
 
     void encode();
     std::pair<std::uint32_t, std::uint32_t> getRandomChromosomeSlice() const;
@@ -55,6 +58,7 @@ class Individual
     InfrastructureCPtr infrastructure;
     std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
     double fitnessValue;
+    utility::RandomNumberGeneratorPtr randomNumberGenerator;
 };
 
 } // namespace geneticalgorithm

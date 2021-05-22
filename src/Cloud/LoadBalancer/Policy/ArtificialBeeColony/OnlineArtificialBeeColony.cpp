@@ -16,8 +16,9 @@ namespace artificialbeecolony
 OnlineArtificialBeeColony::OnlineArtificialBeeColony(const InfrastructureCPtr &infrastructure,
                                                      const Parameters &parameters,
                                                      mapping::MappingAssessorPtr &&mappingAssessor,
+                                                     const utility::RandomNumberGeneratorPtr &randomNumberGenerator,
                                                      const logger::LoggerPtr &logger)
-    : ArtificialBeeColonyBase(infrastructure, parameters, std::move(mappingAssessor), logger)
+    : ArtificialBeeColonyBase(infrastructure, parameters, std::move(mappingAssessor), logger, randomNumberGenerator)
 {
 }
 

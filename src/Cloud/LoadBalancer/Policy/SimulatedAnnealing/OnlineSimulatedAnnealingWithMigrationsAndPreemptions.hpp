@@ -23,6 +23,7 @@ class OnlineSimulatedAnnealingWithMigrationsAndPreemptions : public SimulatedAnn
     OnlineSimulatedAnnealingWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
                                                          const Parameters &parameters,
                                                          mapping::MappingAssessorPtr &&mappingAssessor,
+                                                         const utility::RandomNumberGeneratorPtr randomNumberGenerator,
                                                          const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;

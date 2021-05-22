@@ -21,10 +21,10 @@ namespace artificialbeecolony
 class OnlineArtificialBeeColonyWithMigrationsAndPreemptions : public ArtificialBeeColonyBase
 {
   public:
-    OnlineArtificialBeeColonyWithMigrationsAndPreemptions(const InfrastructureCPtr &infrastructure,
-                                                          const Parameters &parameters,
-                                                          mapping::MappingAssessorPtr &&mappingAssessor,
-                                                          const logger::LoggerPtr &logger);
+    OnlineArtificialBeeColonyWithMigrationsAndPreemptions(
+        const InfrastructureCPtr &infrastructure, const Parameters &parameters,
+        mapping::MappingAssessorPtr &&mappingAssessor, const utility::RandomNumberGeneratorPtr &randomNumberGenerator,
+        const logger::LoggerPtr &logger);
 
     std::string toString() const override;
 

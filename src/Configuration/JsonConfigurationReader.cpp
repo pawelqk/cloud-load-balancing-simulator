@@ -18,17 +18,24 @@ JsonConfigurationReader::JsonConfigurationReader(const nlohmann::json &json) : j
 GeneralConfiguration JsonConfigurationReader::readGeneralConfiguration()
 {
     GeneralConfiguration configuration;
-    configuration.seed = json.value("seed", std::random_device{}());
     try
     {
-        configuration.penaltyFactor = json.at("penaltyFactor");
+        for (const auto &seed : json.at("seeds"))
+            configuration.seeds.push_back(seed);
     }
     catch (nlohmann::json::out_of_range &e)
     {
         throw InvalidConfigurationException{e.what()};
     }
-
-    penaltyFactor = configuration.penaltyFactor;
+    try
+    {
+        for (const auto &penaltyFactor : json.at("penaltyFactors"))
+            configuration.penaltyFactors.push_back(penaltyFactor);
+    }
+    catch (nlohmann::json::out_of_range &e)
+    {
+        throw InvalidConfigurationException{e.what()};
+    }
 
     return configuration;
 }
@@ -84,7 +91,7 @@ std::vector<cloud::loadbalancer::policy::PolicyBuilderPtr> JsonConfigurationRead
 JsonAlgorithmConfiguratorPtr JsonConfigurationReader::getAlgorithmConfigurator(const std::string &algorithmName)
 {
     if (algorithmName == "Artificial bee colony")
-        return std::make_unique<ArtificialBeeColonyConfigurator>(penaltyFactor);
+        return std::make_unique<ArtificialBeeColonyConfigurator>();
     if (algorithmName == "First come first serve")
         return std::make_unique<GenericConfigurator>(Policy::FirstComeFirstServe);
     if (algorithmName == "Genetic algorithm")
@@ -100,7 +107,7 @@ JsonAlgorithmConfiguratorPtr JsonConfigurationReader::getAlgorithmConfigurator(c
     if (algorithmName == "Shortest remaining time first")
         return std::make_unique<GenericConfigurator>(Policy::ShortestRemainingTimeFirst);
     if (algorithmName == "Simulated annealing")
-        return std::make_unique<SimulatedAnnealingConfigurator>(penaltyFactor);
+        return std::make_unique<SimulatedAnnealingConfigurator>();
 
     return nullptr;
 }

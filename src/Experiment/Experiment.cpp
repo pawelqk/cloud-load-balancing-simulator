@@ -14,14 +14,13 @@ namespace experiment
 Experiment::Experiment(const configuration::Instance &instance,
                        const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
                        const logger::LoggerPtr &logger, const std::uint_fast64_t seed)
-    : instance(instance), policyBuilder(policyBuilder), logger(logger),
-      timingService(std::make_shared<cloud::TimingServiceImpl>(logger))
+    : instance(instance), policyBuilder(policyBuilder), logger(logger), penaltyFactor(penaltyFactor),
+      timingService(std::make_shared<cloud::TimingServiceImpl>(logger)), seed(seed)
 {
-    logger->info("Creating experiment with seed: %u", seed);
-    utility::RandomNumberGenerator::getInstance(seed);
-
+    policyBuilder->setPenaltyFactor(penaltyFactor);
     policyBuilder->setTimingService(timingService);
-    cloud = cloud::CloudBuilder{instance.getNodesData(), timingService, policyBuilder, penaltyFactor, logger}.build();
+    cloud =
+        cloud::CloudBuilder{instance.getNodesData(), timingService, policyBuilder, seed, penaltyFactor, logger}.build();
 }
 
 Experiment::Result Experiment::run()

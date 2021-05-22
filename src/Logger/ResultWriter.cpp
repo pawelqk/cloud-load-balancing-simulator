@@ -37,13 +37,13 @@ std::string ResultWriter::getCurrentDate()
 
 std::string ResultWriter::createColumns()
 {
-    return "instance_id|makespan|flowtime";
+    return "instance_id|seed|makespan|flowtime";
 }
 
 std::string ResultWriter::createResultRecord(const experiment::Experiment::Result &result)
 {
-    return std::to_string(result.instanceId) + "|" + std::to_string(result.makespan) + "|" +
-           std::to_string(result.flowtime);
+    return std::to_string(result.instanceId) + "|" + std::to_string(result.seed) + "|" +
+           std::to_string(result.makespan) + "|" + std::to_string(result.flowtime);
 }
 
 } // namespace logger

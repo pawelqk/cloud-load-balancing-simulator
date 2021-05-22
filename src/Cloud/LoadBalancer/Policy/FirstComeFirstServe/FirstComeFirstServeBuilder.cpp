@@ -21,7 +21,8 @@ PolicyBuilderPtr FirstComeFirstServeBuilder::clone()
     return std::make_shared<FirstComeFirstServeBuilder>(policyConfiguration);
 }
 
-PolicyPtr FirstComeFirstServeBuilder::build(const logger::LoggerPtr &logger)
+PolicyPtr FirstComeFirstServeBuilder::build(const logger::LoggerPtr &logger, const std::uint_fast64_t seed,
+                                            const double penaltyFactor)
 {
     return std::make_unique<FirstComeFirstServe>(infrastructure, logger);
 }

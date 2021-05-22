@@ -5,8 +5,6 @@
 #include <random>
 #include <utility>
 
-#include "Utility/RandomNumberGenerator.hpp"
-
 namespace cloud
 {
 namespace loadbalancer
@@ -24,17 +22,20 @@ bool Individual::Gene::operator==(const Gene &other) const
 Individual::Individual() = default;
 
 Individual::Individual(const NodeToTaskMapping &solution, const InfrastructureCPtr &infrastructure,
-                       const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor)
+                       const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
+                       const utility::RandomNumberGeneratorPtr randomNumberGenerator)
     : solution(solution), infrastructure(infrastructure), mappingAssessor(mappingAssessor),
-      fitnessValue(mappingAssessor->assess(solution))
+      fitnessValue(mappingAssessor->assess(solution)), randomNumberGenerator(randomNumberGenerator)
 {
     encode();
 }
 
 Individual::Individual(const NodeToTaskMapping &parentSolution, const std::vector<Gene> &chromosome,
                        const InfrastructureCPtr &infrastructure,
-                       const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor)
-    : solution(parentSolution), chromosome(chromosome), infrastructure(infrastructure), mappingAssessor(mappingAssessor)
+                       const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
+                       const utility::RandomNumberGeneratorPtr randomNumberGenerator)
+    : solution(parentSolution), chromosome(chromosome), infrastructure(infrastructure),
+      mappingAssessor(mappingAssessor), randomNumberGenerator(randomNumberGenerator)
 {
     decode();
     fitnessValue = mappingAssessor->assess(solution);
@@ -65,12 +66,12 @@ Individual Individual::crossover(const Individual &leftParent, const Individual 
         }
     }
 
-    return Individual{leftParent.solution, offspring, leftParent.infrastructure, leftParent.mappingAssessor};
+    return Individual{leftParent.solution, offspring, leftParent.infrastructure, leftParent.mappingAssessor,
+                      leftParent.randomNumberGenerator};
 }
 
 std::optional<double> Individual::mutate(const double probability)
 {
-    auto &rng = utility::RandomNumberGenerator::getInstance();
     std::uniform_real_distribution<> dist(0, 1.0);
 
     bool mutated = false;
@@ -80,13 +81,13 @@ std::optional<double> Individual::mutate(const double probability)
     {
         const auto &taskId = chromosome[i].taskId;
         const auto &nodeId = chromosome[i].nodeId;
-        if (dist(rng) <= probability)
+        if (dist(*randomNumberGenerator) <= probability)
         {
             const auto task = getTask(taskId, nodeId);
             const auto feasibleNodeIds = infrastructure->findFeasibleNodeIds(task);
 
             std::uniform_int_distribution<> intDist(0, feasibleNodeIds.size() - 1);
-            const auto newNodeId = feasibleNodeIds[intDist(rng)];
+            const auto newNodeId = feasibleNodeIds[intDist(*randomNumberGenerator)];
 
             if (newNodeId != nodeId)
             {
@@ -134,13 +135,11 @@ void Individual::encode()
 
 std::pair<std::uint32_t, std::uint32_t> Individual::getRandomChromosomeSlice() const
 {
-    auto &rng = utility::RandomNumberGenerator::getInstance();
-
     std::uniform_int_distribution<> firstDist(0, chromosome.size() - 1);
-    std::uint32_t begin = firstDist(rng);
+    std::uint32_t begin = firstDist(*randomNumberGenerator);
 
     std::uniform_int_distribution<> secondDist(begin, chromosome.size() - 1);
-    std::uint32_t end = secondDist(rng);
+    std::uint32_t end = secondDist(*randomNumberGenerator);
 
     return std::make_pair(begin, end);
 }

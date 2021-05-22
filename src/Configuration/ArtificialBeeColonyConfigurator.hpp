@@ -12,7 +12,7 @@ namespace configuration
 class ArtificialBeeColonyConfigurator : public JsonAlgorithmConfigurator
 {
   public:
-    ArtificialBeeColonyConfigurator(const double penaltyFactor);
+    ArtificialBeeColonyConfigurator();
     cloud::loadbalancer::policy::PolicyBuilderPtr configure(const nlohmann::json &configuration) override;
 
   private:
@@ -20,8 +20,6 @@ class ArtificialBeeColonyConfigurator : public JsonAlgorithmConfigurator
         const nlohmann::json &configuration);
     std::optional<Assessment> readAssessment(const nlohmann::json &configuration);
     std::optional<PolicyConfiguration> readPolicyConfiguration(const nlohmann::json &configuration);
-
-    const double penaltyFactor;
 };
 
 } // namespace configuration

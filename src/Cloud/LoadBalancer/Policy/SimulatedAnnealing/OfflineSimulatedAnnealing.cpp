@@ -5,7 +5,6 @@
 #include <random>
 
 #include "Cloud/TaskImpl.hpp"
-#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -19,10 +18,11 @@ namespace simulatedannealing
 OfflineSimulatedAnnealing::OfflineSimulatedAnnealing(const InfrastructureCPtr &infrastructure,
                                                      const Parameters &parameters,
                                                      mapping::MappingAssessorPtr &&mappingAssessor,
+                                                     const utility::RandomNumberGeneratorPtr randomNumberGenerator,
                                                      const configuration::Instance &instance,
                                                      const logger::LoggerPtr &logger, const double penaltyFactor)
-    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger), instance(instance),
-      penaltyFactor(penaltyFactor), offlineProblemAdapter(infrastructure, buildSolution())
+    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger, randomNumberGenerator),
+      instance(instance), penaltyFactor(penaltyFactor), offlineProblemAdapter(infrastructure, buildSolution())
 {
 }
 
@@ -61,7 +61,7 @@ NodeToTaskMapping OfflineSimulatedAnnealing::createInitialSolution(const TaskPtr
     NodeToTaskMapping solution;
 
     auto tasksShuffled = tasks;
-    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), *randomNumberGenerator);
 
     std::stable_sort(tasksShuffled.begin(), tasksShuffled.end(), [](auto &&leftTask, auto &&rightTask) {
         return leftTask->getArrivalTime() < rightTask->getArrivalTime();
@@ -77,7 +77,7 @@ NodeToTaskMapping OfflineSimulatedAnnealing::createInitialSolution(const TaskPtr
         }
 
         std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
+        solution[possibleNodeIds[dis(*randomNumberGenerator)]].push_back(task);
     }
 
     logger->debug("random solution: %s", ::cloud::loadbalancer::policy::toString(solution).c_str());
@@ -87,11 +87,10 @@ NodeToTaskMapping OfflineSimulatedAnnealing::createInitialSolution(const TaskPtr
 NodeToTaskMapping OfflineSimulatedAnnealing::getNewSolutionFromNeighbourhood(const NodeToTaskMapping &solution)
 {
     auto solutionInNeighbourhood = solution;
-    auto &rng = utility::RandomNumberGenerator::getInstance();
 
     const auto notEmptyNodeIds = findNotEmptyNodeIds(solution);
     const auto randomNotEmptyNodeId =
-        notEmptyNodeIds[std::uniform_int_distribution<>(0, notEmptyNodeIds.size() - 1)(rng)];
+        notEmptyNodeIds[std::uniform_int_distribution<>(0, notEmptyNodeIds.size() - 1)(*randomNumberGenerator)];
     const auto randomSourceNodeIt = solutionInNeighbourhood.find(randomNotEmptyNodeId);
     if (randomSourceNodeIt == solutionInNeighbourhood.end())
         throw std::runtime_error("Cannot find node " + std::to_string(randomNotEmptyNodeId) +
@@ -99,13 +98,13 @@ NodeToTaskMapping OfflineSimulatedAnnealing::getNewSolutionFromNeighbourhood(con
 
     const auto movedElementSourceIt =
         std::next(randomSourceNodeIt->second.begin(),
-                  std::uniform_int_distribution<>(0, randomSourceNodeIt->second.size() - 1)(rng));
+                  std::uniform_int_distribution<>(0, randomSourceNodeIt->second.size() - 1)(*randomNumberGenerator));
     const auto movedElement = *movedElementSourceIt;
     randomSourceNodeIt->second.erase(movedElementSourceIt);
 
     const auto feasibleNodeIds = findFeasibleNodeIds(solution, movedElement);
-    auto &randomDestinationNode =
-        solutionInNeighbourhood[feasibleNodeIds[std::uniform_int_distribution<>(0, feasibleNodeIds.size() - 1)(rng)]];
+    auto &randomDestinationNode = solutionInNeighbourhood[feasibleNodeIds[std::uniform_int_distribution<>(
+        0, feasibleNodeIds.size() - 1)(*randomNumberGenerator)]];
 
     const auto randomDestinationNodeBegin =
         std::find_if(randomDestinationNode.begin(), randomDestinationNode.end(), [movedElement](auto &&task) {
@@ -119,9 +118,10 @@ NodeToTaskMapping OfflineSimulatedAnnealing::getNewSolutionFromNeighbourhood(con
     const auto movedElementDestinationIt =
         randomDestinationNode.empty()
             ? randomDestinationNode.begin()
-            : std::next(randomDestinationNodeBegin,
-                        std::uniform_int_distribution<>(
-                            0, std::distance(randomDestinationNodeBegin, randomDestinationNodeEnd))(rng));
+            : std::next(
+                  randomDestinationNodeBegin,
+                  std::uniform_int_distribution<>(
+                      0, std::distance(randomDestinationNodeBegin, randomDestinationNodeEnd))(*randomNumberGenerator));
 
     randomDestinationNode.insert(movedElementDestinationIt, movedElement);
 

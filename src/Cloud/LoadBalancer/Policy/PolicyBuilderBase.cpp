@@ -18,6 +18,16 @@ void PolicyBuilderBase::setInstance(const configuration::Instance &instance)
         this->instance.emplace(instance);
 }
 
+void PolicyBuilderBase::setRandomNumberGenerator(const utility::RandomNumberGeneratorPtr &randomNumberGenerator)
+{
+    this->randomNumberGenerator = randomNumberGenerator;
+}
+
+void PolicyBuilderBase::setPenaltyFactor(const double penaltyFactor)
+{
+    this->penaltyFactor = penaltyFactor;
+}
+
 void PolicyBuilderBase::setInfrastructure(const InfrastructurePtr &infrastructure)
 {
     this->infrastructure = infrastructure;

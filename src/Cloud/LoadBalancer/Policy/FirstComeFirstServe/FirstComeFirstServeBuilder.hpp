@@ -22,7 +22,8 @@ class FirstComeFirstServeBuilder : public PolicyBuilderBase
 
     PolicyBuilderPtr clone() override;
 
-    PolicyPtr build(const logger::LoggerPtr &logger) override;
+    PolicyPtr build(const logger::LoggerPtr &logger, const std::uint_fast64_t seed,
+                    const double penaltyFactor) override;
 
     std::string toString() const override;
 };

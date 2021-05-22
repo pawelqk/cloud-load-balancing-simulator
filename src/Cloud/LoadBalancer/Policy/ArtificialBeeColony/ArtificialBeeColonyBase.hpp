@@ -7,6 +7,7 @@
 #include "Cloud/LoadBalancer/Policy/Policy.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -30,12 +31,15 @@ class ArtificialBeeColonyBase : public PolicyBase
 {
   public:
     ArtificialBeeColonyBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                            mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+                            mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger,
+                            const utility::RandomNumberGeneratorPtr &randomNumberGenerator);
 
   protected:
     NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
     std::vector<NodeId> findNotEmptyNodeIds(const NodeToTaskMapping &solution);
     std::vector<NodeId> findFeasibleNodeIds(const NodeToTaskMapping &solution, const TaskPtr &task);
+
+    const utility::RandomNumberGeneratorPtr randomNumberGenerator;
 
   private:
     struct BeeSolution

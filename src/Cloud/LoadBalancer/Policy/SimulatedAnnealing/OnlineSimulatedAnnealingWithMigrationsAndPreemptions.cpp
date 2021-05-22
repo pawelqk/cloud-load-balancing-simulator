@@ -17,8 +17,9 @@ namespace simulatedannealing
 
 OnlineSimulatedAnnealingWithMigrationsAndPreemptions::OnlineSimulatedAnnealingWithMigrationsAndPreemptions(
     const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-    mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger)
-    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger)
+    mapping::MappingAssessorPtr &&mappingAssessor, const utility::RandomNumberGeneratorPtr randomNumberGenerator,
+    const logger::LoggerPtr &logger)
+    : SimulatedAnnealingBase(infrastructure, parameters, std::move(mappingAssessor), logger, randomNumberGenerator)
 {
 }
 
@@ -57,7 +58,7 @@ NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::createIn
         NodeToTaskMapping solution;
 
         auto tasksShuffled = tasks;
-        std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+        std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), *randomNumberGenerator);
 
         for (auto &&task : tasksShuffled)
         {
@@ -69,7 +70,7 @@ NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::createIn
             }
 
             std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-            solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
+            solution[possibleNodeIds[dis(*randomNumberGenerator)]].push_back(task);
         }
 
         return solution;
@@ -80,11 +81,10 @@ NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::getNewSo
     const NodeToTaskMapping &solution)
 {
     auto solutionInNeighbourhood = solution;
-    auto &rng = utility::RandomNumberGenerator::getInstance();
 
     const auto notEmptyNodeIds = findNotEmptyNodeIds(solution);
     const auto randomNotEmptyNodeId =
-        notEmptyNodeIds[std::uniform_int_distribution<>(0, notEmptyNodeIds.size() - 1)(rng)];
+        notEmptyNodeIds[std::uniform_int_distribution<>(0, notEmptyNodeIds.size() - 1)(*randomNumberGenerator)];
     const auto randomSourceNodeIt = solutionInNeighbourhood.find(randomNotEmptyNodeId);
     if (randomSourceNodeIt == solutionInNeighbourhood.end())
         throw std::runtime_error("Cannot find node " + std::to_string(randomNotEmptyNodeId) +
@@ -92,18 +92,18 @@ NodeToTaskMapping OnlineSimulatedAnnealingWithMigrationsAndPreemptions::getNewSo
 
     const auto movedElementSourceIt =
         std::next(randomSourceNodeIt->second.begin(),
-                  std::uniform_int_distribution<>(0, randomSourceNodeIt->second.size() - 1)(rng));
+                  std::uniform_int_distribution<>(0, randomSourceNodeIt->second.size() - 1)(*randomNumberGenerator));
     const auto movedElement = *movedElementSourceIt;
     randomSourceNodeIt->second.erase(movedElementSourceIt);
 
     const auto feasibleNodeIds = findFeasibleNodeIds(solution, movedElement);
-    auto &randomDestinationNode =
-        solutionInNeighbourhood[feasibleNodeIds[std::uniform_int_distribution<>(0, feasibleNodeIds.size() - 1)(rng)]];
+    auto &randomDestinationNode = solutionInNeighbourhood[feasibleNodeIds[std::uniform_int_distribution<>(
+        0, feasibleNodeIds.size() - 1)(*randomNumberGenerator)]];
     const auto movedElementDestinationIt =
         randomDestinationNode.empty()
             ? randomDestinationNode.begin()
             : std::next(randomDestinationNode.begin(),
-                        std::uniform_int_distribution<>(0, randomDestinationNode.size() - 1)(rng));
+                        std::uniform_int_distribution<>(0, randomDestinationNode.size() - 1)(*randomNumberGenerator));
 
     randomDestinationNode.insert(movedElementDestinationIt, movedElement);
 

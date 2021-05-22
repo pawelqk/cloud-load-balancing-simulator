@@ -24,8 +24,10 @@ class OfflineArtificialBeeColony : public ArtificialBeeColonyBase
 {
   public:
     OfflineArtificialBeeColony(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                               mapping::MappingAssessorPtr &&mappingAssessor, const configuration::Instance &instance,
-                               const logger::LoggerPtr &logger, const double penaltyFactor);
+                               mapping::MappingAssessorPtr &&mappingAssessor,
+                               const utility::RandomNumberGeneratorPtr &randomNumberGenerator,
+                               const configuration::Instance &instance, const logger::LoggerPtr &logger,
+                               const double penaltyFactor);
 
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 

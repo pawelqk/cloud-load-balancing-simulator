@@ -20,7 +20,7 @@ namespace simulatedannealing
 
 SimulatedAnnealingBuilder::SimulatedAnnealingBuilder(const configuration::PolicyConfiguration &policyConfiguration,
                                                      const configuration::Assessment assessment,
-                                                     const Parameters &parameters, const double penaltyFactor)
+                                                     const Parameters &parameters)
     : PolicyBuilderBase(policyConfiguration), assessment(assessment), parameters(parameters),
       penaltyFactor(penaltyFactor)
 {

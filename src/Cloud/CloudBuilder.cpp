@@ -8,14 +8,17 @@ namespace cloud
 
 CloudBuilder::CloudBuilder(const configuration::NodeDataVec &nodesData, const TimingServicePtr &timingService,
                            const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder,
-                           const double penaltyFactor, const logger::LoggerPtr &logger)
-    : nodesData(nodesData), timingService(timingService), policyBuilder(policyBuilder), penaltyFactor(penaltyFactor),
-      logger(logger)
+                           const std::uint_fast64_t seed, const double penaltyFactor, const logger::LoggerPtr &logger)
+    : nodesData(nodesData), timingService(timingService), policyBuilder(policyBuilder), seed(seed),
+      penaltyFactor(penaltyFactor), logger(logger)
 {
 }
 
 std::unique_ptr<Cloud> CloudBuilder::build()
 {
+    const auto randomNumberGenerator = std::make_shared<utility::RandomNumberGenerator>(seed);
+    policyBuilder->setRandomNumberGenerator(randomNumberGenerator);
+
     const auto infrastructure = std::make_shared<InfrastructureImpl>(nodesData, logger);
     policyBuilder->setInfrastructure(infrastructure);
 

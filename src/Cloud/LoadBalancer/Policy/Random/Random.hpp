@@ -6,6 +6,7 @@
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
 #include "Logger/Logger.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -19,7 +20,8 @@ namespace random
 class Random : public PolicyBase
 {
   public:
-    Random(const InfrastructureCPtr &infrastructure, const logger::LoggerPtr &logger);
+    Random(const InfrastructureCPtr &infrastructure, const utility::RandomNumberGeneratorPtr &randomNumberGenerator,
+           const logger::LoggerPtr &logger);
 
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 
@@ -28,6 +30,7 @@ class Random : public PolicyBase
   private:
     NodeToTaskMapping adjustSolutionWithExistingTasks(const NodeToTaskMapping &solution);
 
+    const utility::RandomNumberGeneratorPtr randomNumberGenerator;
     const logger::LoggerPtr logger;
 };
 

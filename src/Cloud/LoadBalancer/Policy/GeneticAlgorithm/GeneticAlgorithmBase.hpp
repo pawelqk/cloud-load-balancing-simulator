@@ -7,6 +7,7 @@
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
 #include "Individual.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -33,7 +34,8 @@ class GeneticAlgorithmBase : public PolicyBase
   protected:
     GeneticAlgorithmBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                          const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
-                         const logger::LoggerPtr &logger);
+                         const logger::LoggerPtr &logger,
+                         const utility::RandomNumberGeneratorPtr &randomNumberGenerator);
 
     NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
 
@@ -69,6 +71,7 @@ class GeneticAlgorithmBase : public PolicyBase
 
     const Parameters parameters;
     const std::shared_ptr<mapping::MappingAssessor> mappingAssessor;
+    const utility::RandomNumberGeneratorPtr randomNumberGenerator;
     BestSolution bestSolution;
 
     std::vector<Individual> population;

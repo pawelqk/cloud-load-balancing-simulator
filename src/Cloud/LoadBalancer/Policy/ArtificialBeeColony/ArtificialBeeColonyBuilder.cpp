@@ -20,15 +20,14 @@ namespace artificialbeecolony
 
 ArtificialBeeColonyBuilder::ArtificialBeeColonyBuilder(const configuration::PolicyConfiguration &policyConfiguration,
                                                        const configuration::Assessment assessment,
-                                                       const Parameters &parameters, const double penaltyFactor)
-    : PolicyBuilderBase(policyConfiguration), assessment(assessment), parameters(parameters),
-      penaltyFactor(penaltyFactor)
+                                                       const Parameters &parameters)
+    : PolicyBuilderBase(policyConfiguration), assessment(assessment), parameters(parameters)
 {
 }
 
 PolicyBuilderPtr ArtificialBeeColonyBuilder::clone()
 {
-    return std::make_shared<ArtificialBeeColonyBuilder>(policyConfiguration, assessment, parameters, penaltyFactor);
+    return std::make_shared<ArtificialBeeColonyBuilder>(policyConfiguration, assessment, parameters);
 }
 
 PolicyPtr ArtificialBeeColonyBuilder::build(const logger::LoggerPtr &logger)
@@ -38,12 +37,13 @@ PolicyPtr ArtificialBeeColonyBuilder::build(const logger::LoggerPtr &logger)
     {
     case PolicyConfiguration::Offline:
         return std::make_unique<OfflineArtificialBeeColony>(infrastructure, parameters, buildOfflineAssessor(),
-                                                            *instance, logger, penaltyFactor);
+                                                            randomNumberGenerator, *instance, logger, penaltyFactor);
     case PolicyConfiguration::Online:
-        return std::make_unique<OnlineArtificialBeeColony>(infrastructure, parameters, buildAssessor(), logger);
+        return std::make_unique<OnlineArtificialBeeColony>(infrastructure, parameters, buildAssessor(),
+                                                           randomNumberGenerator, logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
-        return std::make_unique<OnlineArtificialBeeColonyWithMigrationsAndPreemptions>(infrastructure, parameters,
-                                                                                       buildAssessor(), logger);
+        return std::make_unique<OnlineArtificialBeeColonyWithMigrationsAndPreemptions>(
+            infrastructure, parameters, buildAssessor(), randomNumberGenerator, logger);
     }
 
     return nullptr;

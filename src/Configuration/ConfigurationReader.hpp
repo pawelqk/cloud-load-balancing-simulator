@@ -15,8 +15,8 @@ struct InvalidConfigurationException : std::runtime_error
 
 struct GeneralConfiguration
 {
-    std::uint_fast64_t seed;
-    double penaltyFactor;
+    std::vector<std::uint_fast64_t> seeds;
+    std::vector<double> penaltyFactors;
 };
 
 enum class Policy

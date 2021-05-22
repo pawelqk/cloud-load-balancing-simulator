@@ -6,7 +6,6 @@
 
 #include "Logger/Files.hpp"
 #include "Logger/Stdout.hpp"
-#include "Utility/RandomNumberGenerator.hpp"
 
 namespace experiment
 {
@@ -27,30 +26,35 @@ void ExperimentRunner::run(const cloud::loadbalancer::policy::PolicyBuilderPtr &
     const auto description = policyBuilder->toString();
     logger.info("Running experiments for %s", description.c_str());
 
-    const auto &seed = configuration.seed;
+    const auto &seed = configuration.seeds.front();
     logger.info("Seed: %u", seed);
 
-    const auto &penaltyFactor = configuration.penaltyFactor;
+    const auto &penaltyFactor = configuration.penaltyFactors.front();
     logger.info("Penalty factor: %f", penaltyFactor);
 
     std::vector<std::future<Experiment::Result>> futures;
-    futures.reserve(instances.size());
-    for (auto &&instance : instances)
+    for (auto &&seed : configuration.seeds)
     {
-        const std::string runName{"Experiment-" + std::to_string(instance.getId())};
-        const auto logger = std::make_shared<logger::Logger>(runName, config.debug);
-        if (config.stdout)
-            logger->addLoggingEndpoint(std::make_unique<logger::Stdout>());
-        if (config.files)
-            logger->addLoggingEndpoint(std::make_unique<logger::Files>("logs/" + description, runName));
+        for (auto &&penaltyFactor : configuration.penaltyFactors)
+        {
+            for (auto &&instance : instances)
+            {
+                const std::string runName{"Experiment-" + std::to_string(instance.getId())};
+                const auto logger = std::make_shared<logger::Logger>(runName, config.debug);
+                if (config.stdout)
+                    logger->addLoggingEndpoint(std::make_unique<logger::Stdout>());
+                if (config.files)
+                    logger->addLoggingEndpoint(std::make_unique<logger::Files>("logs/" + description, runName));
 
-        const auto builder = policyBuilder->clone();
-        builder->setInstance(instance);
+                const auto builder = policyBuilder->clone();
+                builder->setInstance(instance);
 
-        futures.emplace_back(std::async([instance, builder, penaltyFactor, logger, seed]() {
-            Experiment e{instance, builder, penaltyFactor, logger, seed};
-            return e.run();
-        }));
+                futures.emplace_back(std::async([instance, builder, penaltyFactor, logger, seed]() {
+                    Experiment e{instance, builder, penaltyFactor, logger, seed};
+                    return e.run();
+                }));
+            }
+        }
     }
 
     std::vector<Experiment::Result> results(instances.size());

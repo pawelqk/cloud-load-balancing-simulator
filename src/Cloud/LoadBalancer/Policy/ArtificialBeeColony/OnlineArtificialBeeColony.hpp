@@ -19,7 +19,9 @@ class OnlineArtificialBeeColony : public ArtificialBeeColonyBase
 {
   public:
     OnlineArtificialBeeColony(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                              mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+                              mapping::MappingAssessorPtr &&mappingAssessor,
+                              const utility::RandomNumberGeneratorPtr &randomNumberGenerator,
+                              const logger::LoggerPtr &logger);
 
     std::string toString() const override;
 

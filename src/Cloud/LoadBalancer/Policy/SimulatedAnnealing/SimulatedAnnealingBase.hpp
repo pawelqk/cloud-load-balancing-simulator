@@ -7,6 +7,7 @@
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -39,7 +40,8 @@ class SimulatedAnnealingBase : public PolicyBase
 {
   public:
     SimulatedAnnealingBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                           mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+                           mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger,
+                           const utility::RandomNumberGeneratorPtr randomNumberGenerator);
 
   protected:
     NodeToTaskMapping createNewSolution(const TaskPtrVec &tasks);
@@ -52,6 +54,7 @@ class SimulatedAnnealingBase : public PolicyBase
 
     const Parameters parameters;
     const mapping::MappingAssessorPtr mappingAssessor;
+    const utility::RandomNumberGeneratorPtr randomNumberGenerator;
     std::uint32_t iterationsWithoutChange;
 };
 

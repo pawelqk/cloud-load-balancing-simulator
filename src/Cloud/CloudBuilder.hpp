@@ -21,8 +21,8 @@ class CloudBuilder
 {
   public:
     CloudBuilder(const configuration::NodeDataVec &nodesData, const TimingServicePtr &timingService,
-                 const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const double penaltyFactor,
-                 const logger::LoggerPtr &logger);
+                 const cloud::loadbalancer::policy::PolicyBuilderPtr &policyBuilder, const std::uint_fast64_t seed,
+                 const double penaltyFactor, const logger::LoggerPtr &logger);
 
     std::unique_ptr<Cloud> build();
 
@@ -30,6 +30,7 @@ class CloudBuilder
     const configuration::NodeDataVec nodesData;
     const TimingServicePtr timingService;
     const cloud::loadbalancer::policy::PolicyBuilderPtr policyBuilder;
+    const std::uint_fast64_t seed;
     const double penaltyFactor;
     const logger::LoggerPtr logger;
 };

@@ -18,8 +18,9 @@ namespace geneticalgorithm
 
 OnlineGeneticAlgorithm::OnlineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                                const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
-                                               const logger::LoggerPtr &logger)
-    : GeneticAlgorithmBase(infrastructure, parameters, mappingAssessor, logger)
+                                               const logger::LoggerPtr &logger,
+                                               const utility::RandomNumberGeneratorPtr &randomNumberGenerator)
+    : GeneticAlgorithmBase(infrastructure, parameters, mappingAssessor, logger, randomNumberGenerator)
 {
 }
 

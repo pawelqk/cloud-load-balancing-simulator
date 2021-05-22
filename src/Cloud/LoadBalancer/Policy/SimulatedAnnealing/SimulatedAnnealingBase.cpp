@@ -37,9 +37,10 @@ std::string toString(const Parameters &parameters)
 
 SimulatedAnnealingBase::SimulatedAnnealingBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                                mapping::MappingAssessorPtr &&mappingAssessor,
-                                               const logger::LoggerPtr &logger)
+                                               const logger::LoggerPtr &logger,
+                                               const utility::RandomNumberGeneratorPtr randomNumberGenerator)
     : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(std::move(mappingAssessor)),
-      iterationsWithoutChange(0)
+      randomNumberGenerator(randomNumberGenerator), iterationsWithoutChange(0)
 {
 }
 
@@ -52,7 +53,6 @@ NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &ta
     auto nextSolution = bestSolution;
     auto currentSolution = bestSolution;
 
-    auto &rng = utility::RandomNumberGenerator::getInstance();
     std::uniform_real_distribution<> distribution{0, 1.0};
 
     auto temperature = parameters.startTemperature;
@@ -76,7 +76,8 @@ NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &ta
         else
         {
             changedSolution = false;
-            if (distribution(rng) < std::exp((currentSolutionValue - nextSolutionValue) / temperature))
+            if (distribution(*randomNumberGenerator) <
+                std::exp((currentSolutionValue - nextSolutionValue) / temperature))
                 currentSolution = nextSolution;
         }
 

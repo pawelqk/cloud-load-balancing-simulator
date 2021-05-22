@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cstdint>
-
 #include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/LoadBalancer/Policy/PolicyBase.hpp"
 #include "Cloud/Task.hpp"
 #include "GeneticAlgorithmBase.hpp"
 #include "Individual.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -23,7 +22,8 @@ class OnlineGeneticAlgorithm : public GeneticAlgorithmBase
   public:
     OnlineGeneticAlgorithm(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                            const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
-                           const logger::LoggerPtr &logger);
+                           const logger::LoggerPtr &logger,
+                           const utility::RandomNumberGeneratorPtr &randomNumberGenerator);
 
     std::string toString() const override;
 

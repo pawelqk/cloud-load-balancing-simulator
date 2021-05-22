@@ -7,8 +7,6 @@
 #include <random>
 #include <sstream>
 
-#include "Utility/RandomNumberGenerator.hpp"
-
 namespace cloud
 {
 namespace loadbalancer
@@ -35,8 +33,10 @@ std::string toString(const Parameters &parameters)
 
 GeneticAlgorithmBase::GeneticAlgorithmBase(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
                                            const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
-                                           const logger::LoggerPtr &logger)
-    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(mappingAssessor)
+                                           const logger::LoggerPtr &logger,
+                                           const utility::RandomNumberGeneratorPtr &randomNumberGenerator)
+    : PolicyBase(infrastructure, logger), parameters(parameters), mappingAssessor(mappingAssessor),
+      randomNumberGenerator(randomNumberGenerator)
 {
     population.reserve(parameters.populationSize);
 }
@@ -102,7 +102,7 @@ Individual GeneticAlgorithmBase::generateRandomIndividual(const TaskPtrVec &task
     NodeToTaskMapping solution;
 
     auto tasksShuffled = tasks;
-    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), utility::RandomNumberGenerator::getInstance());
+    std::shuffle(tasksShuffled.begin(), tasksShuffled.end(), *randomNumberGenerator);
 
     for (auto &&task : tasksShuffled)
     {
@@ -114,10 +114,10 @@ Individual GeneticAlgorithmBase::generateRandomIndividual(const TaskPtrVec &task
         }
 
         std::uniform_int_distribution<> dis(0, possibleNodeIds.size() - 1);
-        solution[possibleNodeIds[dis(utility::RandomNumberGenerator::getInstance())]].push_back(task);
+        solution[possibleNodeIds[dis(*randomNumberGenerator)]].push_back(task);
     }
 
-    return Individual{solution, infrastructure, mappingAssessor};
+    return Individual{solution, infrastructure, mappingAssessor, randomNumberGenerator};
 }
 
 GeneticAlgorithmBase::IndividualsSplitByElitism GeneticAlgorithmBase::splitIndividualsByElitism(
@@ -156,8 +156,7 @@ void GeneticAlgorithmBase::insertNewIndividual(const Individual &individual)
 std::vector<GeneticAlgorithmBase::ParentPair> GeneticAlgorithmBase::getParentPairs()
 {
     auto breedingSubpopulation = selectWithRouletteWheel(population, population.size());
-    std::shuffle(breedingSubpopulation.begin(), breedingSubpopulation.end(),
-                 utility::RandomNumberGenerator::getInstance());
+    std::shuffle(breedingSubpopulation.begin(), breedingSubpopulation.end(), *randomNumberGenerator);
 
     std::vector<ParentPair> parentPairs;
     for (auto i = 0u; i < breedingSubpopulation.size() - 1; i += 2)
@@ -201,12 +200,11 @@ std::vector<Individual> GeneticAlgorithmBase::selectWithRouletteWheel(const std:
     for (auto i = 0u; i < individuals.size(); ++i)
         weights[i] = 1.0 / individuals[i].getFitnessValue();
 
-    auto &rng = utility::RandomNumberGenerator::getInstance();
     std::discrete_distribution dist(weights.cbegin(), weights.cend());
 
     std::vector<Individual> chosenIndividuals(count);
     for (auto i = 0u; i < count; ++i)
-        chosenIndividuals[i] = individuals[dist(rng)];
+        chosenIndividuals[i] = individuals[dist(*randomNumberGenerator)];
 
     return chosenIndividuals;
 }

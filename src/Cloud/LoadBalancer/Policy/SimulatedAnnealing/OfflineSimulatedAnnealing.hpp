@@ -9,6 +9,7 @@
 #include "Cloud/Task.hpp"
 #include "Configuration/Instance.hpp"
 #include "SimulatedAnnealingBase.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -23,8 +24,10 @@ class OfflineSimulatedAnnealing : public SimulatedAnnealingBase
 {
   public:
     OfflineSimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                              mapping::MappingAssessorPtr &&mappingAssessor, const configuration::Instance &instance,
-                              const logger::LoggerPtr &logger, const double penaltyFactor);
+                              mapping::MappingAssessorPtr &&mappingAssessor,
+                              const utility::RandomNumberGeneratorPtr randomNumberGenerator,
+                              const configuration::Instance &instance, const logger::LoggerPtr &logger,
+                              const double penaltyFactor);
 
     NodeToTaskMapping buildNodeToTaskMappingInternal(const TaskPtrVec &tasks) override;
 

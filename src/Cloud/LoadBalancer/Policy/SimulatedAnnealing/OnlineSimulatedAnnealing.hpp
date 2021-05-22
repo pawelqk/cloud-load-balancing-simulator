@@ -7,6 +7,7 @@
 #include "Cloud/LoadBalancer/Mapping/MappingAssessor.hpp"
 #include "Cloud/Task.hpp"
 #include "SimulatedAnnealingBase.hpp"
+#include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
 {
@@ -21,7 +22,9 @@ class OnlineSimulatedAnnealing : public SimulatedAnnealingBase
 {
   public:
     OnlineSimulatedAnnealing(const InfrastructureCPtr &infrastructure, const Parameters &parameters,
-                             mapping::MappingAssessorPtr &&mappingAssessor, const logger::LoggerPtr &logger);
+                             mapping::MappingAssessorPtr &&mappingAssessor,
+                             const utility::RandomNumberGeneratorPtr randomNumberGenerator,
+                             const logger::LoggerPtr &logger);
 
     std::string toString() const override;
 

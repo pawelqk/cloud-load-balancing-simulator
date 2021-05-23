@@ -35,7 +35,7 @@ class OfflineGeneticAlgorithm : public GeneticAlgorithmBase
 
   private:
     NodeToTaskMapping buildSolution();
-    Individual generateRandomIndividual(const TaskPtrVec &tasks) override;
+    IndividualPtr generateRandomIndividual(const TaskPtrVec &tasks) override;
 
     const configuration::Instance instance;
     const double penaltyFactor;

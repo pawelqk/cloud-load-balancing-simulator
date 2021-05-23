@@ -52,17 +52,17 @@ NodeToTaskMapping GeneticAlgorithmBase::createNewSolution(const TaskPtrVec &task
         auto descendants = performCrossover(parentPairs);
         for (auto &descendant : descendants)
         {
-            const auto descendantValue = descendant.getFitnessValue();
+            const auto descendantValue = descendant->getFitnessValue();
             if (descendantValue < bestSolution.value)
             {
-                bestSolution.solution = descendant.getSolution();
+                bestSolution.solution = descendant->getSolution();
                 bestSolution.value = descendantValue;
             }
 
-            const auto newFitnessValue = descendant.mutate(parameters.mutationProbability);
+            const auto newFitnessValue = descendant->mutate(parameters.mutationProbability);
             if (newFitnessValue != std::nullopt && *newFitnessValue < bestSolution.value)
             {
-                bestSolution.solution = descendant.getSolution();
+                bestSolution.solution = descendant->getSolution();
                 bestSolution.value = *newFitnessValue;
             }
         }
@@ -79,7 +79,7 @@ void GeneticAlgorithmBase::generateInitialPopulation(const TaskPtrVec &tasks)
         std::ceil(parameters.eliteIndividualsInInitialGenerationRatio * parameters.populationSize);
     const std::uint32_t randomIndividualsSize = eliteIndividualsSize * POPULATION_TO_SELECT_ELITE_MULTIPLIER;
 
-    std::vector<Individual> randomIndividuals(randomIndividualsSize);
+    std::vector<IndividualPtr> randomIndividuals(randomIndividualsSize);
     for (auto i = 0u; i < randomIndividualsSize; ++i)
         randomIndividuals[i] = generateRandomIndividual(tasks);
 
@@ -87,7 +87,7 @@ void GeneticAlgorithmBase::generateInitialPopulation(const TaskPtrVec &tasks)
     const auto &eliteIndividuals = individualsSplitByElitism.elite;
 
     const auto &firstIndividual = population.emplace_back(generateRandomIndividual(tasks));
-    bestSolution.solution = firstIndividual.getSolution();
+    bestSolution.solution = firstIndividual->getSolution();
     bestSolution.value = mappingAssessor->assess(bestSolution.solution);
 
     for (auto i = 1u; i < parameters.populationSize - eliteIndividualsSize; ++i)
@@ -97,7 +97,7 @@ void GeneticAlgorithmBase::generateInitialPopulation(const TaskPtrVec &tasks)
         insertNewIndividual(eliteIndividuals[i]);
 }
 
-Individual GeneticAlgorithmBase::generateRandomIndividual(const TaskPtrVec &tasks)
+IndividualPtr GeneticAlgorithmBase::generateRandomIndividual(const TaskPtrVec &tasks)
 {
     NodeToTaskMapping solution;
 
@@ -117,11 +117,11 @@ Individual GeneticAlgorithmBase::generateRandomIndividual(const TaskPtrVec &task
         solution[possibleNodeIds[dis(*randomNumberGenerator)]].push_back(task);
     }
 
-    return Individual{solution, infrastructure, mappingAssessor, randomNumberGenerator};
+    return std::make_shared<Individual>(solution, infrastructure, mappingAssessor, randomNumberGenerator);
 }
 
 GeneticAlgorithmBase::IndividualsSplitByElitism GeneticAlgorithmBase::splitIndividualsByElitism(
-    const std::vector<Individual> &individuals, const std::vector<Individual>::size_type count)
+    const std::vector<IndividualPtr> &individuals, const std::vector<IndividualPtr>::size_type count)
 {
     if (count == 0)
         return {{}, individuals};
@@ -130,20 +130,20 @@ GeneticAlgorithmBase::IndividualsSplitByElitism GeneticAlgorithmBase::splitIndiv
 
     std::sort(notEliteIndividuals.begin(), notEliteIndividuals.end(),
               [](auto &&leftIndividual, auto &&rightIndividual) {
-                  return leftIndividual.getFitnessValue() > rightIndividual.getFitnessValue();
+                  return leftIndividual->getFitnessValue() > rightIndividual->getFitnessValue();
               });
 
-    std::vector<Individual> eliteIndividuals(notEliteIndividuals.rbegin(),
-                                             std::next(notEliteIndividuals.rbegin(), count));
+    std::vector<IndividualPtr> eliteIndividuals(notEliteIndividuals.rbegin(),
+                                                std::next(notEliteIndividuals.rbegin(), count));
     notEliteIndividuals.resize(notEliteIndividuals.size() - count);
 
     return {eliteIndividuals, notEliteIndividuals};
 }
 
-void GeneticAlgorithmBase::insertNewIndividual(const Individual &individual)
+void GeneticAlgorithmBase::insertNewIndividual(const IndividualPtr &individual)
 {
     const auto &insertedIndividual = population.emplace_back(individual);
-    const auto &insertedSolution = insertedIndividual.getSolution();
+    const auto &insertedSolution = insertedIndividual->getSolution();
 
     const auto insertedValue = mappingAssessor->assess(insertedSolution);
     if (insertedValue < bestSolution.value)
@@ -165,18 +165,18 @@ std::vector<GeneticAlgorithmBase::ParentPair> GeneticAlgorithmBase::getParentPai
     return parentPairs;
 }
 
-std::vector<Individual> GeneticAlgorithmBase::performCrossover(const std::vector<ParentPair> &parentPairs)
+std::vector<IndividualPtr> GeneticAlgorithmBase::performCrossover(const std::vector<ParentPair> &parentPairs)
 {
-    std::vector<Individual> descendants;
+    std::vector<IndividualPtr> descendants;
     descendants.reserve(parentPairs.size());
 
     for (auto &&parentPair : parentPairs)
-        descendants.emplace_back(Individual::crossover(parentPair.left, parentPair.right));
+        descendants.emplace_back(parentPair.left->crossover(parentPair.right));
 
     return descendants;
 }
 
-void GeneticAlgorithmBase::chooseNextPopulation(const std::vector<Individual> &descendants)
+void GeneticAlgorithmBase::chooseNextPopulation(const std::vector<IndividualPtr> &descendants)
 {
     auto bothGenerations = population;
     std::copy(descendants.begin(), descendants.end(), std::back_inserter(bothGenerations));
@@ -185,26 +185,48 @@ void GeneticAlgorithmBase::chooseNextPopulation(const std::vector<Individual> &d
 
     const auto [eliteIndividuals, notEliteIndividuals] = splitIndividualsByElitism(bothGenerations, elitesCount);
 
-    // TODO: isnt it bad that we can have more than once single individual?
-    auto nextPopulation = selectWithRouletteWheel(notEliteIndividuals, parameters.populationSize - elitesCount);
+    auto nextPopulation = selectUniqueWithRouletteWheel(notEliteIndividuals, parameters.populationSize - elitesCount);
 
     std::copy(eliteIndividuals.begin(), eliteIndividuals.end(), std::back_inserter(nextPopulation));
 
     population = std::move(nextPopulation);
 }
 
-std::vector<Individual> GeneticAlgorithmBase::selectWithRouletteWheel(const std::vector<Individual> &individuals,
-                                                                      const std::vector<Individual>::size_type count)
+std::vector<IndividualPtr> GeneticAlgorithmBase::selectWithRouletteWheel(
+    const std::vector<IndividualPtr> &individuals, const std::vector<IndividualPtr>::size_type count)
 {
     std::vector<double> weights(individuals.size());
     for (auto i = 0u; i < individuals.size(); ++i)
-        weights[i] = 1.0 / individuals[i].getFitnessValue();
+        weights[i] = 1.0 / individuals[i]->getFitnessValue();
 
     std::discrete_distribution dist(weights.cbegin(), weights.cend());
 
-    std::vector<Individual> chosenIndividuals(count);
+    std::vector<IndividualPtr> chosenIndividuals(count);
     for (auto i = 0u; i < count; ++i)
         chosenIndividuals[i] = individuals[dist(*randomNumberGenerator)];
+
+    return chosenIndividuals;
+}
+
+std::vector<IndividualPtr> GeneticAlgorithmBase::selectUniqueWithRouletteWheel(
+    const std::vector<IndividualPtr> &individuals, const std::vector<IndividualPtr>::size_type count)
+{
+    std::vector<double> weights(individuals.size());
+    for (auto i = 0u; i < individuals.size(); ++i)
+        weights[i] = 1.0 / individuals[i]->getFitnessValue();
+
+    std::discrete_distribution dist(weights.cbegin(), weights.cend());
+
+    std::set<std::vector<IndividualPtr>::size_type> chosenIds;
+    std::vector<IndividualPtr> chosenIndividuals(count);
+    for (auto i = 0u; i < count; ++i)
+    {
+        auto individualIdx = dist(*randomNumberGenerator);
+        while (chosenIds.contains(individualIdx))
+            individualIdx = dist(*randomNumberGenerator);
+
+        chosenIndividuals[i] = individuals[individualIdx];
+    }
 
     return chosenIndividuals;
 }

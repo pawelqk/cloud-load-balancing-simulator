@@ -56,8 +56,9 @@ def main():
 
     number_of_instances = int(sys.argv[1])
 
-    with open("config.json", "r") as file:
+    with open("generator_config.json", "r") as file:
         config = json.load(file)
+        random.seed(config["seed"])
 
         random_instances = []
 
@@ -65,7 +66,9 @@ def main():
         with open(f"instances_{current_time}.json", "w") as output:
             output.write(
                 json.dumps(
-                    IteratorAsList(generate_random_instances(config, number_of_instances)),
+                    IteratorAsList(
+                        generate_random_instances(config, number_of_instances)
+                    ),
                     indent=4,
                     sort_keys=True,
                 )

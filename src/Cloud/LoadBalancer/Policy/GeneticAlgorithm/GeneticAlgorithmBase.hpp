@@ -51,31 +51,33 @@ class GeneticAlgorithmBase : public PolicyBase
 
     struct ParentPair
     {
-        Individual left;
-        Individual right;
+        IndividualPtr left;
+        IndividualPtr right;
     };
 
     struct IndividualsSplitByElitism
     {
-        std::vector<Individual> elite;
-        std::vector<Individual> notElite;
+        std::vector<IndividualPtr> elite;
+        std::vector<IndividualPtr> notElite;
     };
 
     void generateInitialPopulation(const TaskPtrVec &tasks);
-    virtual Individual generateRandomIndividual(const TaskPtrVec &tasks);
-    IndividualsSplitByElitism splitIndividualsByElitism(const std::vector<Individual> &individuals,
-                                                        const std::vector<Individual>::size_type count);
-    void insertNewIndividual(const Individual &individual);
+    virtual IndividualPtr generateRandomIndividual(const TaskPtrVec &tasks);
+    IndividualsSplitByElitism splitIndividualsByElitism(const std::vector<IndividualPtr> &individuals,
+                                                        const std::vector<IndividualPtr>::size_type count);
+    void insertNewIndividual(const IndividualPtr &individual);
     std::vector<ParentPair> getParentPairs();
-    std::vector<Individual> performCrossover(const std::vector<ParentPair> &parentPairs);
-    void chooseNextPopulation(const std::vector<Individual> &descendants);
-    std::vector<Individual> selectWithRouletteWheel(const std::vector<Individual> &individuals,
-                                                    const std::vector<Individual>::size_type count);
+    std::vector<IndividualPtr> performCrossover(const std::vector<ParentPair> &parentPairs);
+    void chooseNextPopulation(const std::vector<IndividualPtr> &descendants);
+    std::vector<IndividualPtr> selectWithRouletteWheel(const std::vector<IndividualPtr> &individuals,
+                                                       const std::vector<IndividualPtr>::size_type count);
+    std::vector<IndividualPtr> selectUniqueWithRouletteWheel(const std::vector<IndividualPtr> &individuals,
+                                                             const std::vector<IndividualPtr>::size_type count);
 
     const Parameters parameters;
     BestSolution bestSolution;
 
-    std::vector<Individual> population;
+    std::vector<IndividualPtr> population;
 };
 
 } // namespace geneticalgorithm

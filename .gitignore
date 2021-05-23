@@ -25,5 +25,8 @@ logs/
 results/
 
 # instance and config jsons
-config*.json
+*config*.json
 instances*.json
+
+# test lines
+test_line*

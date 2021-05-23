@@ -27,7 +27,7 @@ bool cmdOptionExists(char **begin, char **end, const std::string &option)
 
 int main(int argc, char *argv[])
 {
-    std::ifstream configFile("config.json");
+    std::ifstream configFile("run_config.json");
     if (configFile.fail())
     {
         std::cout << "Please provide config.json file\n";

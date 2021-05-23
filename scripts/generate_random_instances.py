@@ -56,7 +56,7 @@ def main():
 
     number_of_instances = int(sys.argv[1])
 
-    with open("config.json", "r") as file:
+    with open("generator_config.json", "r") as file:
         config = json.load(file)
 
         random_instances = []

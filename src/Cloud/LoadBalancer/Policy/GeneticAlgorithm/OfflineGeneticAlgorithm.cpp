@@ -1,6 +1,7 @@
 #include "OfflineGeneticAlgorithm.hpp"
-#include "Cloud/TaskImpl.hpp"
 
+#include "Cloud/TaskImpl.hpp"
+#include "OfflineIndividual.hpp"
 #include "Utility/RandomNumberGenerator.hpp"
 
 namespace cloud
@@ -48,7 +49,7 @@ NodeToTaskMapping OfflineGeneticAlgorithm::buildSolution()
     return solution;
 }
 
-Individual OfflineGeneticAlgorithm::generateRandomIndividual(const TaskPtrVec &tasks)
+IndividualPtr OfflineGeneticAlgorithm::generateRandomIndividual(const TaskPtrVec &tasks)
 {
     NodeToTaskMapping solution;
 
@@ -73,7 +74,7 @@ Individual OfflineGeneticAlgorithm::generateRandomIndividual(const TaskPtrVec &t
     }
 
     logger->debug("random solution: %s", ::cloud::loadbalancer::policy::toString(solution).c_str());
-    return Individual{solution, infrastructure, mappingAssessor, randomNumberGenerator};
+    return std::make_shared<OfflineIndividual>(solution, infrastructure, mappingAssessor, randomNumberGenerator);
 }
 
 std::string OfflineGeneticAlgorithm::toString() const

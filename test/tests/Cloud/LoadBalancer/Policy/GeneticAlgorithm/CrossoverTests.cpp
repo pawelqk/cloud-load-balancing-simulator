@@ -39,11 +39,12 @@ TEST_F(CrossoverShould, HandleOneTaskChromosomes)
     const mocks::TaskMockPtr taskMock = std::make_shared<mocks::TaskMock>(0);
     const mocks::NodeMockPtr nodeMock = std::make_shared<mocks::NodeMock>(0);
     const NodeToTaskMapping mapping{{0, {taskMock}}};
-    const Individual leftParent{mapping, nullptr, mappingAssessorMock, randomNumberGenerator};
-    const Individual rightParent{mapping, nullptr, mappingAssessorMock, randomNumberGenerator};
+    Individual leftParent{mapping, nullptr, mappingAssessorMock, randomNumberGenerator};
+    const IndividualPtr rightParent{
+        std::make_shared<Individual>(mapping, nullptr, mappingAssessorMock, randomNumberGenerator)};
 
     const std::vector<Individual::Gene> expectedOffspring{{0, 0}};
-    ASSERT_EQ(Individual::crossover(leftParent, rightParent).getChromosome(), expectedOffspring);
+    ASSERT_EQ(leftParent.crossover(rightParent)->getChromosome(), expectedOffspring);
 }
 
 } // namespace tests

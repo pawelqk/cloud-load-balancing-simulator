@@ -14,6 +14,10 @@ namespace policy
 namespace geneticalgorithm
 {
 
+class Individual;
+
+using IndividualPtr = std::shared_ptr<Individual>;
+
 class Individual
 {
   public:
@@ -27,21 +31,22 @@ class Individual
 
     Individual();
 
+    virtual ~Individual();
+
     Individual(const NodeToTaskMapping &solution, const InfrastructureCPtr &infrastructure,
                const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
                const utility::RandomNumberGeneratorPtr randomNumberGenerator);
 
-    static Individual crossover(const Individual &leftParent, const Individual &rightParent);
+    virtual IndividualPtr crossover(const IndividualPtr &rightParent);
 
-    std::optional<double> mutate(const double probability);
+    virtual std::optional<double> mutate(const double probability);
 
     const NodeToTaskMapping &getSolution() const;
     double getFitnessValue() const;
 
-    // for testing purposes
     const std::vector<Gene> &getChromosome() const;
 
-  private:
+  protected:
     Individual(const NodeToTaskMapping &parentSolution, const std::vector<Gene> &chromosome,
                const InfrastructureCPtr &infrastructure,
                const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,

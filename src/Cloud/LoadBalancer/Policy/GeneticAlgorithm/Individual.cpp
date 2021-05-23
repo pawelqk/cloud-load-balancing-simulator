@@ -20,6 +20,7 @@ bool Individual::Gene::operator==(const Gene &other) const
 }
 
 Individual::Individual() = default;
+Individual::~Individual() = default;
 
 Individual::Individual(const NodeToTaskMapping &solution, const InfrastructureCPtr &infrastructure,
                        const std::shared_ptr<mapping::MappingAssessor> &mappingAssessor,
@@ -41,33 +42,32 @@ Individual::Individual(const NodeToTaskMapping &parentSolution, const std::vecto
     fitnessValue = mappingAssessor->assess(solution);
 }
 
-Individual Individual::crossover(const Individual &leftParent, const Individual &rightParent)
+IndividualPtr Individual::crossover(const IndividualPtr &rightParent)
 {
     // Order Crossover operator (OX)
     // https://mat.uab.cat/~alseda/MasterOpt/GeneticOperations.pdf
 
-    auto [beginIndex, endIndex] = leftParent.getRandomChromosomeSlice();
-    std::vector<Gene> offspring(leftParent.chromosome.size());
+    auto [beginIndex, endIndex] = getRandomChromosomeSlice();
+    std::vector<Gene> offspring(chromosome.size());
 
     std::set<std::uint32_t> insertedGenes;
     for (auto i = beginIndex; i <= endIndex; ++i)
     {
-        offspring[i] = leftParent.chromosome[i];
+        offspring[i] = chromosome[i];
         insertedGenes.insert(offspring[i].taskId);
     }
 
     auto offspringIndex = (endIndex + 1) % offspring.size();
     for (auto i = (endIndex + 1) % offspring.size(); offspringIndex != beginIndex; i = (i + 1) % offspring.size())
     {
-        if (!insertedGenes.contains(rightParent.chromosome[i].taskId))
+        if (!insertedGenes.contains(rightParent->chromosome[i].taskId))
         {
-            offspring[offspringIndex] = rightParent.chromosome[i];
+            offspring[offspringIndex] = rightParent->chromosome[i];
             offspringIndex = (offspringIndex + 1) % offspring.size();
         }
     }
 
-    return Individual{leftParent.solution, offspring, leftParent.infrastructure, leftParent.mappingAssessor,
-                      leftParent.randomNumberGenerator};
+    return IndividualPtr(new Individual(solution, offspring, infrastructure, mappingAssessor, randomNumberGenerator));
 }
 
 std::optional<double> Individual::mutate(const double probability)

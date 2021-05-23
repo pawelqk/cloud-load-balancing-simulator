@@ -64,17 +64,6 @@
         {
             "name": "Genetic algorithm",
             "configuration": {
-                "type": "Online",
-                "mutationProbability": 0.05,
-                "populationSize": 100,
-                "maxIterations": 1000,
-                "eliteIndividualsRatio": 0.05,
-                "criteria": "Makespan"
-            }
-        },
-        {
-            "name": "Genetic algorithm",
-            "configuration": {
                 "type": "Online with migrations and preemptions",
                 "mutationProbability": 0.05,
                 "populationSize": 100,

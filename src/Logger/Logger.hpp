@@ -37,20 +37,20 @@ class Logger
     template <class... Args>
     void log(const std::string &prefix, const char *msg, Args... args)
     {
-        char buffer[2000];
-        const auto nameBuffer = nameTag.c_str();
-        const auto nameBufferSize = nameTag.size();
-        const auto prefixBuffer = prefix.c_str();
-        const auto prefixBufferSize = prefix.size();
+        // char buffer[2000];
+        // const auto nameBuffer = nameTag.c_str();
+        // const auto nameBufferSize = nameTag.size();
+        // const auto prefixBuffer = prefix.c_str();
+        // const auto prefixBufferSize = prefix.size();
 
-        std::strcpy(buffer, nameBuffer);
-        std::strcpy(buffer + nameBufferSize, prefixBuffer);
+        // std::strcpy(buffer, nameBuffer);
+        // std::strcpy(buffer + nameBufferSize, prefixBuffer);
 
-        std::snprintf(buffer + nameBufferSize + prefixBufferSize, sizeof(buffer) - nameBufferSize - prefixBufferSize,
-                      msg, args...);
+        // std::snprintf(buffer + nameBufferSize + prefixBufferSize, sizeof(buffer) - nameBufferSize - prefixBufferSize,
+        //              msg, args...);
 
-        for (auto &&endpoint : loggingEndpoints)
-            endpoint->log(buffer);
+        // for (auto &&endpoint : loggingEndpoints)
+        //    endpoint->log(buffer);
     }
 
     std::vector<LoggingEndpointPtr> loggingEndpoints;

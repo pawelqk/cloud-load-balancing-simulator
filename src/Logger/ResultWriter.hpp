@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fstream>
 #include <memory>
 #include <string>
 
@@ -12,16 +11,10 @@ namespace logger
 class ResultWriter
 {
   public:
-    ResultWriter(const std::string &directoryName);
+    virtual ~ResultWriter() = default;
 
-    void writeResults(const std::string &description, const std::vector<experiment::Experiment::Result> &results);
-
-  private:
-    std::string getCurrentDate();
-    std::string createColumns();
-    std::string createResultRecord(const experiment::Experiment::Result &result);
-
-    const std::string directoryPath;
+    virtual void writeResults(const std::string &description,
+                              const std::vector<experiment::Experiment::Result> &results) = 0;
 };
 
 using ResultWriterPtr = std::unique_ptr<ResultWriter>;

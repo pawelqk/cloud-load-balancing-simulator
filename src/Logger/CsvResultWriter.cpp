@@ -1,6 +1,7 @@
-#include "ResultWriter.hpp"
+#include "CsvResultWriter.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <sstream>
 #include <string>
 
@@ -9,25 +10,26 @@ namespace logger
 
 namespace fs = std::filesystem;
 
-ResultWriter::ResultWriter(const std::string &directoryName) : directoryPath(directoryName + "/" + getCurrentDate())
+CsvResultWriter::CsvResultWriter(const std::string &directoryName)
+    : directoryPath(directoryName + "/" + getCurrentDate())
 {
     fs::create_directories(directoryPath);
 }
 
-void ResultWriter::writeResults(const std::string &description,
-                                const std::vector<experiment::Experiment::Result> &results)
+void CsvResultWriter::writeResults(const std::string &description,
+                                   const std::vector<experiment::Experiment::Result> &results)
 {
     if (results.empty())
         return;
 
-    std::ofstream file{directoryPath + "/" + description};
-    file << createColumns() << std::endl;
+    std::ofstream f{directoryPath + "/" + description};
+    f << createColumns() << std::endl;
 
     for (auto &&result : results)
-        file << createResultRecord(result) << std::endl;
+        f << createResultRecord(result) << std::endl;
 }
 
-std::string ResultWriter::getCurrentDate()
+std::string CsvResultWriter::getCurrentDate()
 {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
@@ -36,12 +38,12 @@ std::string ResultWriter::getCurrentDate()
     return ss.str();
 }
 
-std::string ResultWriter::createColumns()
+std::string CsvResultWriter::createColumns()
 {
     return "instance_id|seed|penalty_factor|makespan|flowtime";
 }
 
-std::string ResultWriter::createResultRecord(const experiment::Experiment::Result &result)
+std::string CsvResultWriter::createResultRecord(const experiment::Experiment::Result &result)
 {
     return std::to_string(result.instanceId) + "|" + std::to_string(result.seed) + "|" +
            std::to_string(result.penaltyFactor) + "|" + std::to_string(result.makespan) + "|" +

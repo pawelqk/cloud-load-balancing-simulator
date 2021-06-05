@@ -46,6 +46,7 @@ enum class Assessment
 };
 
 std::string toString(const PolicyConfiguration policyConfiguration);
+std::string toString(const Assessment assessment);
 
 class ConfigurationReader
 {

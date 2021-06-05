@@ -15,8 +15,9 @@
 #include "Configuration/ConfigurationReader.hpp"
 #include "Configuration/Instance.hpp"
 #include "Configuration/JsonConfigurationReader.hpp"
+#include "Configuration/JsonInstancesReader.hpp"
 #include "Experiment/ExperimentRunner.hpp"
-#include "Logger/ResultWriter.hpp"
+#include "Logger/CsvResultWriter.hpp"
 
 using json = nlohmann::json;
 
@@ -61,29 +62,20 @@ int main(int argc, char *argv[])
 
     json instancesData;
     instancesFile >> instancesData;
+    auto instanceReader = std::make_unique<configuration::JsonInstancesReader>(instancesData);
 
     std::vector<configuration::Instance> instances;
-    instances.reserve(instancesData.size());
-    for (auto &&instanceData : instancesData)
+    try
     {
-        std::map<std::uint32_t, configuration::TaskDataVec> tasks;
-        const auto &tasksData = instanceData.at("tasks");
-        for (auto i = 0u; i < tasksData.size(); ++i)
-        {
-            tasks[tasksData[i].at("arrivalTime")].emplace_back(i, tasksData[i].at("requiredMips"),
-                                                               tasksData[i].at("length"));
-        }
-
-        const auto &instanceId = instanceData.at("id");
-        const auto &nodesMips = instanceData.at("nodesMips");
-        configuration::NodeDataVec nodesData(nodesMips.size());
-        for (auto i = 0u; i < nodesMips.size(); ++i)
-            nodesData[i] = {i, nodesMips[i]};
-
-        instances.emplace_back(instanceId, tasks, nodesData);
+        instances = instanceReader->read();
+    }
+    catch (configuration::InvalidConfigurationException &ex)
+    {
+        std::cout << ex.what();
+        return 1;
     }
 
-    auto resultWriter = std::make_unique<logger::ResultWriter>("results");
+    auto resultWriter = std::make_unique<logger::CsvResultWriter>("results");
 
     experiment::ExperimentRunner::Config runnerConfig;
     runnerConfig.debug = cmdOptionExists(argv, argv + argc, "-d");

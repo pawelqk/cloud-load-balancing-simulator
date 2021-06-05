@@ -49,6 +49,7 @@ NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &ta
     auto bestSolution = createInitialSolution(tasks);
     if (bestSolution.empty())
         return bestSolution;
+    auto bestSolutionValue = mappingAssessor->assess(bestSolution);
 
     auto nextSolution = bestSolution;
     auto currentSolution = bestSolution;
@@ -65,12 +66,12 @@ NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &ta
     {
         nextSolution = getNewSolutionFromNeighbourhood(currentSolution);
         const auto nextSolutionValue = mappingAssessor->assess(nextSolution);
-        const auto currentSolutionValue = mappingAssessor->assess(currentSolution);
+        auto currentSolutionValue = mappingAssessor->assess(currentSolution);
 
         if (nextSolutionValue <= currentSolutionValue)
         {
             currentSolution = nextSolution;
-            bestSolution = nextSolution;
+            currentSolutionValue = nextSolutionValue;
             changedSolution = true;
         }
         else
@@ -78,7 +79,16 @@ NodeToTaskMapping SimulatedAnnealingBase::createNewSolution(const TaskPtrVec &ta
             changedSolution = false;
             if (distribution(*randomNumberGenerator) <
                 std::exp((currentSolutionValue - nextSolutionValue) / temperature))
+            {
                 currentSolution = nextSolution;
+                currentSolutionValue = nextSolutionValue;
+            }
+        }
+
+        if (currentSolutionValue <= bestSolutionValue)
+        {
+            bestSolutionValue = currentSolutionValue;
+            bestSolution = currentSolution;
         }
 
         if (!changedSolution)

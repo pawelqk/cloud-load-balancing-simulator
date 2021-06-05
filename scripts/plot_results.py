@@ -43,41 +43,6 @@ def prettify_criteria(criteria):
     return criteria.capitalize()
 
 
-def build_penalty_factor_impact(results_path, algorithm_name, criteria):
-    plt.figure(dpi=DPI)
-
-    result_files = [
-        filename
-        for filename in os.listdir(results_path)
-        if split_filename(filename)[0] == algorithm_name
-    ]
-
-    assert len(result_files) == 1
-
-    result_file = result_files[0]
-    algorithm_name, _ = split_filename(result_file)
-    prettified_algorithm_name = prettify_algorithm_name(algorithm_name)
-
-    df = pd.read_csv("/".join((results_path, result_file)), delimiter="|")
-    results = []
-    mean_criterias = (
-        df.groupby("penalty_factor").mean().sort_values("penalty_factor").reset_index()
-    )  # mean value of all instance ids
-
-    mean_criterias.plot(x="penalty_factor", y=criteria, kind="line")
-    plt.title(algorithm_name)
-    plt.xlabel("Penalty factor")
-    plt.ylabel(prettify_criteria(criteria))
-    plt.savefig(
-        "/".join(
-            (
-                results_path,
-                criteria + algorithm_name + "penalty_factors.png",
-            )
-        )
-    )
-
-
 def build_boxplots(results_path, algorithm_type, criteria):
     plt.figure(dpi=DPI)
 
@@ -98,41 +63,23 @@ def build_boxplots(results_path, algorithm_type, criteria):
         prettified_alg_names.append(prettified_algorithm_name)
 
         df = pd.read_csv("/".join((results_path, result_file)), delimiter="|")
-        penalty_factors = set(df["penalty_factor"])
-        for penalty_factor in penalty_factors:
-            mean_criteria_by_penalty_factor = (
-                df[df["penalty_factor"] == penalty_factor]
-                .groupby("instance_id")
-                .mean()  # mean value of all instance ids
-            )
+        criteria_value = df[criteria]
 
-            if penalty_factor not in results_dict:
-                results_dict[penalty_factor] = {}
+        results_dict[prettified_algorithm_name] = criteria_value
 
-            results_dict[penalty_factor][
-                prettified_algorithm_name
-            ] = mean_criteria_by_penalty_factor[criteria]
+    boxplot = pd.DataFrame.from_dict(results_dict).boxplot(column=prettified_alg_names)
 
-    for penalty_factor in penalty_factors:
-        boxplot = pd.DataFrame.from_dict(results_dict[penalty_factor]).boxplot(
-            column=prettified_alg_names
+    output_path = "/".join(
+        (
+            results_path,
+            results_path.strip("/") + criteria + algorithm_type + ".png",
         )
-
-        plt.title(f"{algorithm_type} in {results_path}")
-        plt.xlabel("Algorithm")
-        plt.ylabel(prettify_criteria(criteria))
-        plt.savefig(
-            "/".join(
-                (
-                    results_path,
-                    results_path.strip("/")
-                    + criteria
-                    + algorithm_type
-                    + str(penalty_factor)
-                    + ".png",
-                )
-            )
-        )
+    )
+    print(f"ploting to {output_path}")
+    plt.title(f"{algorithm_type}")
+    plt.xlabel("Algorithm")
+    plt.ylabel(prettify_criteria(criteria))
+    plt.savefig(output_path)
 
 
 def main():
@@ -142,10 +89,8 @@ def main():
 
     results_path = sys.argv[1]
     alg_type = sys.argv[2]
-    # alg_name = sys.argv[2]
     criteria = sys.argv[3]
     build_boxplots(results_path, alg_type, criteria)
-    # build_penalty_factor_impact(results_path, alg_name, criteria)
 
 
 if __name__ == "__main__":

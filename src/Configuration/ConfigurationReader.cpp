@@ -22,6 +22,19 @@ std::string toString(const PolicyConfiguration policyConfiguration)
     return "";
 }
 
+std::string toString(const Assessment assessment)
+{
+    switch (assessment)
+    {
+    case Assessment::Makespan:
+        return "Makespan";
+    case Assessment::Flowtime:
+        return "Flowtime";
+    }
+
+    return "";
+}
+
 ConfigurationReader::~ConfigurationReader() = default;
 
 } // namespace configuration

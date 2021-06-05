@@ -52,6 +52,7 @@ PolicyPtr GeneticAlgorithmBuilder::build(const logger::LoggerPtr &logger)
 std::string GeneticAlgorithmBuilder::toString() const
 {
     return "GeneticAlgorithm-" + configuration::toString(policyConfiguration) + "-" +
+           configuration::toString(assessment) + "-" +
            ::cloud::loadbalancer::policy::geneticalgorithm::toString(parameters);
 }
 

@@ -52,6 +52,7 @@ PolicyPtr SimulatedAnnealingBuilder::build(const logger::LoggerPtr &logger)
 std::string SimulatedAnnealingBuilder::toString() const
 {
     return "SimulatedAnnealing-" + configuration::toString(policyConfiguration) + "-" +
+           configuration::toString(assessment) + "-" +
            ::cloud::loadbalancer::policy::simulatedannealing::toString(parameters);
 }
 

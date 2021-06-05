@@ -52,6 +52,7 @@ PolicyPtr ArtificialBeeColonyBuilder::build(const logger::LoggerPtr &logger)
 std::string ArtificialBeeColonyBuilder::toString() const
 {
     return "ArtificialBeeColony-" + configuration::toString(policyConfiguration) + "-" +
+           configuration::toString(assessment) + "-" +
            ::cloud::loadbalancer::policy::artificialbeecolony::toString(parameters);
 }
 

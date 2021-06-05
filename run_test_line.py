@@ -27,7 +27,7 @@ TASKS_TO_NODES = (
     (500, 20),
 )
 MAX_SEED = 2 ** 32 - 1
-NUMBER_OF_RUNS_PER_INSTANCE = 50
+NUMBER_OF_RUNS_PER_INSTANCE = 30
 
 
 def read_algorithm_config(line_config):
@@ -57,7 +57,6 @@ def create_dir_tree(line_results_dir):
 
 def main():
     random.seed(read_generator_seed())
-    seeds = [random.randint(0, MAX_SEED) for i in range(NUMBER_OF_RUNS_PER_INSTANCE)]
 
     line_configs = os.listdir("test_line")
     line_results_dir = "test_line_results-" + datetime.today().strftime(
@@ -69,6 +68,7 @@ def main():
     for line_config in line_configs:
         print(f"running for {line_config}")
         for number_of_tasks, number_of_nodes in TASKS_TO_NODES:
+            seeds = [random.randint(0, MAX_SEED) for i in range(NUMBER_OF_RUNS_PER_INSTANCE)]
             print(
                 f"running for number_of_tasks: {number_of_tasks}, number of nodes: {number_of_nodes}"
             )

@@ -1,9 +1,11 @@
 #include "ArtificialBeeColonyBuilder.hpp"
 
-#include "Cloud/LoadBalancer/Mapping/FlowtimeAssessor.hpp"
-#include "Cloud/LoadBalancer/Mapping/MakespanAssessor.hpp"
 #include "Cloud/LoadBalancer/Mapping/OfflineFlowtimeAssessor.hpp"
 #include "Cloud/LoadBalancer/Mapping/OfflineMakespanAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OnlineFlowtimeAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OnlineFlowtimeAssessorWithMigrationsAndPreemptions.hpp"
+#include "Cloud/LoadBalancer/Mapping/OnlineMakespanAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OnlineMakespanAssessorWithMigrationsAndPreemptions.hpp"
 #include "Configuration/ConfigurationReader.hpp"
 #include "OfflineArtificialBeeColony.hpp"
 #include "OnlineArtificialBeeColony.hpp"
@@ -39,7 +41,7 @@ PolicyPtr ArtificialBeeColonyBuilder::build(const logger::LoggerPtr &logger)
         return std::make_unique<OfflineArtificialBeeColony>(infrastructure, parameters, buildOfflineAssessor(),
                                                             randomNumberGenerator, *instance, logger, penaltyFactor);
     case PolicyConfiguration::Online:
-        return std::make_unique<OnlineArtificialBeeColony>(infrastructure, parameters, buildAssessor(),
+        return std::make_unique<OnlineArtificialBeeColony>(infrastructure, parameters, buildOnlineAssessor(),
                                                            randomNumberGenerator, logger);
     case PolicyConfiguration::OnlineWithMigrationsAndPreemptions:
         return std::make_unique<OnlineArtificialBeeColonyWithMigrationsAndPreemptions>(
@@ -61,9 +63,23 @@ mapping::MappingAssessorPtr ArtificialBeeColonyBuilder::buildAssessor()
     switch (assessment)
     {
     case configuration::Assessment::Makespan:
-        return std::make_unique<mapping::MakespanAssessor>(differenceCalculator);
+        return std::make_unique<mapping::OnlineMakespanAssessorWithMigrationsAndPreemptions>(differenceCalculator);
     case configuration::Assessment::Flowtime:
-        return std::make_unique<mapping::FlowtimeAssessor>(differenceCalculator, timingService);
+        return std::make_unique<mapping::OnlineFlowtimeAssessorWithMigrationsAndPreemptions>(differenceCalculator,
+                                                                                             timingService);
+    }
+
+    return {};
+}
+
+mapping::MappingAssessorPtr ArtificialBeeColonyBuilder::buildOnlineAssessor()
+{
+    switch (assessment)
+    {
+    case configuration::Assessment::Makespan:
+        return std::make_unique<mapping::OnlineMakespanAssessor>(infrastructure);
+    case configuration::Assessment::Flowtime:
+        return std::make_unique<mapping::OnlineFlowtimeAssessor>(infrastructure, timingService);
     }
 
     return {};

@@ -28,6 +28,7 @@ class GeneticAlgorithmBuilder : public PolicyBuilderBase
 
   private:
     std::shared_ptr<mapping::MappingAssessor> buildAssessor();
+    std::shared_ptr<mapping::MappingAssessor> buildOnlineAssessor();
     std::shared_ptr<mapping::MappingAssessor> buildOfflineAssessor();
 
     const configuration::Assessment assessment;

@@ -1,5 +1,4 @@
-#include "FlowtimeAssessor.hpp"
-#include <cstdint>
+#include "OnlineMakespanAssessorWithMigrationsAndPreemptions.hpp"
 
 namespace cloud
 {
@@ -8,15 +7,15 @@ namespace loadbalancer
 namespace mapping
 {
 
-FlowtimeAssessor::FlowtimeAssessor(const DifferenceCalculatorPtr &differenceCalculator,
-                                   const TimingServicePtr &timingService)
-    : MappingAssessorBase(differenceCalculator), timingService(timingService)
+OnlineMakespanAssessorWithMigrationsAndPreemptions::OnlineMakespanAssessorWithMigrationsAndPreemptions(
+    const DifferenceCalculatorPtr &differenceCalculator)
+    : MappingAssessorBase(differenceCalculator)
 {
 }
 
-double FlowtimeAssessor::assess(const policy::NodeToTaskMapping &mapping)
+double OnlineMakespanAssessorWithMigrationsAndPreemptions::assess(const policy::NodeToTaskMapping &mapping)
 {
-    std::uint32_t flowtime{0};
+    std::uint32_t makespan{0};
 
     const auto difference = differenceCalculator->calculate(mapping);
 
@@ -29,23 +28,20 @@ double FlowtimeAssessor::assess(const policy::NodeToTaskMapping &mapping)
 
     for (auto &&[nodeId, tasks] : mapping)
     {
-        std::uint32_t nodeFlowtime{0};
+        std::uint32_t nodeMakespan{0};
+
         for (auto &&task : tasks)
         {
             const auto timeLeftForTask =
                 timeLeftAfterChanges.contains(task) ? timeLeftAfterChanges.at(task) : task->estimateTimeLeft();
-            nodeFlowtime += (nodeFlowtime + calculateTaskFlowtime(task) + timeLeftForTask);
+            nodeMakespan += timeLeftForTask;
         }
 
-        flowtime += nodeFlowtime;
+        if (nodeMakespan > makespan)
+            makespan = nodeMakespan;
     }
 
-    return flowtime;
-}
-
-std::uint32_t FlowtimeAssessor::calculateTaskFlowtime(const TaskPtr &task)
-{
-    return timingService->getTicks() - task->getArrivalTime();
+    return makespan;
 }
 
 } // namespace mapping

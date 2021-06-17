@@ -11,10 +11,11 @@ namespace loadbalancer
 namespace mapping
 {
 
-class FlowtimeAssessor : public MappingAssessorBase
+class OnlineFlowtimeAssessorWithMigrationsAndPreemptions : public MappingAssessorBase
 {
   public:
-    FlowtimeAssessor(const DifferenceCalculatorPtr &differenceCalculator, const TimingServicePtr &timingService);
+    OnlineFlowtimeAssessorWithMigrationsAndPreemptions(const DifferenceCalculatorPtr &differenceCalculator,
+                                                       const TimingServicePtr &timingService);
 
     double assess(const policy::NodeToTaskMapping &mapping) override;
 

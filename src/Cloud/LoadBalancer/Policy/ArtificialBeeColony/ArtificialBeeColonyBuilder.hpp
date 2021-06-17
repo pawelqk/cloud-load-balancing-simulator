@@ -28,6 +28,7 @@ class ArtificialBeeColonyBuilder : public PolicyBuilderBase
 
   private:
     mapping::MappingAssessorPtr buildAssessor();
+    mapping::MappingAssessorPtr buildOnlineAssessor();
     mapping::MappingAssessorPtr buildOfflineAssessor();
 
     const configuration::Assessment assessment;

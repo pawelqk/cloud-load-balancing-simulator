@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "Cloud/LoadBalancer/Mapping/MakespanAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OnlineMakespanAssessorWithMigrationsAndPreemptions.hpp"
 #include "Cloud/LoadBalancer/Policy/Policy.hpp"
 #include "mocks/DifferenceCalculatorMock.hpp"
 #include "mocks/NodeMock.hpp"
@@ -38,7 +38,7 @@ struct MakespanAssessorShould : testing::Test
         EXPECT_CALL(*taskMock, estimateTimeLeftAfterMigration()).WillOnce(Return(timeLeft));
     }
 
-    MakespanAssessor sut{differenceCalculatorMock};
+    OnlineMakespanAssessorWithMigrationsAndPreemptions sut{differenceCalculatorMock};
 };
 
 TEST_F(MakespanAssessorShould, CalculateMakespanForMultipleNodes)

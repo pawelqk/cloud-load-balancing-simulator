@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Cloud/Infrastructure.hpp"
 #include "Cloud/LoadBalancer/Policy/Policy.hpp"
-#include "MappingAssessorBase.hpp"
+#include "MappingAssessor.hpp"
 
 namespace cloud
 {
@@ -10,12 +11,15 @@ namespace loadbalancer
 namespace mapping
 {
 
-class MakespanAssessor : public MappingAssessorBase
+class OnlineMakespanAssessor : public MappingAssessor
 {
   public:
-    MakespanAssessor(const DifferenceCalculatorPtr &differenceCalculator);
+    OnlineMakespanAssessor(const InfrastructureCPtr &infrastructure);
 
     double assess(const policy::NodeToTaskMapping &mapping) override;
+
+  private:
+    const InfrastructureCPtr infrastructure;
 };
 
 } // namespace mapping

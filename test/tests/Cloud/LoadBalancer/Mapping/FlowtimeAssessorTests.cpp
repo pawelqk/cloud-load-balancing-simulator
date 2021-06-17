@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "Cloud/LoadBalancer/Mapping/FlowtimeAssessor.hpp"
+#include "Cloud/LoadBalancer/Mapping/OnlineFlowtimeAssessorWithMigrationsAndPreemptions.hpp"
 #include "Cloud/LoadBalancer/Policy/Policy.hpp"
 #include "mocks/DifferenceCalculatorMock.hpp"
 #include "mocks/NodeMock.hpp"
@@ -46,7 +46,7 @@ struct FlowtimeAssessorShould : testing::Test
         std::make_shared<mocks::DifferenceCalculatorMock>()};
     const cloud::mocks::TimingServiceMockPtr timingServiceMock{std::make_shared<cloud::mocks::TimingServiceMock>()};
 
-    FlowtimeAssessor sut{differenceCalculatorMock, timingServiceMock};
+    OnlineFlowtimeAssessorWithMigrationsAndPreemptions sut{differenceCalculatorMock, timingServiceMock};
 };
 
 TEST_F(FlowtimeAssessorShould, CalculateFlowtimeForMultipleNodes)

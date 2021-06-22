@@ -3,6 +3,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import pickle
+import json
 import statistics
 import sys
 
@@ -43,6 +45,19 @@ ALGORITHM_ORDER = {
     "GA": 8,
 }
 
+ROW_ORDER = {
+    "20-5": 0,
+    "20-10": 1,
+    "50-5": 2,
+    "50-10": 3,
+    "100-5": 4,
+    "20-x": 5,
+    "50-x": 6,
+    "x-5": 7,
+    "x-10": 8,
+    "x-x": 9,
+}
+
 POSSIBLE_ALGORITHM_TYPES = ("Offline", "OnlineWithMigrationsAndPreemptions", "Online")
 
 DPI = 200
@@ -67,12 +82,11 @@ def prettify_criteria(criteria):
     return criteria.capitalize()
 
 
-def build_lineplot(directory_path, algorithm_type, criteria, assessment):
+def build_prd_table(min_instance_vals, directory_path, algorithm_type, criteria):
     plt.figure(dpi=DPI)
 
     all_alg_results = {}
-    checked_directories = os.listdir(directory_path)
-    checked_directories.sort(key=int)
+    checked_directories = sorted(os.listdir(directory_path), key=lambda x: ROW_ORDER[x])
     prettified_alg_names = set()
     for checked_directory in checked_directories:
         print(checked_directory)
@@ -107,24 +121,18 @@ def build_lineplot(directory_path, algorithm_type, criteria, assessment):
             results_dict[instance_size][prettified_algorithm_name] = criteria_value
 
         for instance_size in instance_sizes:
+            min_instance_val = min_instance_vals[instance_size][str(instance_id)]
+
+            def normalize(val):
+                return (val - min_instance_val) / min_instance_val
+
             normalized_results_dict = {}
-            for instance_id in instance_ids:
-                min_instance_val = sys.maxsize
-                for alg, results in results_dict[instance_size].items():
-                    min_alg_instance_val = min(results[instance_id])
-                    if min_alg_instance_val < min_instance_val:
-                        print(f"setting min val for {alg} in {instance_id}")
-                        min_instance_val = min_alg_instance_val
-
-                def normalize(val):
-                    return (val - min_instance_val) / min_instance_val
-
-                for alg, values in results_dict[instance_size].items():
-                    if not alg in normalized_results_dict:
-                        normalized_results_dict[alg] = {}
-                    normalized_results_dict[alg][instance_id] = list(
-                        map(normalize, values[instance_id])
-                    )
+            for alg, values in results_dict[instance_size].items():
+                if not alg in normalized_results_dict:
+                    normalized_results_dict[alg] = {}
+                normalized_results_dict[alg][instance_id] = list(
+                    map(normalize, values[instance_id])
+                )
 
             flattened_normalized_results_dict = {}
             for alg, values in normalized_results_dict.items():
@@ -142,53 +150,45 @@ def build_lineplot(directory_path, algorithm_type, criteria, assessment):
                 instance_size
             ] = flattened_normalized_results_dict
 
+    prettified_alg_names = sorted(
+        prettified_alg_names, key=lambda x: ALGORITHM_ORDER[x]
+    )
+
     alg_final_results = {}
     for checked_directory in checked_directories:
+        if not checked_directory in alg_final_results:
+            alg_final_results[checked_directory] = []
+
         for alg in prettified_alg_names:
             alg_results = []
-            if not alg in alg_final_results:
-                alg_final_results[alg] = []
 
             for all_alg_values in all_alg_results[checked_directory].values():
                 alg_results.append(all_alg_values[alg])
 
-            alg_final_results[alg].append(statistics.mean(alg_results))
+            alg_final_results[checked_directory].append(statistics.mean(alg_results))
 
-    output_path = "/".join(
-        (
-            directory_path,
-            directory_path.strip("/").replace(".", "")
-            + criteria
-            + algorithm_type
-            + "-assessment_"
-            + assessment
-            + ".png",
-        )
+    df = pd.DataFrame.from_dict(
+        alg_final_results, orient="index", columns=prettified_alg_names
     )
-    for alg in prettified_alg_names:
-        print(f"plotting {alg}")
-        plt.plot(checked_directories, alg_final_results[alg])
 
-    lgd = plt.legend(
-        prettified_alg_names, ncol=1, bbox_to_anchor=(1.02, 1), borderaxespad=0
-    )
-    print(f"ploting to {output_path}")
-    plt.title(f"zależność jakości {criteria} od m")
-    plt.xlabel("m")
-    plt.ylabel(f"PRD z wartości {criteria}")
-    plt.savefig(output_path, bbox_extra_artists=(lgd,), bbox_inches="tight")
+    with open("latex_prd", "w") as file:
+        file.write(df.to_latex(float_format="%.2f"))
 
 
 def main():
-    if len(sys.argv) == 3:
-        print("Please provide path to results and alg type and criteria and assessment")
+    if len(sys.argv) == 4:
+        print("Please provide path to results and alg type and criteria")
         exit(1)
 
     results_path = sys.argv[1]
     alg_type = sys.argv[2]
     criteria = sys.argv[3]
-    assessment = sys.argv[4]
-    build_lineplot(results_path, alg_type, criteria, assessment)
+    min_instance_vals_path = sys.argv[4]
+
+    with open(min_instance_vals_path, "rb") as f:
+        min_instance_vals = pickle.load(f)
+
+    build_prd_table(min_instance_vals, results_path, alg_type, criteria)
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import pickle
 import statistics
 import sys
 
@@ -69,9 +70,13 @@ def prettify_criteria(criteria):
     return criteria.capitalize()
 
 
-def build_boxplots(results_path, algorithm_type, criteria, n, m, assessment):
+def build_boxplots(
+    min_instance_vals, results_path, algorithm_type, criteria, n, m, assessment
+):
     plt.figure(dpi=DPI)
 
+    print(algorithm_type)
+    print(results_path)
     result_files = [
         filename
         for filename in os.listdir(results_path)
@@ -102,12 +107,7 @@ def build_boxplots(results_path, algorithm_type, criteria, n, m, assessment):
 
     normalized_results_dict = {}
     for instance_id in instance_ids:
-        min_instance_val = sys.maxsize
-        for alg, results in results_dict.items():
-            min_alg_instance_val = min(results[instance_id])
-            if min_alg_instance_val < min_instance_val:
-                print(f"setting min val for {alg} in {instance_id}")
-                min_instance_val = min_alg_instance_val
+        min_instance_val = min_instance_vals[f"{n}-{m}"][str(instance_id)]
 
         def normalize(val):
             return (val - min_instance_val) / min_instance_val
@@ -166,7 +166,7 @@ def build_boxplots(results_path, algorithm_type, criteria, n, m, assessment):
             + m
             + "-assessment_"
             + assessment
-            + ".png",
+            + "-NEW.png",
         )
     )
     print(f"ploting to {output_path}")
@@ -179,7 +179,7 @@ def build_boxplots(results_path, algorithm_type, criteria, n, m, assessment):
 def main():
     if len(sys.argv) == 4:
         print(
-            "Please provide path to results and alg type and criteria and n and m and assessment"
+            "Please provide path to results and alg type and criteria and n and m and path to min values"
         )
         exit(1)
 
@@ -188,8 +188,14 @@ def main():
     criteria = sys.argv[3]
     n = sys.argv[4]
     m = sys.argv[5]
+    min_instance_vals_path = sys.argv[6]
+
+    with open(min_instance_vals_path, "rb") as f:
+        min_instance_vals = pickle.load(f)
     assessment = criteria
-    build_boxplots(results_path, alg_type, criteria, n, m, assessment)
+    build_boxplots(
+        min_instance_vals, results_path, alg_type, criteria, n, m, assessment
+    )
 
 
 if __name__ == "__main__":

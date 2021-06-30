@@ -3,6 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import pickle
 import statistics
 import sys
 
@@ -67,7 +68,9 @@ def prettify_criteria(criteria):
     return criteria.capitalize()
 
 
-def build_lineplot(directory_path, algorithm_type, criteria, assessment):
+def build_lineplot(
+    min_instance_vals, directory_path, algorithm_type, criteria, assessment
+):
     plt.figure(dpi=DPI)
 
     all_alg_results = {}
@@ -109,12 +112,7 @@ def build_lineplot(directory_path, algorithm_type, criteria, assessment):
         for instance_size in instance_sizes:
             normalized_results_dict = {}
             for instance_id in instance_ids:
-                min_instance_val = sys.maxsize
-                for alg, results in results_dict[instance_size].items():
-                    min_alg_instance_val = min(results[instance_id])
-                    if min_alg_instance_val < min_instance_val:
-                        print(f"setting min val for {alg} in {instance_id}")
-                        min_instance_val = min_alg_instance_val
+                min_instance_val = min_instance_vals[instance_size][str(instance_id)]
 
                 def normalize(val):
                     return (val - min_instance_val) / min_instance_val
@@ -165,16 +163,19 @@ def build_lineplot(directory_path, algorithm_type, criteria, assessment):
             + ".png",
         )
     )
-    for alg in prettified_alg_names:
+    for alg in sorted(prettified_alg_names, key=lambda x: ALGORITHM_ORDER[x]):
         print(f"plotting {alg}")
         plt.plot(checked_directories, alg_final_results[alg])
 
     lgd = plt.legend(
-        prettified_alg_names, ncol=1, bbox_to_anchor=(1.02, 1), borderaxespad=0
+        sorted(prettified_alg_names, key=lambda x: ALGORITHM_ORDER[x]),
+        ncol=1,
+        bbox_to_anchor=(1.02, 1),
+        borderaxespad=0,
     )
     print(f"ploting to {output_path}")
-    plt.title(f"zależność jakości {criteria} od m")
-    plt.xlabel("m")
+    plt.title(f"zależność jakości {criteria} od n")
+    plt.xlabel("n")
     plt.ylabel(f"PRD z wartości {criteria}")
     plt.savefig(output_path, bbox_extra_artists=(lgd,), bbox_inches="tight")
 
@@ -187,8 +188,12 @@ def main():
     results_path = sys.argv[1]
     alg_type = sys.argv[2]
     criteria = sys.argv[3]
-    assessment = sys.argv[4]
-    build_lineplot(results_path, alg_type, criteria, assessment)
+    assessment = criteria
+    min_instance_vals_path = sys.argv[4]
+
+    with open(min_instance_vals_path, "rb") as f:
+        min_instance_vals = pickle.load(f)
+    build_lineplot(min_instance_vals, results_path, alg_type, criteria, assessment)
 
 
 if __name__ == "__main__":

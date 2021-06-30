@@ -58,6 +58,19 @@ ROW_ORDER = {
     "x-x": 9,
 }
 
+TRANSLATED_DIRNAMES = {
+    "20-5": "(20, 5)",
+    "20-10": "(20, 10)",
+    "50-5": "(50, 5)",
+    "50-10": "(50, 10)",
+    "100-5": "(100, 5)",
+    "20-x": "(20, *)",
+    "50-x": "(50, *)",
+    "x-5": "(*, 5)",
+    "x-10": "(*, 10)",
+    "x-x": "(*, *)",
+}
+
 POSSIBLE_ALGORITHM_TYPES = ("Offline", "OnlineWithMigrationsAndPreemptions", "Online")
 
 DPI = 200
@@ -121,18 +134,19 @@ def build_prd_table(min_instance_vals, directory_path, algorithm_type, criteria)
             results_dict[instance_size][prettified_algorithm_name] = criteria_value
 
         for instance_size in instance_sizes:
-            min_instance_val = min_instance_vals[instance_size][str(instance_id)]
-
-            def normalize(val):
-                return (val - min_instance_val) / min_instance_val
-
             normalized_results_dict = {}
-            for alg, values in results_dict[instance_size].items():
-                if not alg in normalized_results_dict:
-                    normalized_results_dict[alg] = {}
-                normalized_results_dict[alg][instance_id] = list(
-                    map(normalize, values[instance_id])
-                )
+            for instance_id in instance_ids:
+                min_instance_val = min_instance_vals[instance_size][str(instance_id)]
+
+                def normalize(val):
+                    return (val - min_instance_val) / min_instance_val
+
+                for alg, values in results_dict[instance_size].items():
+                    if not alg in normalized_results_dict:
+                        normalized_results_dict[alg] = {}
+                    normalized_results_dict[alg][instance_id] = list(
+                        map(normalize, values[instance_id])
+                    )
 
             flattened_normalized_results_dict = {}
             for alg, values in normalized_results_dict.items():
@@ -156,8 +170,9 @@ def build_prd_table(min_instance_vals, directory_path, algorithm_type, criteria)
 
     alg_final_results = {}
     for checked_directory in checked_directories:
-        if not checked_directory in alg_final_results:
-            alg_final_results[checked_directory] = []
+        better_dir_name = TRANSLATED_DIRNAMES[checked_directory]
+        if not better_dir_name in alg_final_results:
+            alg_final_results[better_dir_name] = []
 
         for alg in prettified_alg_names:
             alg_results = []
@@ -165,7 +180,7 @@ def build_prd_table(min_instance_vals, directory_path, algorithm_type, criteria)
             for all_alg_values in all_alg_results[checked_directory].values():
                 alg_results.append(all_alg_values[alg])
 
-            alg_final_results[checked_directory].append(statistics.mean(alg_results))
+            alg_final_results[better_dir_name].append(statistics.mean(alg_results))
 
     df = pd.DataFrame.from_dict(
         alg_final_results, orient="index", columns=prettified_alg_names

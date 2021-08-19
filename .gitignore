@@ -19,6 +19,7 @@ bin/
 
 # clang
 .clangd
+.cache/
 
 # logs
 logs/
